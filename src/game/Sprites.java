@@ -4,6 +4,9 @@ import javafx.geometry.Rectangle2D;
 
 class Sprites {
 
+    /**
+     * Actually there will be just a single object of this class.
+     */
     static class Player {
 
         int direction;
