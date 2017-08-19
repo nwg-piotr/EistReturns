@@ -26,6 +26,6 @@ class Sprites {
         Rectangle2D getArea() {
             return  area;
         }
-        
+
     }
 }
