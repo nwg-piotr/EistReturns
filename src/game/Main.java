@@ -9,6 +9,7 @@ import javafx.scene.canvas.*;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
+import javafx.scene.transform.Rotate;
 import javafx.stage.Stage;
 import javafx.scene.image.Image;
 
@@ -18,12 +19,7 @@ public class Main extends Utils {
 
     private GraphicsContext graphicsContext;
 
-    private Image board;
-    private Image eistImage;
-    private Image eistRight;
-    private Image eistDown;
-    private Image eistLeft;
-    private Image eistUp;
+    private double mEistRotation = 0;
 
     private final int FRAME_LAST_IDX = 7;
     private final double FRAME_DURATION_EIST = 90000000;
@@ -56,7 +52,9 @@ public class Main extends Utils {
         graphicsContext.setFont(theFont);
         graphicsContext.setFill(Color.WHITE);
 
-        loadGraphics();
+        loadCommonGraphics();
+
+        loadLevel(38);
 
         eist = new Player();
 
@@ -68,7 +66,7 @@ public class Main extends Utils {
 
         eist.setDirection(DIR_RIGHT);
 
-        eistImage = eistRight;
+        mEistImage = mEistRight;
 
         mScene.setOnMouseClicked(this::handleMouseEvents);
 
@@ -110,48 +108,68 @@ public class Main extends Utils {
         stage.show();
     }
 
-    private void loadGraphics() {
 
-        board = new Image("images/boards/04.png", mSceneWidth, mSceneHeight, true, true);
-        eistRight = new Image("images/sprites/eist_right.png");
-        eistDown = new Image("images/sprites/eist_down.png");
-        eistLeft = new Image("images/sprites/eist_left.png");
-        eistUp = new Image("images/sprites/eist_up.png");
-    }
 
     private void drawBoard(GraphicsContext gc, int eist_frame) {
 
         gc.clearRect(0, 0, mSceneWidth, mSceneHeight);
 
-        gc.drawImage(board, 0, 0, mSceneWidth, mSceneHeight);
+        gc.drawImage(mBoard, 0, 0, mSceneWidth, mSceneHeight);
 
         eist.setArea(new Rectangle2D(mEistX, mEistY, mFrameDimension, mFrameDimension));
 
         /*
          * Switch the sprites source graphics according to the movement direction. It could have been just rotated,
-         * but I wanted the light to always come from the right side.
+         * but I wanted the light to always come from the right side. Oh, ok: almost always. The bitmap will need
+         * rotation while turning, and sometimes while falling down. Missing chiaroscuro should be unnoticeable.
          */
         switch (eist.getDirection()) {
             case DIR_RIGHT:
-                eistImage = eistRight;
+            case DIR_RIGHT_DOWN:
+            case DIR_RIGHT_UP:
+                mEistImage = mEistRight;
                 break;
+
             case DIR_DOWN:
-                eistImage = eistDown;
+                mEistImage = mEistDown;
                 break;
+
             case DIR_LEFT:
-                eistImage = eistLeft;
+            case DIR_LEFT_DOWN:
+            case DIR_LEFT_UP:
+                mEistImage = mEistLeft;
                 break;
+
             case DIR_UP:
-                eistImage = eistUp;
+                mEistImage = mEistUp;
                 break;
+
             default:
                 break;
         }
-        gc.drawImage(eistImage, 120 * eist_frame, 0, 120, 120, mEistX, mEistY, mFrameDimension, mFrameDimension);
+
+        switch (eist.getDirection()){
+            case DIR_RIGHT_DOWN:
+            case DIR_LEFT_UP:
+                mEistRotation = 45.0;
+                break;
+            case DIR_RIGHT_UP:
+            case DIR_LEFT_DOWN:
+                mEistRotation = -45.0;
+                break;
+            default:
+                mEistRotation = 0.0;
+                break;
+        }
+        gc.save();
+        Rotate r = new Rotate(mEistRotation, mEistX + mFrameDimension / 2, mEistY + mFrameDimension / 2);
+        gc.setTransform(r.getMxx(), r.getMyx(), r.getMxy(), r.getMyy(), r.getTx(), r.getTy());
+        gc.drawImage(mEistImage, mFrameDimension * eist_frame, 0, mFrameDimension, mFrameDimension, mEistX, mEistY, mFrameDimension, mFrameDimension);
+        gc.restore();
         /*
          * Just for testing purposes:
          */
-        gc.fillText(String.valueOf((int) mFps), columns[0], rows[18]);
+        //gc.fillText(String.valueOf((int) mFps), columns[0], rows[18]);
     }
 
     private void updateBoard() {
@@ -165,15 +183,39 @@ public class Main extends Utils {
                 case DIR_RIGHT:
                     mEistX = mEistX + (walkSpeedPerSecond / mFps);
                     break;
+
+                case DIR_RIGHT_DOWN:
+                    mEistX = mEistX + (walkSpeedPerSecond / mFps);
+                    mEistY = mEistY + (walkSpeedPerSecond / mFps);
+                    break;
+
                 case DIR_DOWN:
                     mEistY = mEistY + (walkSpeedPerSecond / mFps);
                     break;
+
+                case DIR_LEFT_DOWN:
+                    mEistX = mEistX - (walkSpeedPerSecond / mFps);
+                    mEistY = mEistY + (walkSpeedPerSecond / mFps);
+                    break;
+
                 case DIR_LEFT:
                     mEistX = mEistX - (walkSpeedPerSecond / mFps);
                     break;
+
+                case DIR_LEFT_UP:
+                    mEistX = mEistX - (walkSpeedPerSecond / mFps);
+                    mEistY = mEistY - (walkSpeedPerSecond / mFps);
+                    break;
+
                 case DIR_UP:
                     mEistY = mEistY - (walkSpeedPerSecond / mFps);
                     break;
+
+                case DIR_RIGHT_UP:
+                    mEistX = mEistX + (walkSpeedPerSecond / mFps);
+                    mEistY = mEistY - (walkSpeedPerSecond / mFps);
+                    break;
+
                 default:
                     break;
             }

@@ -3,6 +3,7 @@ package game;
 import javafx.application.Application;
 import javafx.geometry.Point2D;
 import javafx.geometry.Rectangle2D;
+import javafx.scene.image.Image;
 import javafx.scene.input.MouseEvent;
 import javafx.stage.Screen;
 
@@ -20,12 +21,16 @@ abstract class Utils extends Application {
     double mFrameDimension;
 
     /**
-     * Movement directions
+     * Eists movement directions; diagonal directions to be used while falling down only.
      */
     final int DIR_RIGHT = 1;
-    final int DIR_DOWN = 2;
-    final int DIR_LEFT = 3;
-    final int DIR_UP = 4;
+    final int DIR_RIGHT_DOWN = 2;
+    final int DIR_DOWN = 3;
+    final int DIR_LEFT_DOWN = 4;
+    final int DIR_LEFT = 5;
+    final int DIR_LEFT_UP = 6;
+    final int DIR_UP = 7;
+    final int DIR_RIGHT_UP = 8;
 
     /**
      * Sprites and other game objects come here.
@@ -72,17 +77,18 @@ abstract class Utils extends Application {
     static int index = 0;
     static double[] frameRates = new double[500];
 
-    /**
+    /*
      * Returns the instantaneous FPS for the last frame rendered.
      */
-    static double getInstantFPS() {
-        return frameRates[index % frameRates.length];
-    }
+    //static double getInstantFPS() {
+    //    return frameRates[index % frameRates.length];
+    //}
 
     /**
      * Returns the average FPS for the last frameRates.length frames rendered.
      * (Original for loop replaced with foreach).
      */
+
     static double getAverageFPS() {
         double total = 0.0d;
 
@@ -102,15 +108,19 @@ abstract class Utils extends Application {
                 case DIR_RIGHT:
                     eist.setDirection(DIR_DOWN);
                     break;
+
                 case DIR_DOWN:
                     eist.setDirection(DIR_LEFT);
                     break;
+
                 case DIR_LEFT:
                     eist.setDirection(DIR_UP);
                     break;
+
                 case DIR_UP:
                     eist.setDirection(DIR_RIGHT);
                     break;
+
                 default:
                     break;
             }
@@ -121,5 +131,26 @@ abstract class Utils extends Application {
              */
             eist.isMoving = !eist.isMoving;
         }
+    }
+
+    Image mBoard;
+    Image mEistImage;
+    Image mEistRight;
+    Image mEistDown;
+    Image mEistLeft;
+    Image mEistUp;
+
+    void loadCommonGraphics() {
+
+        mEistRight = new Image("images/sprites/eist_right.png", mFrameDimension * 8, mFrameDimension, false, true);
+        mEistDown = new Image("images/sprites/eist_down.png", mFrameDimension * 8, mFrameDimension, false, true);
+        mEistLeft = new Image("images/sprites/eist_left.png", mFrameDimension * 8, mFrameDimension, false, true);
+        mEistUp = new Image("images/sprites/eist_up.png", mFrameDimension * 8, mFrameDimension, false, true);
+    }
+
+    void loadLevel(int level) {
+
+        String lvlNumberToString = (level < 10) ? "0" + String.valueOf(level) : String.valueOf(level);
+        mBoard = new Image("levels/" + lvlNumberToString + "board.png", mSceneWidth, mSceneHeight, true, true, true);
     }
 }
