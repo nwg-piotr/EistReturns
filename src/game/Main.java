@@ -27,7 +27,7 @@ public class Main extends Utils {
     private Image eistLeft;
     private Image eistUp;
 
-    private final int FRAMES_NUMBER = 7;
+    private final int FRAME_LAST_IDX = 7;
     private final double FRAME_DURATION_EIST = 90000000;
     private int mCurrentEistFrame = 0;
 
@@ -90,7 +90,7 @@ public class Main extends Utils {
                     lastEistFrameChangeTime = now;
                     mCurrentEistFrame++;
 
-                    if (mCurrentEistFrame > FRAMES_NUMBER) {
+                    if (mCurrentEistFrame > FRAME_LAST_IDX) {
                         mCurrentEistFrame = 0;
                     }
                 }
