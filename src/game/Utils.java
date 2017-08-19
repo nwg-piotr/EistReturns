@@ -134,18 +134,33 @@ abstract class Utils extends Application {
     }
 
     Image mBoard;
+
     Image mEistImage;
+
     Image mEistRight;
     Image mEistDown;
     Image mEistLeft;
     Image mEistUp;
 
+    Image mArrowRight;
+    Image mArrowDown;
+    Image mArrowLeft;
+    Image mArrowUp;
+
+    /**
+     * Some graphics will look the same way on all levels. Let's load it here.
+     */
     void loadCommonGraphics() {
 
         mEistRight = new Image("images/sprites/eist_right.png", mFrameDimension * 8, mFrameDimension, false, true);
         mEistDown = new Image("images/sprites/eist_down.png", mFrameDimension * 8, mFrameDimension, false, true);
         mEistLeft = new Image("images/sprites/eist_left.png", mFrameDimension * 8, mFrameDimension, false, true);
         mEistUp = new Image("images/sprites/eist_up.png", mFrameDimension * 8, mFrameDimension, false, true);
+
+        mArrowRight = new Image("images/sprites/arrow_right.png", mFrameDimension, mFrameDimension, false, true);
+        mArrowDown = new Image("images/sprites/arrow_down.png", mFrameDimension, mFrameDimension, false, true);
+        mArrowLeft = new Image("images/sprites/arrow_left.png", mFrameDimension, mFrameDimension, false, true);
+        mArrowUp = new Image("images/sprites/arrow_up.png", mFrameDimension, mFrameDimension, false, true);
     }
 
     void loadLevel(int level) {
