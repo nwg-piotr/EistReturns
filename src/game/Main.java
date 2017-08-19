@@ -54,7 +54,7 @@ public class Main extends Utils {
 
         loadCommonGraphics();
 
-        loadLevel(38);
+        loadLevel(9);
 
         eist = new Player();
 
