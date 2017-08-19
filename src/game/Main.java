@@ -1,13 +1,11 @@
 package game;
 
 import javafx.animation.AnimationTimer;
-import javafx.event.EventHandler;
 import javafx.geometry.Rectangle2D;
 import javafx.scene.Group;
 import javafx.scene.Scene;
 import javafx.scene.canvas.*;
 
-import javafx.scene.input.MouseEvent;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
@@ -72,12 +70,7 @@ public class Main extends Utils {
 
         eistImage = eistRight;
 
-        mScene.setOnMouseClicked(new EventHandler<MouseEvent>() {
-            @Override
-            public void handle(MouseEvent event) {
-                handleMouseEvents(event);
-            }
-        });
+        mScene.setOnMouseClicked(this::handleMouseEvents);
 
         lastEistFrameChangeTime = System.nanoTime();
 
