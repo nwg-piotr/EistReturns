@@ -4,6 +4,8 @@ import javafx.application.Application;
 import javafx.geometry.Point2D;
 import javafx.geometry.Rectangle2D;
 import javafx.scene.image.Image;
+import javafx.scene.image.PixelReader;
+import javafx.scene.image.WritableImage;
 import javafx.scene.input.MouseEvent;
 import javafx.stage.Screen;
 
@@ -26,6 +28,7 @@ abstract class Utils extends Application {
      * It corresponds to the width of the path on which Eist's sprite moves.
      */
     double mFrameDimension;
+    double mGridDimension;
 
     /**
      * Eists movement directions; diagonal directions to be used while falling down only.
@@ -59,17 +62,18 @@ abstract class Utils extends Application {
         mSceneHeight = (mSceneWidth / 1920) * 1080;
         mFrameDimension = (mSceneWidth / 1920) * 120;
 
+        mGridDimension = mFrameDimension / 2;
+
         walkSpeedPerSecond = mSceneWidth / 12d;
 
         /*
          * Board grid coordinates
          */
-        double gridDimension = mFrameDimension / 2;
         for (int i = 0; i < rows.length; i++) {
-            rows[i] = (gridDimension) * i;
+            rows[i] = (mGridDimension) * i;
         }
         for (int i = 0; i < columns.length; i++) {
-            columns[i] = (gridDimension) * i;
+            columns[i] = (mGridDimension) * i;
         }
     }
 

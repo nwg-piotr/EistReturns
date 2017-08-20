@@ -171,11 +171,15 @@ public class Main extends Utils {
                 gc.drawImage(image, arrow.getPosX(), arrow.getPosY(), mFrameDimension, mFrameDimension);
             }
         }
-        gc.save();
-        Rotate r = new Rotate(mEistRotation, mEistX + mFrameDimension / 2, mEistY + mFrameDimension / 2);
-        gc.setTransform(r.getMxx(), r.getMyx(), r.getMxy(), r.getMyy(), r.getTx(), r.getTy());
-        gc.drawImage(mEistImage, mFrameDimension * eist_frame, 0, mFrameDimension, mFrameDimension, mEistX, mEistY, mFrameDimension, mFrameDimension);
-        gc.restore();
+        if(mEistRotation != 0) {
+            gc.save();
+            Rotate r = new Rotate(mEistRotation, mEistX + mGridDimension, mEistY + mGridDimension);
+            gc.setTransform(r.getMxx(), r.getMyx(), r.getMxy(), r.getMyy(), r.getTx(), r.getTy());
+            gc.drawImage(mEistImage, mFrameDimension * eist_frame, 0, mFrameDimension, mFrameDimension, mEistX, mEistY, mFrameDimension, mFrameDimension);
+            gc.restore();
+        } else {
+            gc.drawImage(mEistImage, mFrameDimension * eist_frame, 0, mFrameDimension, mFrameDimension, mEistX, mEistY, mFrameDimension, mFrameDimension);
+        }
         /*
          * Just for testing purposes:
          */

@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="module_eistreturns" default="compile.module.eistreturns">
+  <dirname property="module.eistreturns.basedir" file="${ant.file.module_eistreturns}"/>
+  
+  <property name="module.jdk.home.eistreturns" value="${jdk.home.1.8_(1)}"/>
+  <property name="module.jdk.bin.eistreturns" value="${jdk.bin.1.8_(1)}"/>
+  <property name="module.jdk.classpath.eistreturns" value="jdk.classpath.1.8_(1)"/>
+  
+  <property name="compiler.args.eistreturns" value="-encoding UTF-8 -source 1.8 -target 1.8 ${compiler.args}"/>
+  
+  <property name="eistreturns.output.dir" value="${module.eistreturns.basedir}/out/production/EistReturns"/>
+  <property name="eistreturns.testoutput.dir" value="${module.eistreturns.basedir}/out/test/EistReturns"/>
+  
+  <path id="eistreturns.module.bootclasspath">
+    <!-- Paths to be included in compilation bootclasspath -->
+  </path>
+  
+  <path id="eistreturns.module.production.classpath">
+    <path refid="${module.jdk.classpath.eistreturns}"/>
+    
+  </path>
+  
+  <path id="eistreturns.runtime.production.module.classpath">
+    <pathelement location="${eistreturns.output.dir}"/>
+    
+  </path>
+  
+  <path id="eistreturns.module.classpath">
+    <path refid="${module.jdk.classpath.eistreturns}"/>
+    <pathelement location="${eistreturns.output.dir}"/>
+    
+  </path>
+  
+  <path id="eistreturns.runtime.module.classpath">
+    <pathelement location="${eistreturns.testoutput.dir}"/>
+    <pathelement location="${eistreturns.output.dir}"/>
+    
+  </path>
+  
+  
+  <patternset id="excluded.from.module.eistreturns">
+    <patternset refid="ignored.files"/>
+  </patternset>
+  
+  <patternset id="excluded.from.compilation.eistreturns">
+    <patternset refid="excluded.from.module.eistreturns"/>
+  </patternset>
+  
+  <path id="eistreturns.module.sourcepath">
+    <dirset dir="${module.eistreturns.basedir}">
+      <include name="src"/>
+    </dirset>
+  </path>
+  
+  
+  <target name="compile.module.eistreturns" depends="compile.module.eistreturns.production,compile.module.eistreturns.tests" description="Compile module EistReturns"/>
+  
+  <target name="compile.module.eistreturns.production" depends="register.custom.compilers" description="Compile module EistReturns; production classes">
+    <mkdir dir="${eistreturns.output.dir}"/>
+    <javac2 destdir="${eistreturns.output.dir}" debug="${compiler.debug}" nowarn="${compiler.generate.no.warnings}" memorymaximumsize="${compiler.max.memory}" fork="true" executable="${module.jdk.bin.eistreturns}/javac">
+      <compilerarg line="${compiler.args.eistreturns}"/>
+      <bootclasspath refid="eistreturns.module.bootclasspath"/>
+      <classpath refid="eistreturns.module.production.classpath"/>
+      <src refid="eistreturns.module.sourcepath"/>
+      <patternset refid="excluded.from.compilation.eistreturns"/>
+    </javac2>
+    
+    <copy todir="${eistreturns.output.dir}">
+      <fileset dir="${module.eistreturns.basedir}/src">
+        <patternset refid="compiler.resources"/>
+        <type type="file"/>
+      </fileset>
+    </copy>
+  </target>
+  
+  <target name="compile.module.eistreturns.tests" depends="register.custom.compilers,compile.module.eistreturns.production" description="compile module EistReturns; test classes" unless="skip.tests"/>
+  
+  <target name="clean.module.eistreturns" description="cleanup module">
+    <delete dir="${eistreturns.output.dir}"/>
+    <delete dir="${eistreturns.testoutput.dir}"/>
+  </target>
+</project>
