@@ -14,6 +14,7 @@ import javafx.stage.Stage;
 import javafx.scene.image.Image;
 
 import game.Sprites.Player;
+import game.Sprites.Arrow;
 
 public class Main extends Utils {
 
@@ -54,7 +55,7 @@ public class Main extends Utils {
 
         loadCommonGraphics();
 
-        loadLevel(9);
+        loadLevel(1);
 
         eist = new Player();
 
@@ -125,8 +126,6 @@ public class Main extends Utils {
          */
         switch (eist.getDirection()) {
             case DIR_RIGHT:
-            case DIR_RIGHT_DOWN:
-            case DIR_RIGHT_UP:
                 mEistImage = mEistRight;
                 break;
 
@@ -135,8 +134,6 @@ public class Main extends Utils {
                 break;
 
             case DIR_LEFT:
-            case DIR_LEFT_DOWN:
-            case DIR_LEFT_UP:
                 mEistImage = mEistLeft;
                 break;
 
@@ -148,18 +145,31 @@ public class Main extends Utils {
                 break;
         }
 
-        switch (eist.getDirection()){
-            case DIR_RIGHT_DOWN:
-            case DIR_LEFT_UP:
-                mEistRotation = 45.0;
-                break;
-            case DIR_RIGHT_UP:
-            case DIR_LEFT_DOWN:
-                mEistRotation = -45.0;
-                break;
-            default:
-                mEistRotation = 0.0;
-                break;
+        /*
+         * Draw arrows
+         */
+        if(mArrows != null && mArrows.size() > 0) {
+            for(Arrow arrow : mArrows) {
+
+                Image image;
+                switch(arrow.getDirection()){
+                    case DIR_RIGHT:
+                        image = mArrowRight;
+                        break;
+                    case DIR_DOWN:
+                        image = mArrowDown;
+                        break;
+                    case DIR_LEFT:
+                        image = mArrowLeft;
+                        break;
+                    case DIR_UP:
+                        image = mArrowUp;
+                        break;
+                    default:
+                        image = null;
+                }
+                gc.drawImage(image, arrow.getPosX(), arrow.getPosY(), mFrameDimension, mFrameDimension);
+            }
         }
         gc.save();
         Rotate r = new Rotate(mEistRotation, mEistX + mFrameDimension / 2, mEistY + mFrameDimension / 2);
@@ -169,7 +179,7 @@ public class Main extends Utils {
         /*
          * Just for testing purposes:
          */
-        //gc.fillText(String.valueOf((int) mFps), columns[0], rows[18]);
+        gc.fillText(String.valueOf((int) mFps), columns[0], rows[18]);
     }
 
     private void updateBoard() {
@@ -184,17 +194,7 @@ public class Main extends Utils {
                     mEistX = mEistX + (walkSpeedPerSecond / mFps);
                     break;
 
-                case DIR_RIGHT_DOWN:
-                    mEistX = mEistX + (walkSpeedPerSecond / mFps);
-                    mEistY = mEistY + (walkSpeedPerSecond / mFps);
-                    break;
-
                 case DIR_DOWN:
-                    mEistY = mEistY + (walkSpeedPerSecond / mFps);
-                    break;
-
-                case DIR_LEFT_DOWN:
-                    mEistX = mEistX - (walkSpeedPerSecond / mFps);
                     mEistY = mEistY + (walkSpeedPerSecond / mFps);
                     break;
 
@@ -202,17 +202,7 @@ public class Main extends Utils {
                     mEistX = mEistX - (walkSpeedPerSecond / mFps);
                     break;
 
-                case DIR_LEFT_UP:
-                    mEistX = mEistX - (walkSpeedPerSecond / mFps);
-                    mEistY = mEistY - (walkSpeedPerSecond / mFps);
-                    break;
-
                 case DIR_UP:
-                    mEistY = mEistY - (walkSpeedPerSecond / mFps);
-                    break;
-
-                case DIR_RIGHT_UP:
-                    mEistX = mEistX + (walkSpeedPerSecond / mFps);
                     mEistY = mEistY - (walkSpeedPerSecond / mFps);
                     break;
 

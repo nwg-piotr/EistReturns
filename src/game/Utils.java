@@ -8,6 +8,13 @@ import javafx.scene.input.MouseEvent;
 import javafx.stage.Screen;
 
 import game.Sprites.Player;
+import game.Sprites.Arrow;
+
+import java.io.*;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.ArrayList;
+import java.util.List;
 
 abstract class Utils extends Application {
 
@@ -23,14 +30,10 @@ abstract class Utils extends Application {
     /**
      * Eists movement directions; diagonal directions to be used while falling down only.
      */
-    final int DIR_RIGHT = 1;
-    final int DIR_RIGHT_DOWN = 2;
-    final int DIR_DOWN = 3;
-    final int DIR_LEFT_DOWN = 4;
-    final int DIR_LEFT = 5;
-    final int DIR_LEFT_UP = 6;
-    final int DIR_UP = 7;
-    final int DIR_RIGHT_UP = 8;
+    final int DIR_RIGHT = 0;
+    final int DIR_DOWN = 1;
+    final int DIR_LEFT = 2;
+    final int DIR_UP = 3;
 
     /**
      * Sprites and other game objects come here.
@@ -157,15 +160,120 @@ abstract class Utils extends Application {
         mEistLeft = new Image("images/sprites/eist_left.png", mFrameDimension * 8, mFrameDimension, false, true);
         mEistUp = new Image("images/sprites/eist_up.png", mFrameDimension * 8, mFrameDimension, false, true);
 
-        mArrowRight = new Image("images/sprites/arrow_right.png", mFrameDimension, mFrameDimension, false, true);
-        mArrowDown = new Image("images/sprites/arrow_down.png", mFrameDimension, mFrameDimension, false, true);
-        mArrowLeft = new Image("images/sprites/arrow_left.png", mFrameDimension, mFrameDimension, false, true);
-        mArrowUp = new Image("images/sprites/arrow_up.png", mFrameDimension, mFrameDimension, false, true);
+        mArrowRight = new Image("images/sprites/arrow_right.png");
+        mArrowDown = new Image("images/sprites/arrow_down.png");
+        mArrowLeft = new Image("images/sprites/arrow_left.png");
+        mArrowUp = new Image("images/sprites/arrow_up.png");
     }
+
+    List<Arrow> mArrows;
 
     void loadLevel(int level) {
 
         String lvlNumberToString = (level < 10) ? "0" + String.valueOf(level) : String.valueOf(level);
-        mBoard = new Image("levels/" + lvlNumberToString + "board.png", mSceneWidth, mSceneHeight, true, true, true);
+        String url = "/res/" + lvlNumberToString;
+
+        mBoard = new Image(url + "board.png", mSceneWidth, mSceneHeight, true, true, true);
+
+        String dataString;
+        /*
+         * Load arrows
+         */
+        dataString = datToString(getClass().getResource(url + "arrows.dat").getPath());
+        if (dataString != null) {
+
+            System.out.println(dataString);
+
+            mArrows = new ArrayList<>();
+
+            String[] arrows = dataString.split(":");
+
+            for (String single_entry : arrows) {
+
+                String[] positions = single_entry.split(",");
+
+                int posX = Integer.valueOf(positions[0]);
+                int posY = Integer.valueOf(positions[1]);
+
+                Arrow arrow = new Arrow();
+                arrow.setPosX(columns[posX]);
+                arrow.setPosY(rows[posY]);
+
+                Rectangle2D area = new Rectangle2D(posX, posY, mFrameDimension, mFrameDimension);
+
+                arrow.setArea(area);
+
+                arrow.setDirection(Integer.valueOf(positions[2]));
+                mArrows.add(arrow);
+            }
+            System.out.println("Arrows: " + mArrows.size());
+        }
+
     }
+
+    private String datToString(String url) {
+
+        System.out.println("URL: " + url);
+
+        File file = new File(url).getAbsoluteFile();
+
+        Path path = file.toPath().toAbsolutePath();
+
+        System.out.println("path: " + path.toString());
+
+        String content = null;
+
+        try {
+            content = new String(Files.readAllBytes(path));
+        } catch (IOException e) {
+            content = null;
+            e.printStackTrace();
+        }
+
+        if (content != null && content.isEmpty()) {
+            content = null;
+        }
+        return content;
+
+    }
+
+    /*
+    private String datToString(String path) {
+
+        System.out.println("PATH: |" + path + "|");
+
+        File file = new File(path);
+
+        BufferedReader reader = null;
+        String data = "";
+
+        try {
+            reader =  new BufferedReader(new FileReader(file));
+
+            // do reading, usually loop until end of file reading
+            String mLine;
+            while ((mLine = reader.readLine()) != null) {
+                //process line
+                data += mLine;
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+
+        } finally {
+            if (reader != null) {
+                try {
+                    reader.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+
+        if (data.equals("")) {
+            data = null;
+        }
+
+        return data;
+    }
+    */
 }
