@@ -1,34 +1,73 @@
 package game;
 
+import javafx.geometry.Point2D;
 import javafx.geometry.Rectangle2D;
 
-class Sprites {
+abstract class Sprites extends Utils {
 
     /**
      * Actually there will be just a single object of this class.
      */
     static class Player {
 
-        int direction;
-        int turning; // TURNING_NOT / _RIGHT / _LEFT / _BACK
         boolean isMoving;
         boolean isFalling;
-        Rectangle2D area;
 
-        void setDirection(int dir_value) {
-            direction = dir_value;
+        Integer direction;
+        Integer turning; // TURNING_NOT / _RIGHT / _LEFT / _BACK
+        Rectangle2D area;
+        Point2D center;
+
+        void setDirection(int value) {
+            switch(value) {
+                case DIR_RIGHT:
+                case DIR_DOWN:
+                case DIR_LEFT:
+                case DIR_UP:
+                    direction = value;
+            }
+        }
+
+        void setTurning(int value) {
+            switch(value) {
+                case TURNING_NOT:
+                case TURNING_RIGHT:
+                case TURNING_LEFT:
+                case TURNING_BACK:
+                    turning = value;
+            }
         }
 
         void setArea(Rectangle2D rectangle2D) {
             area = rectangle2D;
         }
 
+        void setCenter(Point2D point2D) {
+            center = point2D;
+        }
+
         int getDirection() {
-            return direction;
+            if(direction != null) {
+                return direction;
+            } else {
+                return 0;
+            }
+        }
+
+        int getTurning() {
+            if(turning != null) {
+                return turning;
+            } else {
+                return 0;
+            }
         }
 
         Rectangle2D getArea() {
             return  area;
+        }
+
+        Point2D getCenter() {
+            return center;
         }
     }
 

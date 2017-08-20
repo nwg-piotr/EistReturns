@@ -33,15 +33,15 @@ abstract class Utils extends Application {
     /**
      * Eists movement directions; diagonal directions to be used while falling down only.
      */
-    final int DIR_RIGHT = 0;
-    final int DIR_DOWN = 1;
-    final int DIR_LEFT = 2;
-    final int DIR_UP = 3;
+    static final int DIR_RIGHT = 0;
+    static final int DIR_DOWN = 1;
+    static final int DIR_LEFT = 2;
+    static final int DIR_UP = 3;
 
-    final int TURNING_NOT = 0;
-    final int TURNING_RIGHT = 1;
-    final int TURNING_LEFT = 2;
-    final int TURNING_BACK = 3;
+    static final int TURNING_NOT = 0;
+    static final int TURNING_RIGHT = 1;
+    static final int TURNING_LEFT = 2;
+    static final int TURNING_BACK = 3;
 
     /**
      * Sprites and other game objects come here.
@@ -145,6 +145,9 @@ abstract class Utils extends Application {
         }
     }
 
+    /**
+     * Some graphics will look the same way on all levels. Let's load it here.
+     */
     Image mBoard;
 
     Image mEistImage;
@@ -159,15 +162,12 @@ abstract class Utils extends Application {
     Image mArrowLeft;
     Image mArrowUp;
 
-    /**
-     * Some graphics will look the same way on all levels. Let's load it here.
-     */
     void loadCommonGraphics() {
 
-        mEistRight = new Image("images/sprites/eist_right.png", mFrameDimension * 8, mFrameDimension, false, true);
-        mEistDown = new Image("images/sprites/eist_down.png", mFrameDimension * 8, mFrameDimension, false, true);
-        mEistLeft = new Image("images/sprites/eist_left.png", mFrameDimension * 8, mFrameDimension, false, true);
-        mEistUp = new Image("images/sprites/eist_up.png", mFrameDimension * 8, mFrameDimension, false, true);
+        mEistRight = new Image("images/sprites/eist_right.png");
+        mEistDown = new Image("images/sprites/eist_down.png");
+        mEistLeft = new Image("images/sprites/eist_left.png");
+        mEistUp = new Image("images/sprites/eist_up.png");
 
         mArrowRight = new Image("images/sprites/arrow_right.png");
         mArrowDown = new Image("images/sprites/arrow_down.png");
@@ -222,15 +222,11 @@ abstract class Utils extends Application {
 
     private String datToString(String url) {
 
-        System.out.println("URL: " + url);
-
         File file = new File(url).getAbsoluteFile();
 
         Path path = file.toPath().toAbsolutePath();
 
-        System.out.println("path: " + path.toString());
-
-        String content = null;
+        String content;
 
         try {
             content = new String(Files.readAllBytes(path));
@@ -243,46 +239,5 @@ abstract class Utils extends Application {
             content = null;
         }
         return content;
-
     }
-
-    /*
-    private String datToString(String path) {
-
-        System.out.println("PATH: |" + path + "|");
-
-        File file = new File(path);
-
-        BufferedReader reader = null;
-        String data = "";
-
-        try {
-            reader =  new BufferedReader(new FileReader(file));
-
-            // do reading, usually loop until end of file reading
-            String mLine;
-            while ((mLine = reader.readLine()) != null) {
-                //process line
-                data += mLine;
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
-
-        } finally {
-            if (reader != null) {
-                try {
-                    reader.close();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }
-        }
-
-        if (data.equals("")) {
-            data = null;
-        }
-
-        return data;
-    }
-    */
 }

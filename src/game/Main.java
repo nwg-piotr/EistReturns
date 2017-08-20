@@ -1,6 +1,7 @@
 package game;
 
 import javafx.animation.AnimationTimer;
+import javafx.geometry.Point2D;
 import javafx.geometry.Rectangle2D;
 import javafx.scene.Group;
 import javafx.scene.Scene;
@@ -115,7 +116,7 @@ public class Main extends Utils {
 
         gc.drawImage(mBoard, 0, 0, mSceneWidth, mSceneHeight);
 
-        eist.setArea(new Rectangle2D(mEistX, mEistY, mFrameDimension, mFrameDimension));
+
 
         /*
          * Switch the sprites source graphics according to the movement direction. It could have been just rotated,
@@ -176,10 +177,10 @@ public class Main extends Utils {
             gc.save();
             Rotate r = new Rotate(mEistRotation, mEistX + mGridDimension, mEistY + mGridDimension);
             gc.setTransform(r.getMxx(), r.getMyx(), r.getMxy(), r.getMyy(), r.getTx(), r.getTy());
-            gc.drawImage(mEistImage, mFrameDimension * eist_frame, 0, mFrameDimension, mFrameDimension, mEistX, mEistY, mFrameDimension, mFrameDimension);
+            gc.drawImage(mEistImage, 120 * eist_frame, 0, 120, 120, mEistX, mEistY, mFrameDimension, mFrameDimension);
             gc.restore();
         } else {
-            gc.drawImage(mEistImage, mFrameDimension * eist_frame, 0, mFrameDimension, mFrameDimension, mEistX, mEistY, mFrameDimension, mFrameDimension);
+            gc.drawImage(mEistImage, 120 * eist_frame, 0, 120, 120, mEistX, mEistY, mFrameDimension, mFrameDimension);
         }
         /*
          * Just for testing purposes:
@@ -215,6 +216,8 @@ public class Main extends Utils {
                     break;
             }
         }
+        eist.setArea(new Rectangle2D(mEistX, mEistY, mFrameDimension, mFrameDimension));
+        eist.setCenter(new Point2D(mEistX + mGridDimension, mEistY + mGridDimension));
     }
 
     public static void main(String[] args) {
