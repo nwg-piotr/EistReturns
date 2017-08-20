@@ -38,6 +38,11 @@ abstract class Utils extends Application {
     final int DIR_LEFT = 2;
     final int DIR_UP = 3;
 
+    final int TURNING_NOT = 0;
+    final int TURNING_RIGHT = 1;
+    final int TURNING_LEFT = 2;
+    final int TURNING_BACK = 3;
+
     /**
      * Sprites and other game objects come here.
      */

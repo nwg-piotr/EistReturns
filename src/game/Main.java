@@ -109,8 +109,6 @@ public class Main extends Utils {
         stage.show();
     }
 
-
-
     private void drawBoard(GraphicsContext gc, int eist_frame) {
 
         gc.clearRect(0, 0, mSceneWidth, mSceneHeight);
@@ -149,6 +147,8 @@ public class Main extends Utils {
          * Draw arrows
          */
         if(mArrows != null && mArrows.size() > 0) {
+
+            Integer collision = null;
             for(Arrow arrow : mArrows) {
 
                 Image image;
@@ -170,6 +170,7 @@ public class Main extends Utils {
                 }
                 gc.drawImage(image, arrow.getPosX(), arrow.getPosY(), mFrameDimension, mFrameDimension);
             }
+
         }
         if(mEistRotation != 0) {
             gc.save();

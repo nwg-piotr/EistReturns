@@ -10,6 +10,7 @@ class Sprites {
     static class Player {
 
         int direction;
+        int turning; // TURNING_NOT / _RIGHT / _LEFT / _BACK
         boolean isMoving;
         boolean isFalling;
         Rectangle2D area;
