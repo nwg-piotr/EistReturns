@@ -30,6 +30,7 @@ abstract class Utils extends Application {
      */
     double mFrameDimension;
     double mGridDimension;
+    double mRotationRadius;
 
     /**
      * Eists movement directions; diagonal directions to be used while falling down only.
@@ -63,13 +64,17 @@ abstract class Utils extends Application {
          * Source graphics has been drawn as fullHD (1920 x 1080).
          */
         Rectangle2D primaryScreenBounds = Screen.getPrimary().getVisualBounds();
-        mSceneWidth = primaryScreenBounds.getWidth() / 2;
+        mSceneWidth = primaryScreenBounds.getWidth() / 1.5;
         mSceneHeight = (mSceneWidth / 1920) * 1080;
         mFrameDimension = (mSceneWidth / 1920) * 120;
+        System.out.println("mFrameDimension = " + mFrameDimension);
 
         mGridDimension = mFrameDimension / 2;
 
+        mRotationRadius = mFrameDimension / 4;
+
         walkingSpeedPerSecond = mSceneWidth / 12d;
+        System.out.println("walkingSpeedPerSecond = " + walkingSpeedPerSecond);
 
         /*
          * Board grid coordinates
@@ -87,14 +92,14 @@ abstract class Utils extends Application {
      */
     static long lastUpdate = 0;
     static int index = 0;
-    static double[] frameRates = new double[500];
+    static double[] frameRates = new double[5];
 
     /*
      * Returns the instantaneous FPS for the last frame rendered.
      */
-    //static double getInstantFPS() {
-    //    return frameRates[index % frameRates.length];
-    //}
+    static double getInstantFPS() {
+        return frameRates[index % frameRates.length];
+    }
 
     /**
      * Returns the average FPS for the last frameRates.length frames rendered.

@@ -242,9 +242,11 @@ public class Main extends Utils {
 
                     switch (eist.getTurning()) {
                         case TURNING_RIGHT:
-                            if (mEistX <= endX) {
+                            if (mEistX < endX) {
+                                double left = Math.abs(endX - mEistX);
+                                System.out.println(left);
                                 if (mEistRotation < 90) {
-                                    mEistRotation = mEistRotation + (90 / mFrameDimension) / 2;
+                                    mEistRotation = 90 - (90 * (left / mRotationRadius));
                                 }
                             } else {
                                 mEistRotation = 0;
@@ -257,8 +259,10 @@ public class Main extends Utils {
 
                         case TURNING_LEFT:
                             if (mEistX <= endX) {
+                                double left = Math.abs(mEistX - endX);
+                                System.out.println(left);
                                 if (mEistRotation > -90) {
-                                    mEistRotation = mEistRotation - (90 / mFrameDimension) / 2;
+                                    mEistRotation = -90 + (90 * (left / mRotationRadius));
                                 }
                             } else {
                                 mEistRotation = 0;
@@ -272,13 +276,14 @@ public class Main extends Utils {
                         case TURNING_BACK:
 
                             if (mEistX <= endX) {
+                                double left = Math.abs(mEistX - endX);
                                 if (turnRight) {
                                     if (mEistRotation < 180) {
-                                        mEistRotation = mEistRotation + (180 / mFrameDimension) / 2;
+                                        mEistRotation = 180 - (180 * (left / mRotationRadius));
                                     }
                                 } else {
                                     if (mEistRotation > -180) {
-                                        mEistRotation = mEistRotation - (180 / mFrameDimension) / 2;
+                                        mEistRotation = -180 + (180 * (left / mRotationRadius));
                                     }
                                 }
                             } else {
@@ -355,6 +360,8 @@ public class Main extends Utils {
          * In the updateBoard method: Keep turning until the point reached.
          */
         eist.setEndPoint(new Point2D(arrow.getPosX(), arrow.getPosY()));
+        System.out.println("mEistX = " + mEistX);
+        System.out.println("mEndX = " + eist.getEndPoint().getX());
 
         turnRight = getRandomBoolean();
 
