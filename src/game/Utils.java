@@ -4,8 +4,6 @@ import javafx.application.Application;
 import javafx.geometry.Point2D;
 import javafx.geometry.Rectangle2D;
 import javafx.scene.image.Image;
-import javafx.scene.image.PixelReader;
-import javafx.scene.image.WritableImage;
 import javafx.scene.input.MouseEvent;
 import javafx.stage.Screen;
 
@@ -22,7 +20,10 @@ abstract class Utils extends Application {
 
     double mSceneWidth;
     double mSceneHeight;
-    double walkSpeedPerSecond;
+    double walkingSpeedPerSecond;
+
+    boolean turnRight;
+
     /**
      * The Frame is a rectangular part of the game board of width of 2 columns and height of 2 rows.
      * It corresponds to the width of the path on which Eist's sprite moves.
@@ -49,9 +50,8 @@ abstract class Utils extends Application {
     Player eist;
 
     /**
-     * To place the game board content (arrows, artifacts, teleports etc), we'll divide it into rows and columns.
-     * The column is half the width of the Frame.
-     * The row is half the height of the Frame.
+     * To place the game board content (arrows, artifacts, teleports etc), we'll divide it into rows and columns grid.
+     * The column is half the width of the Frame. The row is half the height of the Frame.
      */
     double[] rows = new double[19];
     double[] columns = new double[33];
@@ -69,7 +69,7 @@ abstract class Utils extends Application {
 
         mGridDimension = mFrameDimension / 2;
 
-        walkSpeedPerSecond = mSceneWidth / 12d;
+        walkingSpeedPerSecond = mSceneWidth / 12d;
 
         /*
          * Board grid coordinates
@@ -184,14 +184,13 @@ abstract class Utils extends Application {
 
         mBoard = new Image(url + "board.png", mSceneWidth, mSceneHeight, true, true, true);
 
-        String dataString;
         /*
          * Load arrows
          */
+        String dataString;
+
         dataString = datToString(getClass().getResource(url + "arrows.dat").getPath());
         if (dataString != null) {
-
-            System.out.println(dataString);
 
             mArrows = new ArrayList<>();
 
@@ -208,16 +207,26 @@ abstract class Utils extends Application {
                 arrow.setPosX(columns[posX]);
                 arrow.setPosY(rows[posY]);
 
-                Rectangle2D area = new Rectangle2D(posX, posY, mFrameDimension, mFrameDimension);
-
-                arrow.setArea(area);
+                //arrow.setArea(new Rectangle2D(columns[posX], rows[posY], mFrameDimension, mFrameDimension));
+                arrow.setArea(innerRect(columns[posX], rows[posY]));
 
                 arrow.setDirection(Integer.valueOf(positions[2]));
                 mArrows.add(arrow);
             }
-            System.out.println("Arrows: " + mArrows.size());
         }
+    }
 
+    /**
+     * Object detection area must not fill all the frame. Let's center a rectangle of the grid size inside the frame.
+     * @param outerX Source frame X
+     * @param outerY Source frame Y
+     * @return Centered smaller rectangle
+     */
+    private Rectangle2D innerRect(double outerX, double outerY) {
+        double x = outerX + mGridDimension / 2;
+        double y = outerY + mGridDimension / 2;
+
+        return new Rectangle2D(x, y, mGridDimension, mGridDimension);
     }
 
     private String datToString(String url) {
@@ -239,5 +248,9 @@ abstract class Utils extends Application {
             content = null;
         }
         return content;
+    }
+
+    static boolean getRandomBoolean() {
+        return Math.random() < 0.5;
     }
 }

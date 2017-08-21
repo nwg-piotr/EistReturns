@@ -17,6 +17,8 @@ import javafx.scene.image.Image;
 import game.Sprites.Player;
 import game.Sprites.Arrow;
 
+import java.util.Random;
+
 public class Main extends Utils {
 
     private GraphicsContext graphicsContext;
@@ -116,8 +118,6 @@ public class Main extends Utils {
 
         gc.drawImage(mBoard, 0, 0, mSceneWidth, mSceneHeight);
 
-
-
         /*
          * Switch the sprites source graphics according to the movement direction. It could have been just rotated,
          * but I wanted the light to always come from the right side. Oh, ok: almost always. The bitmap will need
@@ -147,13 +147,14 @@ public class Main extends Utils {
         /*
          * Draw arrows
          */
-        if(mArrows != null && mArrows.size() > 0) {
+        if (mArrows != null && mArrows.size() > 0) {
 
-            Integer collision = null;
-            for(Arrow arrow : mArrows) {
+            for (int i = 0; i < mArrows.size(); i++) {
+
+                Arrow arrow = mArrows.get(i);
 
                 Image image;
-                switch(arrow.getDirection()){
+                switch (arrow.getDirection()) {
                     case DIR_RIGHT:
                         image = mArrowRight;
                         break;
@@ -170,10 +171,17 @@ public class Main extends Utils {
                         image = null;
                 }
                 gc.drawImage(image, arrow.getPosX(), arrow.getPosY(), mFrameDimension, mFrameDimension);
+                //gc.fillRect(arrow.getArea().getMinX(),arrow.getArea().getMinY(), arrow.getArea().getWidth(), arrow.getArea().getHeight());
+
+                if (arrow.getArea().contains(eist.getCenter())) {
+
+                    reactToArrow(arrow);
+                    break;
+                }
             }
 
         }
-        if(mEistRotation != 0) {
+        if (mEistRotation != 0) {
             gc.save();
             Rotate r = new Rotate(mEistRotation, mEistX + mGridDimension, mEistY + mGridDimension);
             gc.setTransform(r.getMxx(), r.getMyx(), r.getMxy(), r.getMyy(), r.getTx(), r.getTy());
@@ -191,25 +199,25 @@ public class Main extends Utils {
     private void updateBoard() {
 
         /*
-         * The walkSpeedPerSecond value depends on the board dimension.
+         * The walkingSpeedPerSecond value depends on the board dimension.
          * The movement speed depends on it and the current FPS.
          */
         if (eist.isMoving) {
             switch (eist.getDirection()) {
                 case DIR_RIGHT:
-                    mEistX = mEistX + (walkSpeedPerSecond / mFps);
+                    mEistX = mEistX + (walkingSpeedPerSecond / mFps);
                     break;
 
                 case DIR_DOWN:
-                    mEistY = mEistY + (walkSpeedPerSecond / mFps);
+                    mEistY = mEistY + (walkingSpeedPerSecond / mFps);
                     break;
 
                 case DIR_LEFT:
-                    mEistX = mEistX - (walkSpeedPerSecond / mFps);
+                    mEistX = mEistX - (walkingSpeedPerSecond / mFps);
                     break;
 
                 case DIR_UP:
-                    mEistY = mEistY - (walkSpeedPerSecond / mFps);
+                    mEistY = mEistY - (walkingSpeedPerSecond / mFps);
                     break;
 
                 default:
@@ -218,6 +226,215 @@ public class Main extends Utils {
         }
         eist.setArea(new Rectangle2D(mEistX, mEistY, mFrameDimension, mFrameDimension));
         eist.setCenter(new Point2D(mEistX + mGridDimension, mEistY + mGridDimension));
+
+        /*
+         * Rotate Eist on arrows (also on doors in the future).
+         * At the end of the maneuver place him exactly on the endPoint.
+         */
+        int turning = eist.getTurning();
+        if (turning != 0) {
+
+            double endX = eist.getEndPoint().getX();
+            double endY = eist.getEndPoint().getY();
+
+            switch (eist.getDirection()) {
+                case DIR_RIGHT:
+
+                    switch (eist.getTurning()) {
+                        case TURNING_RIGHT:
+                            if (mEistX <= endX) {
+                                if (mEistRotation < 90) {
+                                    mEistRotation = mEistRotation + (90 / mFrameDimension) / 2;
+                                }
+                            } else {
+                                mEistRotation = 0;
+                                eist.setDirection(DIR_DOWN);
+                                eist.setTurning(TURNING_NOT);
+                                mEistX = endX;
+                                mEistY = endY;
+                            }
+                            break;
+
+                        case TURNING_LEFT:
+                            if (mEistX <= endX) {
+                                if (mEistRotation > -90) {
+                                    mEistRotation = mEistRotation - (90 / mFrameDimension) / 2;
+                                }
+                            } else {
+                                mEistRotation = 0;
+                                eist.setDirection(DIR_UP);
+                                eist.setTurning(TURNING_NOT);
+                                mEistX = endX;
+                                mEistY = endY;
+                            }
+                            break;
+
+                        case TURNING_BACK:
+
+                            if (mEistX <= endX) {
+                                if (turnRight) {
+                                    if (mEistRotation < 180) {
+                                        mEistRotation = mEistRotation + (180 / mFrameDimension) / 2;
+                                    }
+                                } else {
+                                    if (mEistRotation > -180) {
+                                        mEistRotation = mEistRotation - (180 / mFrameDimension) / 2;
+                                    }
+                                }
+                            } else {
+                                mEistRotation = 0;
+                                eist.setDirection(DIR_LEFT);
+                                eist.setTurning(TURNING_NOT);
+                                mEistX = endX;
+                                mEistY = endY;
+                            }
+                            break;
+                    }
+                    break;
+
+                case DIR_LEFT:
+
+                    switch (eist.getTurning()) {
+                        case TURNING_RIGHT:
+                            if (mEistX >= endX) {
+                                if (mEistRotation < 90) {
+                                    mEistRotation = mEistRotation + (90 / mFrameDimension) / 2;
+                                }
+                            } else {
+                                mEistRotation = 0;
+                                eist.setDirection(DIR_UP);
+                                eist.setTurning(TURNING_NOT);
+                                mEistX = endX;
+                                mEistY = endY;
+                            }
+                            break;
+
+                        case TURNING_LEFT:
+                            if (mEistX >= endX) {
+                                if (mEistRotation > -90) {
+                                    mEistRotation = mEistRotation - (90 / mFrameDimension) / 2;
+                                }
+                            } else {
+                                mEistRotation = 0;
+                                eist.setDirection(DIR_DOWN);
+                                eist.setTurning(TURNING_NOT);
+                                mEistX = endX;
+                                mEistY = endY;
+                            }
+                            break;
+
+                        case TURNING_BACK:
+
+                            if (mEistX >= endX) {
+                                if (turnRight) {
+                                    if (mEistRotation < 180) {
+                                        mEistRotation = mEistRotation + (180 / mFrameDimension) / 2;
+                                    }
+                                } else {
+                                    if (mEistRotation > -180) {
+                                        mEistRotation = mEistRotation - (180 / mFrameDimension) / 2;
+                                    }
+                                }
+                            } else {
+                                mEistRotation = 0;
+                                eist.setDirection(DIR_RIGHT);
+                                eist.setTurning(TURNING_NOT);
+                                mEistX = endX;
+                                mEistY = endY;
+                            }
+                            break;
+                    }
+                    break;
+            }
+        }
+    }
+
+    private void reactToArrow(Arrow arrow) {
+
+        /*
+         * In the updateBoard method: Keep turning until the point reached.
+         */
+        eist.setEndPoint(new Point2D(arrow.getPosX(), arrow.getPosY()));
+
+        turnRight = getRandomBoolean();
+
+        switch (eist.getDirection()) {
+            case DIR_RIGHT:
+                switch (arrow.getDirection()) {
+                    case DIR_DOWN:
+                        eist.setTurning(TURNING_RIGHT);
+                        break;
+
+                    case DIR_UP:
+                        eist.setTurning(TURNING_LEFT);
+                        break;
+
+                    case DIR_LEFT:
+                        eist.setTurning(TURNING_BACK);
+                        break;
+
+                    default:
+                        break;
+                }
+                break;
+
+            case DIR_DOWN:
+                switch (arrow.getDirection()) {
+                    case DIR_LEFT:
+                        eist.setTurning(TURNING_RIGHT);
+                        break;
+
+                    case DIR_RIGHT:
+                        eist.setTurning(TURNING_LEFT);
+                        break;
+
+                    case DIR_UP:
+                        eist.setTurning(TURNING_BACK);
+                        break;
+
+                    default:
+                        break;
+                }
+                break;
+
+            case DIR_LEFT:
+                switch (arrow.getDirection()) {
+                    case DIR_DOWN:
+                        eist.setTurning(TURNING_LEFT);
+                        break;
+
+                    case DIR_UP:
+                        eist.setTurning(TURNING_RIGHT);
+                        break;
+
+                    case DIR_RIGHT:
+                        eist.setTurning(TURNING_BACK);
+                        break;
+
+                    default:
+                        break;
+                }
+                break;
+
+            case DIR_UP:
+                switch (arrow.getDirection()) {
+                    case DIR_RIGHT:
+                        eist.setTurning(TURNING_RIGHT);
+                        break;
+
+                    case DIR_LEFT:
+                        eist.setTurning(TURNING_LEFT);
+                        break;
+
+                    case DIR_DOWN:
+                        eist.setTurning(TURNING_BACK);
+                        break;
+                }
+                break;
+        }
+        System.out.println("Turning: " + eist.getTurning());
+        System.out.println("endPoint: " + eist.getEndPoint());
+        mArrows.remove(arrow);
     }
 
     public static void main(String[] args) {

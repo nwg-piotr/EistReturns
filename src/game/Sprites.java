@@ -17,6 +17,7 @@ abstract class Sprites extends Utils {
         Integer turning; // TURNING_NOT / _RIGHT / _LEFT / _BACK
         Rectangle2D area;
         Point2D center;
+        Point2D end_point; // Coordinates at which Eist should be placed at the end of the current maneuver
 
         void setDirection(int value) {
             switch(value) {
@@ -46,6 +47,10 @@ abstract class Sprites extends Utils {
             center = point2D;
         }
 
+        void setEndPoint(Point2D point2D) {
+            end_point = point2D;
+        }
+
         int getDirection() {
             if(direction != null) {
                 return direction;
@@ -68,6 +73,10 @@ abstract class Sprites extends Utils {
 
         Point2D getCenter() {
             return center;
+        }
+
+        Point2D getEndPoint() {
+            return end_point;
         }
     }
 
