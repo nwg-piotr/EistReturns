@@ -171,7 +171,6 @@ public class Main extends Utils {
                         image = null;
                 }
                 gc.drawImage(image, arrow.getPosX(), arrow.getPosY(), mFrameDimension, mFrameDimension);
-                //gc.fillRect(arrow.getArea().getMinX(),arrow.getArea().getMinY(), arrow.getArea().getWidth(), arrow.getArea().getHeight());
 
                 if (arrow.getArea().contains(eist.getCenter())) {
 
@@ -470,13 +469,10 @@ public class Main extends Utils {
     }
 
     private void reactToArrow(Arrow arrow) {
-
         /*
          * In the updateBoard method: Keep turning until the point reached.
          */
         eist.setEndPoint(new Point2D(arrow.getPosX(), arrow.getPosY()));
-        System.out.println("mEistX = " + mEistX);
-        System.out.println("mEndX = " + eist.getEndPoint().getX());
 
         turnRight = getRandomBoolean();
 
@@ -554,9 +550,8 @@ public class Main extends Utils {
                 }
                 break;
         }
-        System.out.println("Turning: " + eist.getTurning());
-        System.out.println("endPoint: " + eist.getEndPoint());
         mArrows.remove(arrow);
+        System.out.println("Turning " + eist.getTurning());
     }
 
     public static void main(String[] args) {
