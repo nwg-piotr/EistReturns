@@ -65,7 +65,7 @@ abstract class Utils extends Application {
          * Source graphics has been drawn as fullHD (1920 x 1080).
          */
         Rectangle2D primaryScreenBounds = Screen.getPrimary().getVisualBounds();
-        mSceneWidth = primaryScreenBounds.getWidth() / 1.5;
+        mSceneWidth = primaryScreenBounds.getWidth() / 2;
         mSceneHeight = (mSceneWidth / 1920) * 1080;
         mFrameDimension = (mSceneWidth / 1920) * 120;
         System.out.println("mFrameDimension = " + mFrameDimension);
