@@ -16,8 +16,7 @@ import javafx.scene.image.Image;
 
 import game.Sprites.Player;
 import game.Sprites.Arrow;
-
-import java.util.Random;
+import game.Sprites.Artifact;
 
 public class Main extends Utils {
 
@@ -27,9 +26,12 @@ public class Main extends Utils {
 
     private final int FRAME_LAST_IDX = 7;
     private final double FRAME_DURATION_EIST = 90000000;
+    private final double FRAME_DURATION_ARTIFACT = 135000000;
     private int mCurrentEistFrame = 0;
+    private int mCurrentArtifactFrame = 0;
 
     private long lastEistFrameChangeTime;
+    private long lastArtifactFrameChangeTime;
 
     private double mFps = 0;
 
@@ -75,6 +77,7 @@ public class Main extends Utils {
         mScene.setOnMouseClicked(this::handleMouseEvents);
 
         lastEistFrameChangeTime = System.nanoTime();
+        lastArtifactFrameChangeTime = System.nanoTime();
 
         new AnimationTimer() {
 
@@ -90,7 +93,16 @@ public class Main extends Utils {
                     }
                 }
 
-                drawBoard(graphicsContext, mCurrentEistFrame);
+                if (now - lastArtifactFrameChangeTime > FRAME_DURATION_ARTIFACT) {
+                    lastArtifactFrameChangeTime = now;
+                    mCurrentArtifactFrame++;
+
+                    if (mCurrentArtifactFrame > FRAME_LAST_IDX) {
+                        mCurrentArtifactFrame = 0;
+                    }
+                }
+
+                drawBoard(graphicsContext, mCurrentEistFrame, mCurrentArtifactFrame);
                 updateBoard();
 
                 if (lastUpdate > 0) {
@@ -112,14 +124,14 @@ public class Main extends Utils {
         stage.show();
     }
 
-    private void drawBoard(GraphicsContext gc, int eist_frame) {
+    private void drawBoard(GraphicsContext gc, int eist_frame, int artifact_frame) {
 
         gc.clearRect(0, 0, mSceneWidth, mSceneHeight);
 
         gc.drawImage(mBoard, 0, 0, mSceneWidth, mSceneHeight);
 
         /*
-         * Switch the sprites source graphics according to the movement direction. It could have been just rotated,
+         * Switch the Eists source graphics according to the movement direction. It could have been just rotated,
          * but I wanted the light to always come from the right side. Oh, ok: almost always. The bitmap will need
          * rotation while turning, and sometimes while falling down. Missing chiaroscuro should be unnoticeable.
          */
@@ -149,9 +161,7 @@ public class Main extends Utils {
          */
         if (mArrows != null && mArrows.size() > 0) {
 
-            for (int i = 0; i < mArrows.size(); i++) {
-
-                Arrow arrow = mArrows.get(i);
+            for (Arrow arrow : mArrows) {
 
                 Image image;
                 switch (arrow.getDirection()) {
@@ -178,8 +188,8 @@ public class Main extends Utils {
                     break;
                 }
             }
-
         }
+
         if (mEistRotation != 0) {
             gc.save();
             Rotate r = new Rotate(mEistRotation, mEistX + mGridDimension, mEistY + mGridDimension);
@@ -189,6 +199,18 @@ public class Main extends Utils {
         } else {
             gc.drawImage(mEistImage, 120 * eist_frame, 0, 120, 120, mEistX, mEistY, mFrameDimension, mFrameDimension);
         }
+
+        /*
+         * Draw artifacts
+         */
+        if (mArtifact != null && mArtifacts.size() > 0) {
+
+            for (Artifact artifact : mArtifacts) {
+
+                gc.drawImage(mArtifact, 160 * artifact_frame, 0, 160, 160, artifact.posX, artifact.posY, mFrameDimension, mFrameDimension);
+            }
+        }
+
         /*
          * Just for testing purposes:
          */

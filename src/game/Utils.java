@@ -9,6 +9,7 @@ import javafx.stage.Screen;
 
 import game.Sprites.Player;
 import game.Sprites.Arrow;
+import game.Sprites.Artifact;
 
 import java.io.*;
 import java.nio.file.Files;
@@ -167,6 +168,8 @@ abstract class Utils extends Application {
     Image mArrowLeft;
     Image mArrowUp;
 
+    Image mArtifact;
+
     void loadCommonGraphics() {
 
         mEistRight = new Image("images/sprites/eist_right.png");
@@ -180,7 +183,11 @@ abstract class Utils extends Application {
         mArrowUp = new Image("images/sprites/arrow_up.png");
     }
 
+    /**
+     * Create game objects on the basis of .dat files
+     */
     List<Arrow> mArrows;
+    List<Artifact> mArtifacts;
 
     void loadLevel(int level) {
 
@@ -217,6 +224,35 @@ abstract class Utils extends Application {
                 arrow.setDirection(Integer.valueOf(positions[2]));
                 mArrows.add(arrow);
             }
+        }
+        /*
+         * Load artifacts (called "amulets" in resources due to historical reasons ;)
+         */
+        mArtifact = new Image(url + "amulet.png");
+        System.out.println("amuletImg: " + mArtifact.getWidth() + ", " + mArtifact.getHeight());
+
+        dataString = datToString(getClass().getResource(url + "amulets.dat").getPath());
+        if (dataString != null) {
+
+            mArtifacts = new ArrayList<>();
+
+            String[] artifacts = dataString.split(":");
+
+            for (String single_entry : artifacts) {
+
+                String[] positions = single_entry.split(",");
+
+                int posX = Integer.valueOf(positions[0]);
+                int posY = Integer.valueOf(positions[1]);
+
+                Artifact artifact = new Artifact();
+                artifact.setPosX(columns[posX]);
+                artifact.setPosY(rows[posY]);
+
+                artifact.setArea(innerRect(columns[posX], rows[posY]));
+                mArtifacts.add(artifact);
+            }
+            System.out.println("Loaded artifacts: " + mArtifacts.size());
         }
     }
 
