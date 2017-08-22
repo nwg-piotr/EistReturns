@@ -212,7 +212,6 @@ abstract class Utils extends Application {
                 arrow.setPosX(columns[posX]);
                 arrow.setPosY(rows[posY]);
 
-                //arrow.setArea(new Rectangle2D(columns[posX], rows[posY], mFrameDimension, mFrameDimension));
                 arrow.setArea(innerRect(columns[posX], rows[posY]));
 
                 arrow.setDirection(Integer.valueOf(positions[2]));
