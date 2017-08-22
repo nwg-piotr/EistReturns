@@ -190,16 +190,6 @@ public class Main extends Utils {
             }
         }
 
-        if (mEistRotation != 0) {
-            gc.save();
-            Rotate r = new Rotate(mEistRotation, mEistX + mGridDimension, mEistY + mGridDimension);
-            gc.setTransform(r.getMxx(), r.getMyx(), r.getMxy(), r.getMyy(), r.getTx(), r.getTy());
-            gc.drawImage(mEistImage, 120 * eist_frame, 0, 120, 120, mEistX, mEistY, mFrameDimension, mFrameDimension);
-            gc.restore();
-        } else {
-            gc.drawImage(mEistImage, 120 * eist_frame, 0, 120, 120, mEistX, mEistY, mFrameDimension, mFrameDimension);
-        }
-
         /*
          * Draw artifacts
          */
@@ -208,7 +198,26 @@ public class Main extends Utils {
             for (Artifact artifact : mArtifacts) {
 
                 gc.drawImage(mArtifact, 160 * artifact_frame, 0, 160, 160, artifact.posX, artifact.posY, mFrameDimension, mFrameDimension);
+
+                if (artifact.getArea().contains(eist.getCenter())) {
+
+                    mArtifacts.remove(artifact);
+                    break;
+                }
             }
+        }
+
+        /*
+         * Draw Eist
+         */
+        if (mEistRotation != 0) {
+            gc.save();
+            Rotate r = new Rotate(mEistRotation, mEistX + mGridDimension, mEistY + mGridDimension);
+            gc.setTransform(r.getMxx(), r.getMyx(), r.getMxy(), r.getMyy(), r.getTx(), r.getTy());
+            gc.drawImage(mEistImage, 120 * eist_frame, 0, 120, 120, mEistX, mEistY, mFrameDimension, mFrameDimension);
+            gc.restore();
+        } else {
+            gc.drawImage(mEistImage, 120 * eist_frame, 0, 120, 120, mEistX, mEistY, mFrameDimension, mFrameDimension);
         }
 
         /*
