@@ -197,7 +197,7 @@ public class Main extends Utils {
 
             for (Artifact artifact : mArtifacts) {
 
-                gc.drawImage(mArtifact, 160 * artifact_frame, 0, 160, 160, artifact.posX, artifact.posY, mFrameDimension, mFrameDimension);
+                gc.drawImage(mArtifact, 160 * artifact_frame, 0, 160, 160, artifact.getPosX(), artifact.getPosY(), mFrameDimension, mFrameDimension);
 
                 if (artifact.getArea().contains(eist.getCenter())) {
 
