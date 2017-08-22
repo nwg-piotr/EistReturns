@@ -229,7 +229,7 @@ public class Main extends Utils {
 
         /*
          * Rotate Eist on arrows (also on doors in the future).
-         * At the end of the maneuver place him exactly on the endPoint.
+         * At the end of the maneuver - place him exactly on the endPoint.
          */
         int turning = eist.getTurning();
         if (turning != 0) {
@@ -239,7 +239,6 @@ public class Main extends Utils {
 
             switch (eist.getDirection()) {
                 case DIR_RIGHT:
-
                     switch (eist.getTurning()) {
                         case TURNING_RIGHT:
                             if (mEistX < endX) {
@@ -258,7 +257,7 @@ public class Main extends Utils {
                             break;
 
                         case TURNING_LEFT:
-                            if (mEistX <= endX) {
+                            if (mEistX < endX) {
                                 double left = Math.abs(mEistX - endX);
                                 System.out.println(left);
                                 if (mEistRotation > -90) {
@@ -274,8 +273,7 @@ public class Main extends Utils {
                             break;
 
                         case TURNING_BACK:
-
-                            if (mEistX <= endX) {
+                            if (mEistX < endX) {
                                 double left = Math.abs(mEistX - endX);
                                 if (turnRight) {
                                     if (mEistRotation < 180) {
@@ -298,7 +296,6 @@ public class Main extends Utils {
                     break;
 
                 case DIR_LEFT:
-
                     switch (eist.getTurning()) {
                         case TURNING_LEFT:
                             if (mEistX > endX) {
@@ -333,7 +330,6 @@ public class Main extends Utils {
                             break;
 
                         case TURNING_BACK:
-
                             if (mEistX > endX) {
                                 double left = Math.abs(mEistX - endX);
                                 if (turnRight) {
@@ -348,6 +344,120 @@ public class Main extends Utils {
                             } else {
                                 mEistRotation = 0;
                                 eist.setDirection(DIR_RIGHT);
+                                eist.setTurning(TURNING_NOT);
+                                mEistX = endX;
+                                mEistY = endY;
+                            }
+                            break;
+                    }
+                    break;
+
+                case DIR_DOWN:
+                    switch (eist.getTurning()) {
+                        case TURNING_RIGHT:
+                            if (mEistY < endY) {
+                                double left = Math.abs(endY - mEistY);
+                                System.out.println(left);
+                                if (mEistRotation < 90) {
+                                    mEistRotation = 90 - (90 * (left / mRotationRadius));
+                                }
+                            } else {
+                                mEistRotation = 0;
+                                eist.setDirection(DIR_LEFT);
+                                eist.setTurning(TURNING_NOT);
+                                mEistX = endX;
+                                mEistY = endY;
+                            }
+                            break;
+
+                        case TURNING_LEFT:
+                            if (mEistY < endY) {
+                                double left = Math.abs(endY - mEistY);
+                                System.out.println(left);
+                                if (mEistRotation > -90) {
+                                    mEistRotation = -90 + (90 * (left / mRotationRadius));
+                                }
+                            } else {
+                                mEistRotation = 0;
+                                eist.setDirection(DIR_RIGHT);
+                                eist.setTurning(TURNING_NOT);
+                                mEistX = endX;
+                                mEistY = endY;
+                            }
+                            break;
+
+                        case TURNING_BACK:
+                            if (mEistY < endY) {
+                                double left = Math.abs(endY - mEistY);
+                                if (turnRight) {
+                                    if (mEistRotation < 180) {
+                                        mEistRotation = 180 - (180 * (left / mRotationRadius));
+                                    }
+                                } else {
+                                    if (mEistRotation > -180) {
+                                        mEistRotation = -180 + (180 * (left / mRotationRadius));
+                                    }
+                                }
+                            } else {
+                                mEistRotation = 0;
+                                eist.setDirection(DIR_UP);
+                                eist.setTurning(TURNING_NOT);
+                                mEistX = endX;
+                                mEistY = endY;
+                            }
+                            break;
+                    }
+                    break;
+
+                case DIR_UP:
+                    switch (eist.getTurning()) {
+                        case TURNING_RIGHT:
+                            if (mEistY > endY) {
+                                double left = Math.abs(endY - mEistY);
+                                System.out.println(left);
+                                if (mEistRotation < 90) {
+                                    mEistRotation = 90 - (90 * (left / mRotationRadius));
+                                }
+                            } else {
+                                mEistRotation = 0;
+                                eist.setDirection(DIR_RIGHT);
+                                eist.setTurning(TURNING_NOT);
+                                mEistX = endX;
+                                mEistY = endY;
+                            }
+                            break;
+
+                        case TURNING_LEFT:
+                            if (mEistY > endY) {
+                                double left = Math.abs(endY - mEistY);
+                                System.out.println(left);
+                                if (mEistRotation > -90) {
+                                    mEistRotation = -90 + (90 * (left / mRotationRadius));
+                                }
+                            } else {
+                                mEistRotation = 0;
+                                eist.setDirection(DIR_LEFT);
+                                eist.setTurning(TURNING_NOT);
+                                mEistX = endX;
+                                mEistY = endY;
+                            }
+                            break;
+
+                        case TURNING_BACK:
+                            if (mEistY > endY) {
+                                double left = Math.abs(endY - mEistY);
+                                if (turnRight) {
+                                    if (mEistRotation < 180) {
+                                        mEistRotation = 180 - (180 * (left / mRotationRadius));
+                                    }
+                                } else {
+                                    if (mEistRotation > -180) {
+                                        mEistRotation = -180 + (180 * (left / mRotationRadius));
+                                    }
+                                }
+                            } else {
+                                mEistRotation = 0;
+                                eist.setDirection(DIR_DOWN);
                                 eist.setTurning(TURNING_NOT);
                                 mEistX = endX;
                                 mEistY = endY;
