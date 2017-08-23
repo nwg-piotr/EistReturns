@@ -11,6 +11,7 @@ import game.Sprites.Player;
 import game.Sprites.Arrow;
 import game.Sprites.Artifact;
 import game.Sprites.Door;
+import game.Sprites.Key;
 
 import java.io.*;
 import java.nio.file.Files;
@@ -176,6 +177,7 @@ abstract class Utils extends Application {
     Image mArrowUp;
 
     Image mArtifact;
+    Image mKey;
     Image mDoorH;
     Image mDoorV;
 
@@ -197,6 +199,7 @@ abstract class Utils extends Application {
      */
     List<Arrow> mArrows;
     List<Artifact> mArtifacts;
+    List<Key> mKeys;
     List<Door> mDoors;
 
     void loadLevel(int level) {
@@ -263,6 +266,35 @@ abstract class Utils extends Application {
                 mArtifacts.add(artifact);
             }
             System.out.println("Loaded artifacts: " + mArtifacts.size());
+        }
+
+        /*
+         * Load keys
+         */
+        mKey = new Image(url + "key.png");
+
+        dataString = datToString(getClass().getResource(url + "keys.dat").getPath());
+        if (dataString != null) {
+
+            mKeys = new ArrayList<>();
+
+            String[] keys = dataString.split(":");
+
+            for (String single_entry : keys) {
+
+                String[] positions = single_entry.split(",");
+
+                int posX = Integer.valueOf(positions[0]);
+                int posY = Integer.valueOf(positions[1]);
+
+                Key key = new Key();
+                key.setPosX(columns[posX]);
+                key.setPosY(rows[posY]);
+
+                key.setArea(innerRect(columns[posX], rows[posY]));
+                mKeys.add(key);
+            }
+            System.out.println("Loaded keys: " + mArtifacts.size());
         }
 
         /*

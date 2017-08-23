@@ -17,6 +17,7 @@ import javafx.scene.image.Image;
 import game.Sprites.Player;
 import game.Sprites.Arrow;
 import game.Sprites.Artifact;
+import game.Sprites.Key;
 import game.Sprites.Door;
 
 public class Main extends Utils {
@@ -72,7 +73,7 @@ public class Main extends Utils {
         mEistY = rows[8];
 
         eist.setDirection(DIR_LEFT);
-        eist.setKeys(1);
+        eist.setKeys(0);
 
         mEistImage = mEistRight;
 
@@ -204,6 +205,25 @@ public class Main extends Utils {
                 if (artifact.getArea().contains(eist.getCenter())) {
 
                     mArtifacts.remove(artifact);
+                    break;
+                }
+            }
+        }
+
+        /*
+         * Draw keys
+         */
+        if (mKey != null && mKeys.size() > 0) {
+
+            for (Key key : mKeys) {
+
+                gc.drawImage(mKey, key.getPosX(), key.getPosY(), mFrameDimension, mFrameDimension);
+
+                if (key.getArea().contains(eist.getCenter())) {
+
+                    mKeys.remove(key);
+                    eist.setKeys(eist.getKeys() + 1);
+                    System.out.println("Keys owned: " + eist.getKeys());
                     break;
                 }
             }
