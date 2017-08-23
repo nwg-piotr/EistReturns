@@ -639,6 +639,7 @@ public class Main extends Utils {
                 }
             }
             eist.setTurning(TURNING_BACK);
+
             mDoorHit = true;
         }
     }
