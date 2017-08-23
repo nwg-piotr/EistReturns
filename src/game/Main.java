@@ -319,7 +319,6 @@ public class Main extends Utils {
                         case TURNING_RIGHT:
                             if (mEistX < endX) {
                                 double left = Math.abs(endX - mEistX);
-                                System.out.println(left);
                                 if (mEistRotation < 90) {
                                     mEistRotation = 90 - (90 * (left / mRotationRadius));
                                 }
@@ -335,7 +334,6 @@ public class Main extends Utils {
                         case TURNING_LEFT:
                             if (mEistX < endX) {
                                 double left = Math.abs(mEistX - endX);
-                                System.out.println(left);
                                 if (mEistRotation > -90) {
                                     mEistRotation = -90 + (90 * (left / mRotationRadius));
                                 }
@@ -376,7 +374,6 @@ public class Main extends Utils {
                         case TURNING_LEFT:
                             if (mEistX > endX) {
                                 double left = Math.abs(endX - mEistX);
-                                System.out.println(left);
                                 if (mEistRotation < 90) {
                                     mEistRotation = -90 + (90 * (left / mRotationRadius));
                                 }
@@ -392,7 +389,6 @@ public class Main extends Utils {
                         case TURNING_RIGHT:
                             if (mEistX > endX) {
                                 double left = Math.abs(mEistX - endX);
-                                System.out.println(left);
                                 if (mEistRotation > -90) {
                                     mEistRotation = 90 - (90 * (left / mRotationRadius));
                                 }
@@ -433,7 +429,6 @@ public class Main extends Utils {
                         case TURNING_RIGHT:
                             if (mEistY < endY) {
                                 double left = Math.abs(endY - mEistY);
-                                System.out.println(left);
                                 if (mEistRotation < 90) {
                                     mEistRotation = 90 - (90 * (left / mRotationRadius));
                                 }
@@ -449,7 +444,6 @@ public class Main extends Utils {
                         case TURNING_LEFT:
                             if (mEistY < endY) {
                                 double left = Math.abs(endY - mEistY);
-                                System.out.println(left);
                                 if (mEistRotation > -90) {
                                     mEistRotation = -90 + (90 * (left / mRotationRadius));
                                 }
@@ -490,7 +484,6 @@ public class Main extends Utils {
                         case TURNING_RIGHT:
                             if (mEistY > endY) {
                                 double left = Math.abs(endY - mEistY);
-                                System.out.println(left);
                                 if (mEistRotation < 90) {
                                     mEistRotation = 90 - (90 * (left / mRotationRadius));
                                 }
@@ -506,7 +499,6 @@ public class Main extends Utils {
                         case TURNING_LEFT:
                             if (mEistY > endY) {
                                 double left = Math.abs(endY - mEistY);
-                                System.out.println(left);
                                 if (mEistRotation > -90) {
                                     mEistRotation = -90 + (90 * (left / mRotationRadius));
                                 }
