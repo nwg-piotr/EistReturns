@@ -12,6 +12,8 @@ import game.Sprites.Arrow;
 import game.Sprites.Artifact;
 import game.Sprites.Door;
 import game.Sprites.Key;
+import game.Sprites.Slot;
+import game.Sprites.Ladder;
 
 import java.io.*;
 import java.nio.file.Files;
@@ -49,7 +51,6 @@ abstract class Utils extends Application {
     static final int TURNING_RIGHT = 1;
     static final int TURNING_LEFT = 2;
     static final int TURNING_BACK = 3;
-    static final int TURNING_DOOR = 4;
 
     static final int ORIENTATION_HORIZONTAL = 0;
     static final int ORIENTATION_VERTICAL = 1;
@@ -58,6 +59,7 @@ abstract class Utils extends Application {
      * Sprites and other game objects come here.
      */
     Player eist;
+    Ladder ladder;
 
     /**
      * To place the game board content (arrows, artifacts, teleports etc), we'll divide it into rows and columns grid.
@@ -201,6 +203,7 @@ abstract class Utils extends Application {
     List<Artifact> mArtifacts;
     List<Key> mKeys;
     List<Door> mDoors;
+    List<Slot> mSlots;
 
     void loadLevel(int level) {
 
@@ -327,6 +330,57 @@ abstract class Utils extends Application {
                 mDoors.add(door);
             }
             System.out.println("Loaded doors: " + mDoors.size());
+        }
+
+        /*
+         * Load ladder slots
+         */
+        dataString = datToString(getClass().getResource(url + "slots.dat").getPath());
+        if (dataString != null) {
+
+            mSlots = new ArrayList<>();
+
+            String[] slots = dataString.split(":");
+
+            for (String single_entry : slots) {
+
+                String[] positions = single_entry.split(",");
+
+                int posX = Integer.valueOf(positions[0]);
+                int posY = Integer.valueOf(positions[1]);
+                int orientation = Integer.valueOf(positions[2]);
+
+                Slot slot = new Slot();
+                slot.setPosX(columns[posX]);
+                slot.setPosY(rows[posY]);
+                slot.setOrientation(orientation);
+
+                slot.setArea(innerRect(columns[posX], rows[posY]));
+                mSlots.add(slot);
+            }
+            System.out.println("Loaded slots: " + mDoors.size());
+        }
+
+        /*
+         * Load level data
+         */
+        dataString = datToString(getClass().getResource(url + "level.dat").getPath());
+        if (dataString != null) {
+            System.out.println("Level data: " + dataString);
+
+            String[] data = dataString.split(",");
+
+            System.out.println(Integer.valueOf(data[0]));
+            System.out.println(Integer.valueOf(data[1]));
+            System.out.println(Integer.valueOf(data[2]));
+            System.out.println(Integer.valueOf(data[3]));
+            System.out.println(Integer.valueOf(data[4]));
+            System.out.println(Integer.valueOf(data[5]));
+            eist.x = columns[Integer.valueOf(data[0])];
+            eist.y = rows[Integer.valueOf(data[1])];
+            eist.setDirection(Integer.valueOf(data[2]));
+            ladder.setSlot(Integer.valueOf(data[3]));
+            // todo missing exit coordinates
         }
     }
 

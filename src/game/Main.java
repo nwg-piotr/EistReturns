@@ -19,6 +19,7 @@ import game.Sprites.Arrow;
 import game.Sprites.Artifact;
 import game.Sprites.Key;
 import game.Sprites.Door;
+import game.Sprites.Ladder;
 
 public class Main extends Utils {
 
@@ -57,9 +58,12 @@ public class Main extends Utils {
 
         loadCommonGraphics();
 
-        loadLevel(1);
+
 
         eist = new Player();
+        ladder = new Ladder();
+
+        loadLevel(40);
 
         /*
          * (Temporarily) initialize starting values. Later we'll need the loadLevel(int level) method.
