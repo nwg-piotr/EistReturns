@@ -622,19 +622,19 @@ public class Main extends Utils {
 
             switch(eist.getDirection()) {
                 case DIR_RIGHT: {
-                    eist.setEndPoint(new Point2D(door.getPosX() + mFrameDimension * 1.5, door.getPosY()));
-                    break;
-                }
-                case DIR_LEFT: {
                     eist.setEndPoint(new Point2D(door.getPosX() - mFrameDimension * 1.5, door.getPosY()));
                     break;
                 }
+                case DIR_LEFT: {
+                    eist.setEndPoint(new Point2D(door.getPosX() + mFrameDimension * 1.5, door.getPosY()));
+                    break;
+                }
                 case DIR_DOWN: {
-                    eist.setEndPoint(new Point2D(door.getPosX(), door.getPosY() + mFrameDimension * 1.5));
+                    eist.setEndPoint(new Point2D(door.getPosX(), door.getPosY() - mFrameDimension * 1.5));
                     break;
                 }
                 case DIR_UP: {
-                    eist.setEndPoint(new Point2D(door.getPosX(), door.getPosY() - mFrameDimension * 1.5));
+                    eist.setEndPoint(new Point2D(door.getPosX(), door.getPosY() + mFrameDimension * 1.5));
                     break;
                 }
             }
