@@ -26,7 +26,7 @@ abstract class Utils extends Application {
 
     boolean turnRight;
 
-    boolean mDoorHit = false;
+    boolean mDisableDoorReaction = false;
 
     /**
      * The Frame is a rectangular part of the game board of width of 2 columns and height of 2 rows.
@@ -48,6 +48,7 @@ abstract class Utils extends Application {
     static final int TURNING_RIGHT = 1;
     static final int TURNING_LEFT = 2;
     static final int TURNING_BACK = 3;
+    static final int TURNING_DOOR = 4;
 
     static final int ORIENTATION_HORIZONTAL = 0;
     static final int ORIENTATION_VERTICAL = 1;

@@ -68,11 +68,11 @@ public class Main extends Utils {
         /*
          * (Temporarily) initialize starting values. Later we'll need the loadLevel(int level) method.
          */
-        mEistX = columns[1];
-        mEistY = rows[1];
+        mEistX = columns[11];
+        mEistY = rows[8];
 
-        eist.setDirection(DIR_RIGHT);
-        //eist.setKeys(1);
+        eist.setDirection(DIR_LEFT);
+        eist.setKeys(1);
 
         mEistImage = mEistRight;
 
@@ -214,6 +214,8 @@ public class Main extends Utils {
          */
         if (mDoors != null && mDoors.size() > 0) {
 
+            Door doorToRemove = null;
+
             for (Door door : mDoors) {
 
                 Image image;
@@ -226,10 +228,26 @@ public class Main extends Utils {
 
                 if (door.getArea().contains(eist.getCenter())) {
 
-                    reactToDoor(door);
-                    //break;
-                } else {
-                    mDoorHit = false;
+                    if (eist.getKeys() > 0) {
+
+                        eist.setKeys(eist.getKeys() - 1);
+                        doorToRemove = door;
+
+                    } else {
+
+                        if(!mDisableDoorReaction) {
+                            reactToDoor(door);
+                        }
+                    }
+                }
+            }
+            if(doorToRemove != null) {
+                mDoors.remove(doorToRemove);
+            }
+            mDisableDoorReaction = false;
+            for (Door door : mDoors) {
+                if (door.getArea().contains(eist.getCenter())) {
+                    mDisableDoorReaction = true;
                 }
             }
         }
@@ -613,35 +631,30 @@ public class Main extends Utils {
     }
     private void reactToDoor(Door door) {
 
-        if (eist.getKeys() > 0) {
+        System.out.println("Reacting to door at " + door.getPosX() + ", " + door.getPosY());
+        turnRight = getRandomBoolean();
 
-            mDoors.remove(door);
-            eist.setKeys(eist.getKeys() - 1);
-
-        } else {
-
-            switch(eist.getDirection()) {
-                case DIR_RIGHT: {
-                    eist.setEndPoint(new Point2D(door.getPosX() - mFrameDimension * 1.5, door.getPosY()));
-                    break;
-                }
-                case DIR_LEFT: {
-                    eist.setEndPoint(new Point2D(door.getPosX() + mFrameDimension * 1.5, door.getPosY()));
-                    break;
-                }
-                case DIR_DOWN: {
-                    eist.setEndPoint(new Point2D(door.getPosX(), door.getPosY() - mFrameDimension * 1.5));
-                    break;
-                }
-                case DIR_UP: {
-                    eist.setEndPoint(new Point2D(door.getPosX(), door.getPosY() + mFrameDimension * 1.5));
-                    break;
-                }
+        switch (eist.getDirection()) {
+            case DIR_RIGHT: {
+                eist.setEndPoint(new Point2D(door.getPosX(), door.getPosY()));
+                break;
             }
-            eist.setTurning(TURNING_BACK);
-
-            mDoorHit = true;
+            case DIR_LEFT: {
+                eist.setEndPoint(new Point2D(door.getPosX(), door.getPosY()));
+                break;
+            }
+            case DIR_DOWN: {
+                eist.setEndPoint(new Point2D(door.getPosX(), door.getPosY()));
+                break;
+            }
+            case DIR_UP: {
+                eist.setEndPoint(new Point2D(door.getPosX(), door.getPosY()));
+                break;
+            }
         }
+        eist.setTurning(TURNING_BACK);
+
+        mDisableDoorReaction = true;
     }
 
     public static void main(String[] args) {
