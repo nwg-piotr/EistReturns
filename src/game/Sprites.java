@@ -322,6 +322,19 @@ abstract class Sprites extends Utils {
         }
     }
 
+    static class Ladder {
+
+        private Integer slot;
+
+        void setSlot(Integer value) {
+            slot = value;
+        }
+
+        Integer getSlot() {
+            return slot;
+        }
+    }
+
     static class Life {
 
         private double posX;
