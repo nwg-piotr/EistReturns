@@ -12,6 +12,9 @@ abstract class Sprites extends Utils {
 
         boolean isMoving;
         boolean isFalling;
+        double rotation;
+        double x;
+        double y;
 
         private Integer direction;
         private Integer turning; // TURNING_NOT / _RIGHT / _LEFT / _BACK
