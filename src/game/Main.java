@@ -231,6 +231,7 @@ public class Main extends Utils {
                     if (eist.getKeys() > 0) {
 
                         eist.setKeys(eist.getKeys() - 1);
+                        System.out.println("Keys left: " + eist.getKeys());
                         doorToRemove = door;
 
                     } else {
@@ -627,11 +628,9 @@ public class Main extends Utils {
                 break;
         }
         mArrows.remove(arrow);
-        System.out.println("Turning " + eist.getTurning());
     }
     private void reactToDoor(Door door) {
 
-        System.out.println("Reacting to door at " + door.getPosX() + ", " + door.getPosY());
         turnRight = getRandomBoolean();
 
         switch (eist.getDirection()) {
