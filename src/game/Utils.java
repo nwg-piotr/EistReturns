@@ -10,6 +10,7 @@ import javafx.stage.Screen;
 import game.Sprites.Player;
 import game.Sprites.Arrow;
 import game.Sprites.Artifact;
+import game.Sprites.Door;
 
 import java.io.*;
 import java.nio.file.Files;
@@ -24,6 +25,8 @@ abstract class Utils extends Application {
     double walkingSpeedPerSecond;
 
     boolean turnRight;
+
+    boolean mDoorHit = false;
 
     /**
      * The Frame is a rectangular part of the game board of width of 2 columns and height of 2 rows.
@@ -45,6 +48,9 @@ abstract class Utils extends Application {
     static final int TURNING_RIGHT = 1;
     static final int TURNING_LEFT = 2;
     static final int TURNING_BACK = 3;
+
+    static final int ORIENTATION_HORIZONTAL = 0;
+    static final int ORIENTATION_VERTICAL = 1;
 
     /**
      * Sprites and other game objects come here.
@@ -169,6 +175,8 @@ abstract class Utils extends Application {
     Image mArrowUp;
 
     Image mArtifact;
+    Image mDoorH;
+    Image mDoorV;
 
     void loadCommonGraphics() {
 
@@ -188,6 +196,7 @@ abstract class Utils extends Application {
      */
     List<Arrow> mArrows;
     List<Artifact> mArtifacts;
+    List<Door> mDoors;
 
     void loadLevel(int level) {
 
@@ -202,7 +211,7 @@ abstract class Utils extends Application {
         String dataString;
 
         dataString = datToString(getClass().getResource(url + "arrows.dat").getPath());
-        if (dataString != null) {
+        if (dataString != null && !dataString.isEmpty()) {
 
             mArrows = new ArrayList<>();
 
@@ -224,12 +233,12 @@ abstract class Utils extends Application {
                 arrow.setDirection(Integer.valueOf(positions[2]));
                 mArrows.add(arrow);
             }
+            System.out.println("Loaded arrows: " + mArrows.size());
         }
         /*
          * Load artifacts (called "amulets" in resources due to historical reasons ;)
          */
         mArtifact = new Image(url + "amulet.png");
-        System.out.println("amuletImg: " + mArtifact.getWidth() + ", " + mArtifact.getHeight());
 
         dataString = datToString(getClass().getResource(url + "amulets.dat").getPath());
         if (dataString != null) {
@@ -254,10 +263,43 @@ abstract class Utils extends Application {
             }
             System.out.println("Loaded artifacts: " + mArtifacts.size());
         }
+
+        /*
+         * Load doors
+         */
+        mDoorH = new Image(url + "door_h.png");
+        mDoorV = new Image(url + "door_v.png");
+
+        dataString = datToString(getClass().getResource(url + "doors.dat").getPath());
+        if (dataString != null) {
+
+            mDoors = new ArrayList<>();
+
+            String[] artifacts = dataString.split(":");
+
+            for (String single_entry : artifacts) {
+
+                String[] positions = single_entry.split(",");
+
+                int posX = Integer.valueOf(positions[0]);
+                int posY = Integer.valueOf(positions[1]);
+                int orientation = Integer.valueOf(positions[2]);
+
+                Door door = new Door();
+                door.setPosX(columns[posX]);
+                door.setPosY(rows[posY]);
+                door.setOrientation(orientation);
+
+                door.setArea(innerRect(columns[posX], rows[posY]));
+                mDoors.add(door);
+            }
+            System.out.println("Loaded doors: " + mDoors.size());
+        }
     }
 
     /**
      * Object detection area must not fill all the frame. Let's center a rectangle of the grid size inside the frame.
+     *
      * @param outerX Source frame X
      * @param outerY Source frame Y
      * @return Centered smaller rectangle
@@ -278,7 +320,7 @@ abstract class Utils extends Application {
         String content;
 
         try {
-            content = new String(Files.readAllBytes(path));
+            content = new String(Files.readAllBytes(path)).trim();
         } catch (IOException e) {
             content = null;
             e.printStackTrace();

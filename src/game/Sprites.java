@@ -13,11 +13,12 @@ abstract class Sprites extends Utils {
         boolean isMoving;
         boolean isFalling;
 
-        Integer direction;
-        Integer turning; // TURNING_NOT / _RIGHT / _LEFT / _BACK
-        Rectangle2D area;
-        Point2D center;
-        Point2D end_point; // Coordinates at which Eist should be placed at the end of the current maneuver
+        private Integer direction;
+        private Integer turning; // TURNING_NOT / _RIGHT / _LEFT / _BACK
+        private Integer keys;
+        private Rectangle2D area;
+        private Point2D center;
+        private Point2D end_point; // Coordinates at which Eist should be placed at the end of the current maneuver
 
         void setDirection(int value) {
             switch(value) {
@@ -39,6 +40,10 @@ abstract class Sprites extends Utils {
             }
         }
 
+        void setKeys(int value) {
+            keys = value;
+        }
+
         void setArea(Rectangle2D rectangle2D) {
             area = rectangle2D;
         }
@@ -52,19 +57,15 @@ abstract class Sprites extends Utils {
         }
 
         int getDirection() {
-            if(direction != null) {
-                return direction;
-            } else {
-                return 0;
-            }
+            return direction != null ? direction : 0;
         }
 
         int getTurning() {
-            if(turning != null) {
-                return turning;
-            } else {
-                return 0;
-            }
+            return turning != null ? turning : 0;
+        }
+
+        int getKeys() {
+            return keys != null ? keys : 0;
         }
 
         Rectangle2D getArea() {
@@ -82,10 +83,10 @@ abstract class Sprites extends Utils {
 
     static class Arrow {
 
-        double posX;
-        double posY;
-        int direction;
-        Rectangle2D area;
+        private double posX;
+        private double posY;
+        private int direction;
+        private Rectangle2D area;
 
         void setPosX(double x_value) {
             posX = x_value;
@@ -122,9 +123,9 @@ abstract class Sprites extends Utils {
 
     static class Artifact {
 
-        double posX;
-        double posY;
-        Rectangle2D area;
+        private double posX;
+        private double posY;
+        private Rectangle2D area;
 
         void setPosX(double x_value) {
             posX = x_value;
@@ -153,8 +154,8 @@ abstract class Sprites extends Utils {
 
     static class Ornament {
 
-        double marginX;
-        double marginY;
+        private double marginX;
+        private double marginY;
 
         void setMarginX(double x_value) {
             marginX = x_value;
@@ -175,9 +176,9 @@ abstract class Sprites extends Utils {
 
     static class Teleport {
 
-        double posX;
-        double posY;
-        Rectangle2D area;
+        private double posX;
+        private double posY;
+        private Rectangle2D area;
 
         void setPosX(double x_value) {
             posX = x_value;
@@ -207,9 +208,9 @@ abstract class Sprites extends Utils {
 
     static class Key {
 
-        double posX;
-        double posY;
-        Rectangle2D area;
+        private double posX;
+        private double posY;
+        private Rectangle2D area;
 
         void setPosX(double x_value) {
             posX = x_value;
@@ -239,10 +240,10 @@ abstract class Sprites extends Utils {
 
     static class Door {
 
-        double posX;
-        double posY;
-        Rectangle2D area;
-        int orientation;
+        private double posX;
+        private double posY;
+        private Rectangle2D area;
+        private int orientation;
 
         void setPosX(double x_value) {
             posX = x_value;
@@ -280,10 +281,10 @@ abstract class Sprites extends Utils {
 
     static class Slot {
 
-        double posX;
-        double posY;
-        Rectangle2D area;
-        int orientation; // 0 = horizontal, 1 = vertical
+        private double posX;
+        private double posY;
+        private Rectangle2D area;
+        private int orientation; // 0 = horizontal, 1 = vertical
 
         void setPosX(double x_value) {
             posX = x_value;
@@ -320,9 +321,9 @@ abstract class Sprites extends Utils {
 
     static class Life {
 
-        double posX;
-        double posY;
-        Rectangle2D area;
+        private double posX;
+        private double posY;
+        private Rectangle2D area;
 
         void setPosX(double x_value) {
             posX = x_value;

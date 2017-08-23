@@ -17,6 +17,7 @@ import javafx.scene.image.Image;
 import game.Sprites.Player;
 import game.Sprites.Arrow;
 import game.Sprites.Artifact;
+import game.Sprites.Door;
 
 public class Main extends Utils {
 
@@ -71,6 +72,7 @@ public class Main extends Utils {
         mEistY = rows[1];
 
         eist.setDirection(DIR_RIGHT);
+        //eist.setKeys(1);
 
         mEistImage = mEistRight;
 
@@ -203,6 +205,31 @@ public class Main extends Utils {
 
                     mArtifacts.remove(artifact);
                     break;
+                }
+            }
+        }
+
+        /*
+         * Draw doors
+         */
+        if (mDoors != null && mDoors.size() > 0) {
+
+            for (Door door : mDoors) {
+
+                Image image;
+                if (door.getOrientation() == ORIENTATION_HORIZONTAL) {
+                    image = mDoorH;
+                } else {
+                    image = mDoorV;
+                }
+                gc.drawImage(image, door.getPosX(), door.getPosY(), mFrameDimension, mFrameDimension);
+
+                if (door.getArea().contains(eist.getCenter())) {
+
+                    reactToDoor(door);
+                    //break;
+                } else {
+                    mDoorHit = false;
                 }
             }
         }
@@ -583,6 +610,37 @@ public class Main extends Utils {
         }
         mArrows.remove(arrow);
         System.out.println("Turning " + eist.getTurning());
+    }
+    private void reactToDoor(Door door) {
+
+        if (eist.getKeys() > 0) {
+
+            mDoors.remove(door);
+            eist.setKeys(eist.getKeys() - 1);
+
+        } else {
+
+            switch(eist.getDirection()) {
+                case DIR_RIGHT: {
+                    eist.setEndPoint(new Point2D(door.getPosX() + mFrameDimension * 1.5, door.getPosY()));
+                    break;
+                }
+                case DIR_LEFT: {
+                    eist.setEndPoint(new Point2D(door.getPosX() - mFrameDimension * 1.5, door.getPosY()));
+                    break;
+                }
+                case DIR_DOWN: {
+                    eist.setEndPoint(new Point2D(door.getPosX(), door.getPosY() + mFrameDimension * 1.5));
+                    break;
+                }
+                case DIR_UP: {
+                    eist.setEndPoint(new Point2D(door.getPosX(), door.getPosY() - mFrameDimension * 1.5));
+                    break;
+                }
+            }
+            eist.setTurning(TURNING_BACK);
+            mDoorHit = true;
+        }
     }
 
     public static void main(String[] args) {
