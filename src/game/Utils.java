@@ -10,10 +10,12 @@ import javafx.stage.Screen;
 import game.Sprites.Player;
 import game.Sprites.Arrow;
 import game.Sprites.Artifact;
+import game.Sprites.Teleport;
 import game.Sprites.Door;
 import game.Sprites.Key;
 import game.Sprites.Slot;
 import game.Sprites.Ladder;
+import game.Sprites.Exit;
 
 import java.io.*;
 import java.nio.file.Files;
@@ -60,6 +62,7 @@ abstract class Utils extends Application {
      */
     Player eist;
     Ladder ladder;
+    Exit exit;
 
     /**
      * To place the game board content (arrows, artifacts, teleports etc), we'll divide it into rows and columns grid.
@@ -126,38 +129,74 @@ abstract class Utils extends Application {
         return total / frameRates.length;
     }
 
-    void handleMouseEvents(MouseEvent event) {
-        if (eist.getArea().contains(new Point2D(event.getSceneX(), event.getSceneY()))) {
+    void handleMouseEvent(MouseEvent event) {
+
+        Point2D pointClicked = new Point2D(event.getSceneX(), event.getSceneY());
+
+        /*
+         * Check whether menu or board clicked
+         */
+        if(pointClicked.getX() > columns[26]) {
 
             /*
-             * (Temporarily) turn 90 degrees right if the sprite clicked.
+             * Menu clicked. Check which part.
              */
-            switch (eist.getDirection()) {
-                case DIR_RIGHT:
-                    eist.setDirection(DIR_DOWN);
-                    break;
+            if(pointClicked.getY() < rows[8]) {
+                /*
+                 * Arrows clicked. (Temporarily) turn Eist 90 degrees right if the sprite clicked.
+                 */
+                switch (eist.getDirection()) {
+                    case DIR_RIGHT:
+                        eist.setDirection(DIR_DOWN);
+                        break;
 
-                case DIR_DOWN:
-                    eist.setDirection(DIR_LEFT);
-                    break;
+                    case DIR_DOWN:
+                        eist.setDirection(DIR_LEFT);
+                        break;
 
-                case DIR_LEFT:
-                    eist.setDirection(DIR_UP);
-                    break;
+                    case DIR_LEFT:
+                        eist.setDirection(DIR_UP);
+                        break;
 
-                case DIR_UP:
-                    eist.setDirection(DIR_RIGHT);
-                    break;
+                    case DIR_UP:
+                        eist.setDirection(DIR_RIGHT);
+                        break;
 
-                default:
-                    break;
+                    default:
+                        break;
+                }
+
+            } else {
+                /*
+                 * Below arrows clicked. (Temporarily) start/stop Eists movement
+                 */
+                eist.isMoving = !eist.isMoving;
             }
 
         } else {
             /*
-             * (Temporarily) start / stop moving if anything else clicked.
+             * Board clicked
              */
-            eist.isMoving = !eist.isMoving;
+            for (Slot slot : mSlots) {
+
+                if(slot.getArea().contains(pointClicked)) {
+
+                    int clickedSlotIdx = mSlots.indexOf(slot);
+
+                    if(ladder.getSlotIdx() == null) {
+
+                        ladder.setSlotIdx(clickedSlotIdx);
+
+                    } else {
+
+                        if(clickedSlotIdx == ladder.getSlotIdx()) {
+
+                            ladder.setSlotIdx(null);
+                        }
+                    }
+
+                }
+            }
         }
     }
 
@@ -179,9 +218,17 @@ abstract class Utils extends Application {
     Image mArrowUp;
 
     Image mArtifact;
+    Image mTeleport;
     Image mKey;
     Image mDoorH;
     Image mDoorV;
+
+    Image mLadder;
+    Image mLadderH;
+    Image mLadderV;
+
+    Image mExitClosed;
+    Image mExitOpen;
 
     void loadCommonGraphics() {
 
@@ -194,6 +241,8 @@ abstract class Utils extends Application {
         mArrowDown = new Image("images/sprites/arrow_down.png");
         mArrowLeft = new Image("images/sprites/arrow_left.png");
         mArrowUp = new Image("images/sprites/arrow_up.png");
+
+        mTeleport = new Image("images/sprites/teleport.png");
     }
 
     /**
@@ -201,6 +250,7 @@ abstract class Utils extends Application {
      */
     List<Arrow> mArrows;
     List<Artifact> mArtifacts;
+    List<Teleport> mTeleports;
     List<Key> mKeys;
     List<Door> mDoors;
     List<Slot> mSlots;
@@ -210,6 +260,9 @@ abstract class Utils extends Application {
         String lvlNumberToString = (level < 10) ? "0" + String.valueOf(level) : String.valueOf(level);
         String url = "/res/" + lvlNumberToString;
 
+        /*
+         * Load board bitmap
+         */
         mBoard = new Image(url + "board.png", mSceneWidth, mSceneHeight, true, true, true);
 
         /*
@@ -242,6 +295,7 @@ abstract class Utils extends Application {
             }
             System.out.println("Loaded arrows: " + mArrows.size());
         }
+
         /*
          * Load artifacts (called "amulets" in resources due to historical reasons ;)
          */
@@ -269,6 +323,34 @@ abstract class Utils extends Application {
                 mArtifacts.add(artifact);
             }
             System.out.println("Loaded artifacts: " + mArtifacts.size());
+        }
+
+        /*
+         * Load teleports
+         */
+
+        dataString = datToString(getClass().getResource(url + "teleports.dat").getPath());
+        if (dataString != null) {
+
+            mTeleports = new ArrayList<>();
+
+            String[] teleports = dataString.split(":");
+
+            for (String single_entry : teleports) {
+
+                String[] positions = single_entry.split(",");
+
+                int posX = Integer.valueOf(positions[0]);
+                int posY = Integer.valueOf(positions[1]);
+
+                Teleport teleport = new Teleport();
+                teleport.setPosX(columns[posX]);
+                teleport.setPosY(rows[posY]);
+
+                teleport.setArea(innerRect(columns[posX], rows[posY]));
+                mTeleports.add(teleport);
+            }
+            System.out.println("Loaded teleports: " + mTeleports.size());
         }
 
         /*
@@ -355,11 +437,23 @@ abstract class Utils extends Application {
                 slot.setPosY(rows[posY]);
                 slot.setOrientation(orientation);
 
-                slot.setArea(innerRect(columns[posX], rows[posY]));
+                slot.setArea(new Rectangle2D(columns[posX], rows[posY], mFrameDimension, mFrameDimension));
                 mSlots.add(slot);
             }
             System.out.println("Loaded slots: " + mDoors.size());
         }
+
+        /*
+         * Load ladder bitmaps
+         */
+        mLadderH = new Image(url + "ladder_h.png", mFrameDimension, mFrameDimension, true, true, true);
+        mLadderV = new Image(url + "ladder_v.png", mFrameDimension, mFrameDimension, true, true, true);
+
+        /*
+         * Load exit bitmaps
+         */
+        mExitClosed = new Image(url + "exit_closed.png", mFrameDimension, mFrameDimension, true, true, true);
+        mExitOpen = new Image(url + "exit_open.png", mFrameDimension, mFrameDimension, true, true, true);
 
         /*
          * Load level data
@@ -370,16 +464,13 @@ abstract class Utils extends Application {
 
             String[] data = dataString.split(",");
 
-            System.out.println(Integer.valueOf(data[0]));
-            System.out.println(Integer.valueOf(data[1]));
-            System.out.println(Integer.valueOf(data[2]));
-            System.out.println(Integer.valueOf(data[3]));
-            System.out.println(Integer.valueOf(data[4]));
-            System.out.println(Integer.valueOf(data[5]));
             eist.x = columns[Integer.valueOf(data[0])];
             eist.y = rows[Integer.valueOf(data[1])];
             eist.setDirection(Integer.valueOf(data[2]));
-            ladder.setSlot(Integer.valueOf(data[3]));
+            exit.setPosX(columns[Integer.valueOf(data[3])]);
+            exit.setPosY(rows[Integer.valueOf(data[4])]);
+            exit.setArea(new Rectangle2D(exit.getPosX(), exit.getPosY(), mFrameDimension, mFrameDimension));
+            ladder.setSlotIdx(Integer.valueOf(data[5]));
             // todo missing exit coordinates
         }
     }

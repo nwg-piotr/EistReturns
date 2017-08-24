@@ -324,18 +324,49 @@ abstract class Sprites extends Utils {
 
     static class Ladder {
 
-        private Integer slot;
+        private Integer slotIdx;
 
-        void setSlot(Integer value) {
-            slot = value;
+        void setSlotIdx(Integer value) {
+            slotIdx = value;
         }
 
-        Integer getSlot() {
-            return slot;
+        Integer getSlotIdx() {
+            return slotIdx;
         }
     }
 
     static class Life {
+
+        private double posX;
+        private double posY;
+        private Rectangle2D area;
+
+        void setPosX(double x_value) {
+            posX = x_value;
+        }
+
+        void setPosY(double y_value) {
+            posY = y_value;
+        }
+
+        void setArea(Rectangle2D rectangle2D) {
+            area = rectangle2D;
+        }
+
+        double getPosX() {
+            return posX;
+        }
+
+        double getPosY() {
+            return posY;
+        }
+
+        Rectangle2D getArea() {
+            return  area;
+        }
+    }
+
+    static class Exit {
 
         private double posX;
         private double posY;

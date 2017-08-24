@@ -17,9 +17,12 @@ import javafx.scene.image.Image;
 import game.Sprites.Player;
 import game.Sprites.Arrow;
 import game.Sprites.Artifact;
+import game.Sprites.Teleport;
 import game.Sprites.Key;
 import game.Sprites.Door;
 import game.Sprites.Ladder;
+import game.Sprites.Slot;
+import game.Sprites.Exit;
 
 public class Main extends Utils {
 
@@ -58,25 +61,18 @@ public class Main extends Utils {
 
         loadCommonGraphics();
 
-
-
         eist = new Player();
         ladder = new Ladder();
+        exit = new Exit();
 
-        loadLevel(40);
+        loadLevel(9);
 
         /*
          * (Temporarily) initialize starting values. Later we'll need the loadLevel(int level) method.
          */
-        eist.x = columns[11];
-        eist.y = rows[8];
-
-        eist.setDirection(DIR_LEFT);
         eist.setKeys(0);
 
-        mEistImage = mEistRight;
-
-        mScene.setOnMouseClicked(this::handleMouseEvents);
+        mScene.setOnMouseClicked(this::handleMouseEvent);
 
         lastEistFrameChangeTime = System.nanoTime();
         lastArtifactFrameChangeTime = System.nanoTime();
@@ -210,6 +206,68 @@ public class Main extends Utils {
         }
 
         /*
+         * Draw artifacts
+         */
+        if (mTeleport != null && mTeleports.size() > 0) {
+
+            for (Teleport teleport : mTeleports) {
+
+                gc.drawImage(mTeleport, 160 * artifact_frame, 0, 160, 160, teleport.getPosX(), teleport.getPosY(), mFrameDimension, mFrameDimension);
+
+                if (teleport.getArea().contains(eist.getCenter())) {
+
+                    if(mTeleports.indexOf(teleport) == 0) {
+                        switch(eist.getDirection()) {
+                            case DIR_RIGHT:
+                                eist.x = mTeleports.get(1).getPosX() + mGridDimension;
+                                eist.y = mTeleports.get(1).getPosY();
+                                break;
+
+                            case DIR_LEFT:
+                                eist.x = mTeleports.get(1).getPosX() - mGridDimension;
+                                eist.y = mTeleports.get(1).getPosY();
+                                break;
+
+                            case DIR_UP:
+                                eist.x = mTeleports.get(1).getPosX();
+                                eist.y = mTeleports.get(1).getPosY() - mGridDimension;
+                                break;
+
+                            case DIR_DOWN:
+                                eist.x = mTeleports.get(1).getPosX();
+                                eist.y = mTeleports.get(1).getPosY() + mGridDimension;
+                                break;
+                        }
+
+                    } else {
+
+                        switch(eist.getDirection()) {
+                            case DIR_RIGHT:
+                                eist.x = mTeleports.get(0).getPosX() + mGridDimension;
+                                eist.y = mTeleports.get(0).getPosY();
+                                break;
+
+                            case DIR_LEFT:
+                                eist.x = mTeleports.get(0).getPosX() - mGridDimension;
+                                eist.y = mTeleports.get(0).getPosY();
+                                break;
+
+                            case DIR_UP:
+                                eist.x = mTeleports.get(0).getPosX();
+                                eist.y = mTeleports.get(0).getPosY() - mGridDimension;
+                                break;
+
+                            case DIR_DOWN:
+                                eist.x = mTeleports.get(0).getPosX();
+                                eist.y = mTeleports.get(0).getPosY() + mGridDimension;
+                                break;
+                        }
+                    }
+                }
+            }
+        }
+
+        /*
          * Draw keys
          */
         if (mKey != null && mKeys.size() > 0) {
@@ -269,6 +327,43 @@ public class Main extends Utils {
                 if (door.getArea().contains(eist.getCenter())) {
                     mDisableDoorReaction = true;
                 }
+            }
+        }
+
+        /*
+         * Draw ladder
+         */
+        Integer currentSlotIdx = ladder.getSlotIdx();
+        if(currentSlotIdx != null) {
+            Slot activeSlot = mSlots.get(currentSlotIdx);
+            if(mSlots.get(currentSlotIdx).getOrientation() == 0) {
+                mLadder = mLadderH;
+                gc.drawImage(mLadder, activeSlot.getPosX(), activeSlot.getPosY(), mGridDimension, mFrameDimension);
+            } else {
+                mLadder = mLadderV;
+                gc.drawImage(mLadder, activeSlot.getPosX(), activeSlot.getPosY(), mFrameDimension, mGridDimension);
+            }
+        } else {
+            mLadder = mLadderH;
+            gc.drawImage(mLadder, columns[29], rows[3], mGridDimension, mFrameDimension);
+        }
+
+        /*
+         * Draw exit
+         */
+        if(mArtifacts.size() > 0) {
+            gc.drawImage(mExitClosed, exit.getPosX(), exit.getPosY(), mFrameDimension, mFrameDimension);
+
+        } else {
+
+            gc.drawImage(mExitOpen, exit.getPosX(), exit.getPosY(), mFrameDimension, mFrameDimension);
+
+            /*
+             * Check if exit reached
+             */
+            if(exit.getArea().contains(eist.getCenter())) {
+
+                eist.isMoving = false;
             }
         }
 
