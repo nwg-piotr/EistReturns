@@ -40,6 +40,7 @@ abstract class Utils extends Application {
     double mFrameDimension;
     double mGridDimension;
     double mRotationRadius;
+    Integer mFallingCounter;
 
     /**
      * Eists movement directions; diagonal directions to be used while falling down only.
@@ -212,6 +213,11 @@ abstract class Utils extends Application {
     Image mEistLeftImg;
     Image mEistUpImg;
 
+    Image mEistFallingRightImg;
+    Image mEistFallingDownImg;
+    Image mEistFallingLeftImg;
+    Image mEistFallingUpImg;
+
     Image mArrowRightImg;
     Image mArrowDownImg;
     Image mArrowLeftImg;
@@ -236,6 +242,11 @@ abstract class Utils extends Application {
         mEistDownImg = new Image("images/sprites/eist_down.png");
         mEistLeftImg = new Image("images/sprites/eist_left.png");
         mEistUpImg = new Image("images/sprites/eist_up.png");
+
+        mEistFallingRightImg = new Image("images/sprites/falldown_right.png");
+        mEistFallingDownImg = new Image("images/sprites/falldown_down.png");
+        mEistFallingLeftImg = new Image("images/sprites/falldown_left.png");
+        mEistFallingUpImg = new Image("images/sprites/falldown_up.png");
 
         mArrowRightImg = new Image("images/sprites/arrow_right.png");
         mArrowDownImg = new Image("images/sprites/arrow_down.png");
@@ -426,7 +437,11 @@ abstract class Utils extends Application {
                 slot.setPosY(rows[posY]);
                 slot.setOrientation(orientation);
 
-                slot.setArea(new Rectangle2D(columns[posX], rows[posY], mFrameDimension, mFrameDimension));
+                if(slot.getOrientation() == ORIENTATION_VERTICAL) {
+                    slot.setArea(new Rectangle2D(columns[posX], rows[posY], mFrameDimension, mGridDimension));
+                } else {
+                    slot.setArea(new Rectangle2D(columns[posX], rows[posY], mGridDimension, mFrameDimension));
+                }
                 mSlots.add(slot);
             }
             System.out.println("Loaded slots: " + mDoors.size());

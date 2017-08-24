@@ -27,16 +27,20 @@ import game.Sprites.Exit;
 
 public class Main extends Utils {
 
-    private GraphicsContext graphicsContext;
+    private int mCurrentLevel = 14;
+    private GraphicsContext gc;
 
     private final int FRAME_LAST_IDX = 7;
     private final double FRAME_DURATION_EIST = 90000000;
     private final double FRAME_DURATION_ARTIFACT = 135000000;
+    private final double FRAME_DURATION_FALLING = 45000000;
     private int mCurrentEistFrame = 0;
     private int mCurrentArtifactFrame = 0;
+    private int mCurrentFallingFrame = 0;
 
     private long lastEistFrameChangeTime;
     private long lastArtifactFrameChangeTime;
+    private long lastFallingFrameChangeTime;
 
     private double mFps = 0;
 
@@ -54,11 +58,11 @@ public class Main extends Utils {
         stage.setScene(mScene);
         Canvas canvas = new Canvas(mSceneWidth, mSceneHeight);
         root.getChildren().add(canvas);
-        graphicsContext = canvas.getGraphicsContext2D();
+        gc = canvas.getGraphicsContext2D();
 
         Font theFont = Font.font("SansSerif", FontWeight.NORMAL, 20);
-        graphicsContext.setFont(theFont);
-        graphicsContext.setFill(Color.WHITE);
+        gc.setFont(theFont);
+        gc.setFill(Color.WHITE);
 
         loadCommonGraphics();
 
@@ -66,7 +70,7 @@ public class Main extends Utils {
         ladder = new Ladder();
         exit = new Exit();
 
-        loadLevel(1);
+        loadLevel(mCurrentLevel);
 
         /*
          * (Temporarily) initialize starting values. Later we'll need the loadLevel(int level) method.
@@ -77,6 +81,7 @@ public class Main extends Utils {
 
         lastEistFrameChangeTime = System.nanoTime();
         lastArtifactFrameChangeTime = System.nanoTime();
+        lastFallingFrameChangeTime = System.nanoTime();
 
         new AnimationTimer() {
 
@@ -90,6 +95,13 @@ public class Main extends Utils {
                     if (mCurrentEistFrame > FRAME_LAST_IDX) {
                         mCurrentEistFrame = 0;
                     }
+                    if (mFallingCounter != null) {
+                        if (mFallingCounter < 7) {
+                            mFallingCounter++;
+                        } else {
+                            mFallingCounter = null;
+                        }
+                    }
                 }
 
                 if (now - lastArtifactFrameChangeTime > FRAME_DURATION_ARTIFACT) {
@@ -101,8 +113,23 @@ public class Main extends Utils {
                     }
                 }
 
+                if (eist.isFalling && now - lastFallingFrameChangeTime > FRAME_DURATION_FALLING) {
+                    lastFallingFrameChangeTime = now;
+                    mCurrentFallingFrame++;
+
+                    if (mFallingCounter != null) {
+                        if (mFallingCounter < 7) {
+                            mFallingCounter++;
+                        } else {
+                            mFallingCounter = null;
+                            //loadLevel(mCurrentLevel);
+                        }
+                    }
+                }
+
                 updateBoard();
-                drawBoard(graphicsContext, mCurrentEistFrame, mCurrentArtifactFrame);
+
+                drawBoard();
 
                 if (lastUpdate > 0) {
                     long nanosElapsed = now - lastUpdate;
@@ -123,7 +150,7 @@ public class Main extends Utils {
         stage.show();
     }
 
-    private void drawBoard(GraphicsContext gc, int eist_frame, int artifact_frame) {
+    private void drawBoard() {
 
         gc.clearRect(0, 0, mSceneWidth, mSceneHeight);
 
@@ -196,7 +223,7 @@ public class Main extends Utils {
 
             for (Artifact artifact : mArtifacts) {
 
-                gc.drawImage(mArtifactImg, 160 * eist_frame, 0, 160, 160, artifact.getPosX(), artifact.getPosY(), mFrameDimension, mFrameDimension);
+                gc.drawImage(mArtifactImg, 160 * mCurrentEistFrame, 0, 160, 160, artifact.getPosX(), artifact.getPosY(), mFrameDimension, mFrameDimension);
 
                 if (artifact.getArea().contains(eist.getCenter())) {
 
@@ -207,18 +234,18 @@ public class Main extends Utils {
         }
 
         /*
-         * Draw artifacts
+         * Draw teleports
          */
         if (mTeleportImg != null && mTeleports.size() > 0) {
 
             for (Teleport teleport : mTeleports) {
 
-                gc.drawImage(mTeleportImg, 160 * artifact_frame, 0, 160, 160, teleport.getPosX(), teleport.getPosY(), mFrameDimension, mFrameDimension);
+                gc.drawImage(mTeleportImg, 160 * mCurrentArtifactFrame, 0, 160, 160, teleport.getPosX(), teleport.getPosY(), mFrameDimension, mFrameDimension);
 
                 if (teleport.getArea().contains(eist.getCenter())) {
 
-                    if(mTeleports.indexOf(teleport) == 0) {
-                        switch(eist.getDirection()) {
+                    if (mTeleports.indexOf(teleport) == 0) {
+                        switch (eist.getDirection()) {
                             case DIR_RIGHT:
                                 eist.x = mTeleports.get(1).getPosX() + mGridDimension;
                                 eist.y = mTeleports.get(1).getPosY();
@@ -242,7 +269,7 @@ public class Main extends Utils {
 
                     } else {
 
-                        switch(eist.getDirection()) {
+                        switch (eist.getDirection()) {
                             case DIR_RIGHT:
                                 eist.x = mTeleports.get(0).getPosX() + mGridDimension;
                                 eist.y = mTeleports.get(0).getPosY();
@@ -314,13 +341,13 @@ public class Main extends Utils {
 
                     } else {
 
-                        if(!mDisableDoorReaction) {
+                        if (!mDisableDoorReaction) {
                             reactToDoor(door);
                         }
                     }
                 }
             }
-            if(doorToRemove != null) {
+            if (doorToRemove != null) {
                 mDoors.remove(doorToRemove);
             }
             mDisableDoorReaction = false;
@@ -335,9 +362,9 @@ public class Main extends Utils {
          * Draw ladder
          */
         Integer currentSlotIdx = ladder.getSlotIdx();
-        if(currentSlotIdx != null) {
+        if (currentSlotIdx != null) {
             Slot activeSlot = mSlots.get(currentSlotIdx);
-            if(mSlots.get(currentSlotIdx).getOrientation() == 0) {
+            if (mSlots.get(currentSlotIdx).getOrientation() == 0) {
                 mLadderImg = mLadderHImg;
                 gc.drawImage(mLadderImg, activeSlot.getPosX(), activeSlot.getPosY(), mGridDimension, mFrameDimension);
             } else {
@@ -352,7 +379,7 @@ public class Main extends Utils {
         /*
          * Draw exit
          */
-        if(mArtifacts.size() > 0) {
+        if (mArtifacts.size() > 0) {
             gc.drawImage(mExitClosedImg, exit.getPosX(), exit.getPosY(), mFrameDimension, mFrameDimension);
 
         } else {
@@ -362,7 +389,7 @@ public class Main extends Utils {
             /*
              * Check if exit reached
              */
-            if(exit.getArea().contains(eist.getCenter())) {
+            if (exit.getArea().contains(eist.getCenter())) {
 
                 eist.isMoving = false;
             }
@@ -371,47 +398,83 @@ public class Main extends Utils {
         /*
          * Draw Eist
          */
-        if (eist.rotation != 0) {
-            gc.save();
-            Rotate r = new Rotate(eist.rotation, eist.x + mGridDimension, eist.y + mGridDimension);
-            gc.setTransform(r.getMxx(), r.getMyx(), r.getMxy(), r.getMyy(), r.getTx(), r.getTy());
-            gc.drawImage(mEistImg, 120 * eist_frame, 0, 120, 120, eist.x, eist.y, mFrameDimension, mFrameDimension);
-            gc.restore();
-        } else {
-            gc.drawImage(mEistImg, 120 * eist_frame, 0, 120, 120, eist.x, eist.y, mFrameDimension, mFrameDimension);
+        if(!eist.isFalling) {
+            if (eist.rotation != 0) {
+                gc.save();
+                Rotate r = new Rotate(eist.rotation, eist.x + mGridDimension, eist.y + mGridDimension);
+                gc.setTransform(r.getMxx(), r.getMyx(), r.getMxy(), r.getMyy(), r.getTx(), r.getTy());
+                gc.drawImage(mEistImg, 120 * mCurrentEistFrame, 0, 120, 120, eist.x, eist.y, mFrameDimension, mFrameDimension);
+                gc.restore();
+
+            } else {
+
+                gc.drawImage(mEistImg, 120 * mCurrentEistFrame, 0, 120, 120, eist.x, eist.y, mFrameDimension, mFrameDimension);
+            }
         }
 
-        if(eist.isMoving) {
-            try {
-                PixelReader pixelReader = mBoardImg.getPixelReader();
-                if (eist.isFalling){
-                    gc.setFill(Color.ORANGE);
-                } else {
-                    gc.setFill(Color.WHITE);
-                }
-                // for testing: draw oval around the sensor pixel
-                gc.fillOval(eist.getSensor().getX()-2, (int) eist.getSensor().getY()-2, 4, 4);
-                // ---
-                /*
-                 * Detect black pixel ahead
-                 */
-                if (pixelReader.getArgb((int) eist.getSensor().getX(), (int) eist.getSensor().getY()) == -16777216) {
-                    /*
-                     * Check if not over occupied slot or all slots empty
-                     */
-                    if(ladder.getSlotIdx() == null || !mSlots.get(ladder.getSlotIdx()).getArea().contains(eist.getSensor())) {
-                        /*
-                         * stepped off the path, start falling
-                         */
-                        eist.isFalling = true;
+        if (eist.isMoving) {
+
+            if(eist.isFalling) {
+
+                if (mFallingCounter != null) {
+
+                    switch (eist.getDirection()) {
+                        case DIR_RIGHT:
+                            gc.drawImage(mEistFallingRightImg, 160 * mFallingCounter, 0, 160, 160, eist.x, eist.y, mFrameDimension, mFrameDimension);
+                            break;
+
+                        case DIR_DOWN:
+                            gc.drawImage(mEistFallingDownImg, 160 * mFallingCounter, 0, 160, 160, eist.x, eist.y, mFrameDimension, mFrameDimension);
+                            break;
+
+                        case DIR_LEFT:
+                            gc.drawImage(mEistFallingLeftImg, 160 * mFallingCounter, 0, 160, 160, eist.x, eist.y, mFrameDimension, mFrameDimension);
+                            break;
+
+                        case DIR_UP:
+                            gc.drawImage(mEistFallingUpImg, 160 * mFallingCounter, 0, 160, 160, eist.x, eist.y, mFrameDimension, mFrameDimension);
+                            break;
                     }
                 } else {
                     eist.isFalling = false;
                 }
-            } catch (Exception e) {
-                System.out.println("Exception: " + e);
-                eist.isMoving = false;
+
+            } else {
+
+                try {
+                    PixelReader pixelReader = mBoardImg.getPixelReader();
+                    /* for testing: draw oval around the sensor pixel
+                    if (eist.isFalling) {
+                        gc.setFill(Color.ORANGE);
+                    } else {
+                        gc.setFill(Color.WHITE);
+                    }
+                    gc.fillOval(eist.getCenter().getX() - 2, (int) eist.getCenter().getY() - 2, 4, 4);
+
+                    */
+                    /*
+                     * Detect black pixel ahead
+                     */
+                    if (pixelReader.getArgb((int) eist.getCenter().getX(), (int) eist.getCenter().getY()) == -16777216) {
+                    /*
+                     * Check if not over occupied slot or all slots empty
+                     */
+                        if (ladder.getSlotIdx() == null || !mSlots.get(ladder.getSlotIdx()).getArea().contains(eist.getCenter())) {
+                        /*
+                         * stepped off the path, start falling
+                         */
+                            eist.isFalling = true;
+                            mFallingCounter = 0;
+                        }
+                    } else {
+                        eist.isFalling = false;
+                    }
+                } catch (Exception e) {
+                    System.out.println("Exception: " + e);
+                    eist.isMoving = false;
+                }
             }
+
         }
 
         /*
@@ -430,22 +493,18 @@ public class Main extends Utils {
             switch (eist.getDirection()) {
                 case DIR_RIGHT:
                     eist.x = eist.x + (walkingSpeedPerSecond / mFps);
-                    eist.setSensor(new Point2D(eist.x + mFrameDimension, eist.y + mGridDimension));
                     break;
 
                 case DIR_DOWN:
                     eist.y = eist.y + (walkingSpeedPerSecond / mFps);
-                    eist.setSensor(new Point2D(eist.x + mGridDimension, eist.y + mFrameDimension));
                     break;
 
                 case DIR_LEFT:
                     eist.x = eist.x - (walkingSpeedPerSecond / mFps);
-                    eist.setSensor(new Point2D(eist.x, eist.y + mGridDimension));
                     break;
 
                 case DIR_UP:
                     eist.y = eist.y - (walkingSpeedPerSecond / mFps);
-                    eist.setSensor(new Point2D(eist.x + mGridDimension, eist.y));
                     break;
 
                 default:
@@ -773,6 +832,7 @@ public class Main extends Utils {
         }
         mArrows.remove(arrow);
     }
+
     private void reactToDoor(Door door) {
 
         turnRight = getRandomBoolean();
