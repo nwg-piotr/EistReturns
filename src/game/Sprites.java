@@ -414,4 +414,62 @@ abstract class Sprites extends Utils {
             return  area;
         }
     }
+
+    static class Pad {
+
+        private Integer selection;
+        private Rectangle2D buttonUp;
+        private Rectangle2D buttonDown;
+        private Rectangle2D buttonLeft;
+        private Rectangle2D buttonRight;
+        private Rectangle2D buttonClear;
+
+        void setSelection(Integer value) {
+            selection = value;
+        }
+
+        Integer getSelection() {
+            return selection;
+        }
+
+        void setButtonUp(Rectangle2D rectangle2D) {
+            buttonUp = rectangle2D;
+        }
+
+        void setButtonDown(Rectangle2D rectangle2D) {
+            buttonDown = rectangle2D;
+        }
+
+        void setButtonLeft(Rectangle2D rectangle2D) {
+            buttonLeft = rectangle2D;
+        }
+
+        void setButtonRight(Rectangle2D rectangle2D) {
+            buttonRight = rectangle2D;
+        }
+
+        void setButtonClear(Rectangle2D rectangle2D) {
+            buttonClear = rectangle2D;
+        }
+
+        Rectangle2D getButtonUp() {
+            return  buttonUp;
+        }
+
+        Rectangle2D getButtonDown() {
+            return  buttonDown;
+        }
+
+        Rectangle2D getButtonLeft() {
+            return  buttonLeft;
+        }
+
+        Rectangle2D getButtonRight() {
+            return  buttonRight;
+        }
+
+        Rectangle2D getButtonClear() {
+            return  buttonClear;
+        }
+    }
 }

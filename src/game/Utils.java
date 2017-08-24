@@ -16,6 +16,7 @@ import game.Sprites.Key;
 import game.Sprites.Slot;
 import game.Sprites.Ladder;
 import game.Sprites.Exit;
+import game.Sprites.Pad;
 
 import java.io.*;
 import java.nio.file.Files;
@@ -48,6 +49,7 @@ abstract class Utils extends Application {
     static final int DIR_DOWN = 1;
     static final int DIR_LEFT = 2;
     static final int DIR_UP = 3;
+    static final int DIR_CLEAR = 4;
 
     static final int TURNING_NOT = 0;
     static final int TURNING_RIGHT = 1;
@@ -63,6 +65,7 @@ abstract class Utils extends Application {
     Player eist;
     Ladder ladder;
     Exit exit;
+    Pad pad;
 
     /**
      * To place the game board content (arrows, artifacts, teleports etc), we'll divide it into rows and columns grid.
@@ -141,29 +144,24 @@ abstract class Utils extends Application {
             /*
              * Menu clicked. Check which part.
              */
-            if(pointClicked.getY() < rows[8]) {
+            if(pointClicked.getY() < rows[11]) {
                 /*
                  * Arrows clicked. (Temporarily) turn Eist 90 degrees right if the sprite clicked.
                  */
-                switch (eist.getDirection()) {
-                    case DIR_RIGHT:
-                        eist.setDirection(DIR_DOWN);
-                        break;
-
-                    case DIR_DOWN:
-                        eist.setDirection(DIR_LEFT);
-                        break;
-
-                    case DIR_LEFT:
-                        eist.setDirection(DIR_UP);
-                        break;
-
-                    case DIR_UP:
-                        eist.setDirection(DIR_RIGHT);
-                        break;
-
-                    default:
-                        break;
+                if(pad.getButtonLeft().contains(pointClicked)) {
+                    pad.setSelection(DIR_LEFT);
+                } else if(pad.getButtonRight().contains(pointClicked)) {
+                    pad.setSelection(DIR_RIGHT);
+                } else if (pad.getButtonUp().contains(pointClicked)) {
+                    pad.setSelection(DIR_UP);
+                } else if (pad.getButtonDown().contains(pointClicked)) {
+                    pad.setSelection(DIR_DOWN);
+                }  else if (pad.getButtonClear().contains(pointClicked)) {
+                    pad.setSelection(DIR_CLEAR);
+                }
+                // (Temporarily) set Eists movement direction
+                if(pad.getSelection() != null && pad.getSelection() != DIR_CLEAR) {
+                    eist.setDirection(pad.getSelection());
                 }
 
             } else {
@@ -222,6 +220,12 @@ abstract class Utils extends Application {
     Image mArrowLeftImg;
     Image mArrowUpImg;
 
+    Image mSelRightImg;
+    Image mSelDownImg;
+    Image mSelLeftImg;
+    Image mSelUpImg;
+    Image mSelClearImg;
+
     Image mArtifactImg;
     Image mTeleportImg;
     Image mKeyImg;
@@ -253,6 +257,22 @@ abstract class Utils extends Application {
         mArrowUpImg = new Image("images/sprites/arrow_up.png");
 
         mTeleportImg = new Image("images/sprites/teleport.png");
+
+        /*
+         * Initialize pad buttons
+         */
+        mSelRightImg = new Image("images/sprites/button_arrow_right_selected.png");
+        mSelLeftImg = new Image("images/sprites/button_arrow_left_selected.png");
+        mSelUpImg = new Image("images/sprites/button_arrow_up_selected.png");
+        mSelDownImg = new Image("images/sprites/button_arrow_down_selected.png");
+        mSelClearImg = new Image("images/sprites/button_erase_selected.png");
+
+        pad.setSelection(DIR_CLEAR);
+        pad.setButtonUp(new Rectangle2D(columns[28], rows[1], mGridDimension * 3, mFrameDimension));
+        pad.setButtonDown(new Rectangle2D(columns[28], rows[5], mGridDimension * 3, mFrameDimension));
+        pad.setButtonLeft(new Rectangle2D(columns[27], rows[3], mFrameDimension, mFrameDimension));
+        pad.setButtonRight(new Rectangle2D(columns[30], rows[3], mFrameDimension, mFrameDimension));
+        pad.setButtonClear(new Rectangle2D(columns[28], rows[8], mGridDimension * 3, mFrameDimension));
     }
 
     /**

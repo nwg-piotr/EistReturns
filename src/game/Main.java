@@ -24,6 +24,7 @@ import game.Sprites.Door;
 import game.Sprites.Ladder;
 import game.Sprites.Slot;
 import game.Sprites.Exit;
+import game.Sprites.Pad;
 
 public class Main extends Utils {
 
@@ -64,11 +65,12 @@ public class Main extends Utils {
         gc.setFont(theFont);
         gc.setFill(Color.WHITE);
 
-        loadCommonGraphics();
-
         eist = new Player();
         ladder = new Ladder();
         exit = new Exit();
+        pad = new Pad();
+
+        loadCommonGraphics();
 
         loadLevel(mCurrentLevel);
 
@@ -109,7 +111,7 @@ public class Main extends Utils {
                 if (eist.isFalling &&
                         now - lastFallingFrameChangeTime > FRAME_DURATION_FALLING) {
                     lastFallingFrameChangeTime = now;
-                    if(mCurrentFallingFrame != null) {
+                    if (mCurrentFallingFrame != null) {
                         mCurrentFallingFrame++;
                     }
 
@@ -394,7 +396,7 @@ public class Main extends Utils {
         /*
          * Draw Eist
          */
-        if(!eist.isFalling) {
+        if (!eist.isFalling) {
 
             if (eist.rotation != 0) {
                 gc.save();
@@ -425,7 +427,7 @@ public class Main extends Utils {
                     }
                 } else {
                     eist.isFalling = false;
-                    mCurrentFallingFrame =  null;
+                    mCurrentFallingFrame = null;
                 }
             } catch (Exception e) {
                 System.out.println("Exception intercepted (pixelReader): " + e);
@@ -435,7 +437,7 @@ public class Main extends Utils {
 
         if (eist.isMoving) {
 
-            if(eist.isFalling) {
+            if (eist.isFalling) {
 
                 if (mCurrentFallingFrame != null) {
 
@@ -460,6 +462,47 @@ public class Main extends Utils {
                     eist.isFalling = false;
                 }
             }
+        }
+
+        /*
+         * Draw game pad selection;
+         */
+        if (pad.getSelection() != null) {
+
+            Rectangle2D button;
+            Image image;
+            switch (pad.getSelection()) {
+                case DIR_RIGHT:
+                    button = pad.getButtonRight();
+                    image = mSelRightImg;
+                    break;
+
+                case DIR_LEFT:
+                    button = pad.getButtonLeft();
+                    image = mSelLeftImg;
+                    break;
+
+                case DIR_UP:
+                    button = pad.getButtonUp();
+                    image = mSelUpImg;
+                    break;
+
+                case DIR_DOWN:
+                    button = pad.getButtonDown();
+                    image = mSelDownImg;
+                    break;
+
+                case DIR_CLEAR:
+                    button = pad.getButtonClear();
+                    image = mSelClearImg;
+                    break;
+
+                default:
+                    button = pad.getButtonClear();
+                    image = mSelClearImg;
+                    break;
+            }
+            gc.drawImage(image, button.getMinX(), button.getMinY(), button.getWidth(), button.getHeight());
         }
 
         /*
