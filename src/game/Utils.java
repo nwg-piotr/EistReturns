@@ -40,7 +40,6 @@ abstract class Utils extends Application {
     double mFrameDimension;
     double mGridDimension;
     double mRotationRadius;
-    Integer mFallingCounter;
 
     /**
      * Eists movement directions; diagonal directions to be used while falling down only.

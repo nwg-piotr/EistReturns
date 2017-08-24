@@ -27,16 +27,16 @@ import game.Sprites.Exit;
 
 public class Main extends Utils {
 
-    private int mCurrentLevel = 14;
+    private int mCurrentLevel = 1;
     private GraphicsContext gc;
 
     private final int FRAME_LAST_IDX = 7;
     private final double FRAME_DURATION_EIST = 90000000;
     private final double FRAME_DURATION_ARTIFACT = 135000000;
-    private final double FRAME_DURATION_FALLING = 45000000;
+    private final double FRAME_DURATION_FALLING = 90000000;
     private int mCurrentEistFrame = 0;
     private int mCurrentArtifactFrame = 0;
-    private int mCurrentFallingFrame = 0;
+    private Integer mCurrentFallingFrame = null;
 
     private long lastEistFrameChangeTime;
     private long lastArtifactFrameChangeTime;
@@ -95,13 +95,6 @@ public class Main extends Utils {
                     if (mCurrentEistFrame > FRAME_LAST_IDX) {
                         mCurrentEistFrame = 0;
                     }
-                    if (mFallingCounter != null) {
-                        if (mFallingCounter < 7) {
-                            mFallingCounter++;
-                        } else {
-                            mFallingCounter = null;
-                        }
-                    }
                 }
 
                 if (now - lastArtifactFrameChangeTime > FRAME_DURATION_ARTIFACT) {
@@ -113,15 +106,18 @@ public class Main extends Utils {
                     }
                 }
 
-                if (eist.isFalling && now - lastFallingFrameChangeTime > FRAME_DURATION_FALLING) {
+                if (eist.isFalling &&
+                        now - lastFallingFrameChangeTime > FRAME_DURATION_FALLING) {
                     lastFallingFrameChangeTime = now;
-                    mCurrentFallingFrame++;
+                    if(mCurrentFallingFrame != null) {
+                        mCurrentFallingFrame++;
+                    }
 
-                    if (mFallingCounter != null) {
-                        if (mFallingCounter < 7) {
-                            mFallingCounter++;
+                    if (mCurrentFallingFrame != null) {
+                        if (mCurrentFallingFrame < 7) {
+                            mCurrentFallingFrame++;
                         } else {
-                            mFallingCounter = null;
+                            mCurrentFallingFrame = null;
                             //loadLevel(mCurrentLevel);
                         }
                     }
@@ -399,6 +395,7 @@ public class Main extends Utils {
          * Draw Eist
          */
         if(!eist.isFalling) {
+
             if (eist.rotation != 0) {
                 gc.save();
                 Rotate r = new Rotate(eist.rotation, eist.x + mGridDimension, eist.y + mGridDimension);
@@ -407,8 +404,32 @@ public class Main extends Utils {
                 gc.restore();
 
             } else {
-
                 gc.drawImage(mEistImg, 120 * mCurrentEistFrame, 0, 120, 120, eist.x, eist.y, mFrameDimension, mFrameDimension);
+            }
+
+            try {
+                PixelReader pixelReader = mBoardImg.getPixelReader();
+                    /*
+                     * Detect black pixel ahead
+                     */
+                if (pixelReader.getArgb((int) eist.getCenter().getX(), (int) eist.getCenter().getY()) == -16777216) {
+                    /*
+                     * Check if not over occupied slot or all slots empty
+                     */
+                    if (ladder.getSlotIdx() == null || !mSlots.get(ladder.getSlotIdx()).getArea().contains(eist.getCenter())) {
+                        /*
+                         * stepped off the path, start falling
+                         */
+                        eist.isFalling = true;
+                        mCurrentFallingFrame = 0;
+                    }
+                } else {
+                    eist.isFalling = false;
+                    mCurrentFallingFrame =  null;
+                }
+            } catch (Exception e) {
+                System.out.println("Exception intercepted (pixelReader): " + e);
+                eist.isMoving = false;
             }
         }
 
@@ -416,65 +437,29 @@ public class Main extends Utils {
 
             if(eist.isFalling) {
 
-                if (mFallingCounter != null) {
+                if (mCurrentFallingFrame != null) {
 
                     switch (eist.getDirection()) {
                         case DIR_RIGHT:
-                            gc.drawImage(mEistFallingRightImg, 160 * mFallingCounter, 0, 160, 160, eist.x, eist.y, mFrameDimension, mFrameDimension);
+                            gc.drawImage(mEistFallingRightImg, 160 * mCurrentFallingFrame, 0, 160, 160, eist.x, eist.y, mFrameDimension, mFrameDimension);
                             break;
 
                         case DIR_DOWN:
-                            gc.drawImage(mEistFallingDownImg, 160 * mFallingCounter, 0, 160, 160, eist.x, eist.y, mFrameDimension, mFrameDimension);
+                            gc.drawImage(mEistFallingDownImg, 160 * mCurrentFallingFrame, 0, 160, 160, eist.x, eist.y, mFrameDimension, mFrameDimension);
                             break;
 
                         case DIR_LEFT:
-                            gc.drawImage(mEistFallingLeftImg, 160 * mFallingCounter, 0, 160, 160, eist.x, eist.y, mFrameDimension, mFrameDimension);
+                            gc.drawImage(mEistFallingLeftImg, 160 * mCurrentFallingFrame, 0, 160, 160, eist.x, eist.y, mFrameDimension, mFrameDimension);
                             break;
 
                         case DIR_UP:
-                            gc.drawImage(mEistFallingUpImg, 160 * mFallingCounter, 0, 160, 160, eist.x, eist.y, mFrameDimension, mFrameDimension);
+                            gc.drawImage(mEistFallingUpImg, 160 * mCurrentFallingFrame, 0, 160, 160, eist.x, eist.y, mFrameDimension, mFrameDimension);
                             break;
                     }
                 } else {
                     eist.isFalling = false;
                 }
-
-            } else {
-
-                try {
-                    PixelReader pixelReader = mBoardImg.getPixelReader();
-                    /* for testing: draw oval around the sensor pixel
-                    if (eist.isFalling) {
-                        gc.setFill(Color.ORANGE);
-                    } else {
-                        gc.setFill(Color.WHITE);
-                    }
-                    gc.fillOval(eist.getCenter().getX() - 2, (int) eist.getCenter().getY() - 2, 4, 4);
-
-                    */
-                    /*
-                     * Detect black pixel ahead
-                     */
-                    if (pixelReader.getArgb((int) eist.getCenter().getX(), (int) eist.getCenter().getY()) == -16777216) {
-                    /*
-                     * Check if not over occupied slot or all slots empty
-                     */
-                        if (ladder.getSlotIdx() == null || !mSlots.get(ladder.getSlotIdx()).getArea().contains(eist.getCenter())) {
-                        /*
-                         * stepped off the path, start falling
-                         */
-                            eist.isFalling = true;
-                            mFallingCounter = 0;
-                        }
-                    } else {
-                        eist.isFalling = false;
-                    }
-                } catch (Exception e) {
-                    System.out.println("Exception: " + e);
-                    eist.isMoving = false;
-                }
             }
-
         }
 
         /*
