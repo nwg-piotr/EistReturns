@@ -19,8 +19,10 @@ abstract class Sprites extends Utils {
         private Integer direction;
         private Integer turning; // TURNING_NOT / _RIGHT / _LEFT / _BACK
         private Integer keys;
+        private int lifes;
         private Rectangle2D area;
         private Point2D center;
+        private Point2D sensor;
         private Point2D end_point; // Coordinates at which Eist should be placed at the end of the current maneuver
 
         void setDirection(int value) {
@@ -47,12 +49,20 @@ abstract class Sprites extends Utils {
             keys = value;
         }
 
+        void setLifes(int value) {
+            lifes = value;
+        }
+
         void setArea(Rectangle2D rectangle2D) {
             area = rectangle2D;
         }
 
         void setCenter(Point2D point2D) {
             center = point2D;
+        }
+
+        void setSensor(Point2D point2D) {
+            sensor = point2D;
         }
 
         void setEndPoint(Point2D point2D) {
@@ -71,12 +81,20 @@ abstract class Sprites extends Utils {
             return keys != null ? keys : 0;
         }
 
+        int getLifes() {
+            return lifes;
+        }
+
         Rectangle2D getArea() {
             return  area;
         }
 
         Point2D getCenter() {
             return center;
+        }
+
+        Point2D getSensor() {
+            return sensor;
         }
 
         Point2D getEndPoint() {

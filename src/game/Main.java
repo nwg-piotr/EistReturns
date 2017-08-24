@@ -7,6 +7,7 @@ import javafx.scene.Group;
 import javafx.scene.Scene;
 import javafx.scene.canvas.*;
 
+import javafx.scene.image.PixelReader;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
@@ -65,7 +66,7 @@ public class Main extends Utils {
         ladder = new Ladder();
         exit = new Exit();
 
-        loadLevel(9);
+        loadLevel(1);
 
         /*
          * (Temporarily) initialize starting values. Later we'll need the loadLevel(int level) method.
@@ -100,8 +101,8 @@ public class Main extends Utils {
                     }
                 }
 
-                drawBoard(graphicsContext, mCurrentEistFrame, mCurrentArtifactFrame);
                 updateBoard();
+                drawBoard(graphicsContext, mCurrentEistFrame, mCurrentArtifactFrame);
 
                 if (lastUpdate > 0) {
                     long nanosElapsed = now - lastUpdate;
@@ -126,7 +127,7 @@ public class Main extends Utils {
 
         gc.clearRect(0, 0, mSceneWidth, mSceneHeight);
 
-        gc.drawImage(mBoard, 0, 0, mSceneWidth, mSceneHeight);
+        gc.drawImage(mBoardImg, 0, 0, mSceneWidth, mSceneHeight);
 
         /*
          * Switch the Eists source graphics according to the movement direction. It could have been just rotated,
@@ -135,19 +136,19 @@ public class Main extends Utils {
          */
         switch (eist.getDirection()) {
             case DIR_RIGHT:
-                mEistImage = mEistRight;
+                mEistImg = mEistRightImg;
                 break;
 
             case DIR_DOWN:
-                mEistImage = mEistDown;
+                mEistImg = mEistDownImg;
                 break;
 
             case DIR_LEFT:
-                mEistImage = mEistLeft;
+                mEistImg = mEistLeftImg;
                 break;
 
             case DIR_UP:
-                mEistImage = mEistUp;
+                mEistImg = mEistUpImg;
                 break;
 
             default:
@@ -164,16 +165,16 @@ public class Main extends Utils {
                 Image image;
                 switch (arrow.getDirection()) {
                     case DIR_RIGHT:
-                        image = mArrowRight;
+                        image = mArrowRightImg;
                         break;
                     case DIR_DOWN:
-                        image = mArrowDown;
+                        image = mArrowDownImg;
                         break;
                     case DIR_LEFT:
-                        image = mArrowLeft;
+                        image = mArrowLeftImg;
                         break;
                     case DIR_UP:
-                        image = mArrowUp;
+                        image = mArrowUpImg;
                         break;
                     default:
                         image = null;
@@ -191,11 +192,11 @@ public class Main extends Utils {
         /*
          * Draw artifacts
          */
-        if (mArtifact != null && mArtifacts.size() > 0) {
+        if (mArtifactImg != null && mArtifacts.size() > 0) {
 
             for (Artifact artifact : mArtifacts) {
 
-                gc.drawImage(mArtifact, 160 * artifact_frame, 0, 160, 160, artifact.getPosX(), artifact.getPosY(), mFrameDimension, mFrameDimension);
+                gc.drawImage(mArtifactImg, 160 * eist_frame, 0, 160, 160, artifact.getPosX(), artifact.getPosY(), mFrameDimension, mFrameDimension);
 
                 if (artifact.getArea().contains(eist.getCenter())) {
 
@@ -208,11 +209,11 @@ public class Main extends Utils {
         /*
          * Draw artifacts
          */
-        if (mTeleport != null && mTeleports.size() > 0) {
+        if (mTeleportImg != null && mTeleports.size() > 0) {
 
             for (Teleport teleport : mTeleports) {
 
-                gc.drawImage(mTeleport, 160 * artifact_frame, 0, 160, 160, teleport.getPosX(), teleport.getPosY(), mFrameDimension, mFrameDimension);
+                gc.drawImage(mTeleportImg, 160 * artifact_frame, 0, 160, 160, teleport.getPosX(), teleport.getPosY(), mFrameDimension, mFrameDimension);
 
                 if (teleport.getArea().contains(eist.getCenter())) {
 
@@ -270,11 +271,11 @@ public class Main extends Utils {
         /*
          * Draw keys
          */
-        if (mKey != null && mKeys.size() > 0) {
+        if (mKeyImg != null && mKeys.size() > 0) {
 
             for (Key key : mKeys) {
 
-                gc.drawImage(mKey, key.getPosX(), key.getPosY(), mFrameDimension, mFrameDimension);
+                gc.drawImage(mKeyImg, key.getPosX(), key.getPosY(), mFrameDimension, mFrameDimension);
 
                 if (key.getArea().contains(eist.getCenter())) {
 
@@ -297,9 +298,9 @@ public class Main extends Utils {
 
                 Image image;
                 if (door.getOrientation() == ORIENTATION_HORIZONTAL) {
-                    image = mDoorH;
+                    image = mDoorHImg;
                 } else {
-                    image = mDoorV;
+                    image = mDoorVImg;
                 }
                 gc.drawImage(image, door.getPosX(), door.getPosY(), mFrameDimension, mFrameDimension);
 
@@ -337,26 +338,26 @@ public class Main extends Utils {
         if(currentSlotIdx != null) {
             Slot activeSlot = mSlots.get(currentSlotIdx);
             if(mSlots.get(currentSlotIdx).getOrientation() == 0) {
-                mLadder = mLadderH;
-                gc.drawImage(mLadder, activeSlot.getPosX(), activeSlot.getPosY(), mGridDimension, mFrameDimension);
+                mLadderImg = mLadderHImg;
+                gc.drawImage(mLadderImg, activeSlot.getPosX(), activeSlot.getPosY(), mGridDimension, mFrameDimension);
             } else {
-                mLadder = mLadderV;
-                gc.drawImage(mLadder, activeSlot.getPosX(), activeSlot.getPosY(), mFrameDimension, mGridDimension);
+                mLadderImg = mLadderVImg;
+                gc.drawImage(mLadderImg, activeSlot.getPosX(), activeSlot.getPosY(), mFrameDimension, mGridDimension);
             }
         } else {
-            mLadder = mLadderH;
-            gc.drawImage(mLadder, columns[29], rows[3], mGridDimension, mFrameDimension);
+            mLadderImg = mLadderHImg;
+            gc.drawImage(mLadderImg, columns[29], rows[3], mGridDimension, mFrameDimension);
         }
 
         /*
          * Draw exit
          */
         if(mArtifacts.size() > 0) {
-            gc.drawImage(mExitClosed, exit.getPosX(), exit.getPosY(), mFrameDimension, mFrameDimension);
+            gc.drawImage(mExitClosedImg, exit.getPosX(), exit.getPosY(), mFrameDimension, mFrameDimension);
 
         } else {
 
-            gc.drawImage(mExitOpen, exit.getPosX(), exit.getPosY(), mFrameDimension, mFrameDimension);
+            gc.drawImage(mExitOpenImg, exit.getPosX(), exit.getPosY(), mFrameDimension, mFrameDimension);
 
             /*
              * Check if exit reached
@@ -374,10 +375,22 @@ public class Main extends Utils {
             gc.save();
             Rotate r = new Rotate(eist.rotation, eist.x + mGridDimension, eist.y + mGridDimension);
             gc.setTransform(r.getMxx(), r.getMyx(), r.getMxy(), r.getMyy(), r.getTx(), r.getTy());
-            gc.drawImage(mEistImage, 120 * eist_frame, 0, 120, 120, eist.x, eist.y, mFrameDimension, mFrameDimension);
+            gc.drawImage(mEistImg, 120 * eist_frame, 0, 120, 120, eist.x, eist.y, mFrameDimension, mFrameDimension);
             gc.restore();
         } else {
-            gc.drawImage(mEistImage, 120 * eist_frame, 0, 120, 120, eist.x, eist.y, mFrameDimension, mFrameDimension);
+            gc.drawImage(mEistImg, 120 * eist_frame, 0, 120, 120, eist.x, eist.y, mFrameDimension, mFrameDimension);
+        }
+
+        if(eist.isMoving) {
+            try {
+                PixelReader pixelReader = mBoardImg.getPixelReader();
+                gc.fillOval(eist.getSensor().getX()-1, (int) eist.getSensor().getY()-1, 2, 2);
+                if (pixelReader.getArgb((int) eist.getSensor().getX(), (int) eist.getSensor().getY()) == -16777216) {
+                    eist.isMoving = false;
+                }
+            } catch (Exception e) {
+                System.out.println("Exception: " + e);
+            }
         }
 
         /*
@@ -396,18 +409,22 @@ public class Main extends Utils {
             switch (eist.getDirection()) {
                 case DIR_RIGHT:
                     eist.x = eist.x + (walkingSpeedPerSecond / mFps);
+                    eist.setSensor(new Point2D(eist.x + mFrameDimension, eist.y + mGridDimension));
                     break;
 
                 case DIR_DOWN:
                     eist.y = eist.y + (walkingSpeedPerSecond / mFps);
+                    eist.setSensor(new Point2D(eist.x + mGridDimension, eist.y + mFrameDimension));
                     break;
 
                 case DIR_LEFT:
                     eist.x = eist.x - (walkingSpeedPerSecond / mFps);
+                    eist.setSensor(new Point2D(eist.x, eist.y + mGridDimension));
                     break;
 
                 case DIR_UP:
                     eist.y = eist.y - (walkingSpeedPerSecond / mFps);
+                    eist.setSensor(new Point2D(eist.x + mGridDimension, eist.y));
                     break;
 
                 default:

@@ -203,46 +203,46 @@ abstract class Utils extends Application {
     /**
      * Some graphics will look the same way on all levels. Let's load it here.
      */
-    Image mBoard;
+    Image mBoardImg;
 
-    Image mEistImage;
+    Image mEistImg;
 
-    Image mEistRight;
-    Image mEistDown;
-    Image mEistLeft;
-    Image mEistUp;
+    Image mEistRightImg;
+    Image mEistDownImg;
+    Image mEistLeftImg;
+    Image mEistUpImg;
 
-    Image mArrowRight;
-    Image mArrowDown;
-    Image mArrowLeft;
-    Image mArrowUp;
+    Image mArrowRightImg;
+    Image mArrowDownImg;
+    Image mArrowLeftImg;
+    Image mArrowUpImg;
 
-    Image mArtifact;
-    Image mTeleport;
-    Image mKey;
-    Image mDoorH;
-    Image mDoorV;
+    Image mArtifactImg;
+    Image mTeleportImg;
+    Image mKeyImg;
+    Image mDoorHImg;
+    Image mDoorVImg;
 
-    Image mLadder;
-    Image mLadderH;
-    Image mLadderV;
+    Image mLadderImg;
+    Image mLadderHImg;
+    Image mLadderVImg;
 
-    Image mExitClosed;
-    Image mExitOpen;
+    Image mExitClosedImg;
+    Image mExitOpenImg;
 
     void loadCommonGraphics() {
 
-        mEistRight = new Image("images/sprites/eist_right.png");
-        mEistDown = new Image("images/sprites/eist_down.png");
-        mEistLeft = new Image("images/sprites/eist_left.png");
-        mEistUp = new Image("images/sprites/eist_up.png");
+        mEistRightImg = new Image("images/sprites/eist_right.png");
+        mEistDownImg = new Image("images/sprites/eist_down.png");
+        mEistLeftImg = new Image("images/sprites/eist_left.png");
+        mEistUpImg = new Image("images/sprites/eist_up.png");
 
-        mArrowRight = new Image("images/sprites/arrow_right.png");
-        mArrowDown = new Image("images/sprites/arrow_down.png");
-        mArrowLeft = new Image("images/sprites/arrow_left.png");
-        mArrowUp = new Image("images/sprites/arrow_up.png");
+        mArrowRightImg = new Image("images/sprites/arrow_right.png");
+        mArrowDownImg = new Image("images/sprites/arrow_down.png");
+        mArrowLeftImg = new Image("images/sprites/arrow_left.png");
+        mArrowUpImg = new Image("images/sprites/arrow_up.png");
 
-        mTeleport = new Image("images/sprites/teleport.png");
+        mTeleportImg = new Image("images/sprites/teleport.png");
     }
 
     /**
@@ -263,17 +263,15 @@ abstract class Utils extends Application {
         /*
          * Load board bitmap
          */
-        mBoard = new Image(url + "board.png", mSceneWidth, mSceneHeight, true, true, true);
+        mBoardImg = new Image(url + "board.png", mSceneWidth, mSceneHeight, true, true, true);
 
+        String dataString;
         /*
          * Load arrows
          */
-        String dataString;
-
+        mArrows = new ArrayList<>();
         dataString = datToString(getClass().getResource(url + "arrows.dat").getPath());
         if (dataString != null && !dataString.isEmpty()) {
-
-            mArrows = new ArrayList<>();
 
             String[] arrows = dataString.split(":");
 
@@ -299,12 +297,10 @@ abstract class Utils extends Application {
         /*
          * Load artifacts (called "amulets" in resources due to historical reasons ;)
          */
-        mArtifact = new Image(url + "amulet.png");
-
+        mArtifactImg = new Image(url + "amulet.png");
+        mArtifacts = new ArrayList<>();
         dataString = datToString(getClass().getResource(url + "amulets.dat").getPath());
         if (dataString != null) {
-
-            mArtifacts = new ArrayList<>();
 
             String[] artifacts = dataString.split(":");
 
@@ -328,11 +324,9 @@ abstract class Utils extends Application {
         /*
          * Load teleports
          */
-
+        mTeleports = new ArrayList<>();
         dataString = datToString(getClass().getResource(url + "teleports.dat").getPath());
         if (dataString != null) {
-
-            mTeleports = new ArrayList<>();
 
             String[] teleports = dataString.split(":");
 
@@ -356,12 +350,10 @@ abstract class Utils extends Application {
         /*
          * Load keys
          */
-        mKey = new Image(url + "key.png");
-
+        mKeyImg = new Image(url + "key.png");
+        mKeys = new ArrayList<>();
         dataString = datToString(getClass().getResource(url + "keys.dat").getPath());
         if (dataString != null) {
-
-            mKeys = new ArrayList<>();
 
             String[] keys = dataString.split(":");
 
@@ -385,13 +377,11 @@ abstract class Utils extends Application {
         /*
          * Load doors
          */
-        mDoorH = new Image(url + "door_h.png");
-        mDoorV = new Image(url + "door_v.png");
-
+        mDoorHImg = new Image(url + "door_h.png");
+        mDoorVImg = new Image(url + "door_v.png");
+        mDoors = new ArrayList<>();
         dataString = datToString(getClass().getResource(url + "doors.dat").getPath());
         if (dataString != null) {
-
-            mDoors = new ArrayList<>();
 
             String[] artifacts = dataString.split(":");
 
@@ -417,10 +407,9 @@ abstract class Utils extends Application {
         /*
          * Load ladder slots
          */
+        mSlots = new ArrayList<>();
         dataString = datToString(getClass().getResource(url + "slots.dat").getPath());
         if (dataString != null) {
-
-            mSlots = new ArrayList<>();
 
             String[] slots = dataString.split(":");
 
@@ -446,14 +435,14 @@ abstract class Utils extends Application {
         /*
          * Load ladder bitmaps
          */
-        mLadderH = new Image(url + "ladder_h.png", mFrameDimension, mFrameDimension, true, true, true);
-        mLadderV = new Image(url + "ladder_v.png", mFrameDimension, mFrameDimension, true, true, true);
+        mLadderHImg = new Image(url + "ladder_h.png", mFrameDimension, mFrameDimension, true, true, true);
+        mLadderVImg = new Image(url + "ladder_v.png", mFrameDimension, mFrameDimension, true, true, true);
 
         /*
          * Load exit bitmaps
          */
-        mExitClosed = new Image(url + "exit_closed.png", mFrameDimension, mFrameDimension, true, true, true);
-        mExitOpen = new Image(url + "exit_open.png", mFrameDimension, mFrameDimension, true, true, true);
+        mExitClosedImg = new Image(url + "exit_closed.png", mFrameDimension, mFrameDimension, true, true, true);
+        mExitOpenImg = new Image(url + "exit_open.png", mFrameDimension, mFrameDimension, true, true, true);
 
         /*
          * Load level data
