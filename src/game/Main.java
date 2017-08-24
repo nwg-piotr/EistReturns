@@ -384,12 +384,33 @@ public class Main extends Utils {
         if(eist.isMoving) {
             try {
                 PixelReader pixelReader = mBoardImg.getPixelReader();
-                gc.fillOval(eist.getSensor().getX()-1, (int) eist.getSensor().getY()-1, 2, 2);
+                if (eist.isFalling){
+                    gc.setFill(Color.ORANGE);
+                } else {
+                    gc.setFill(Color.WHITE);
+                }
+                // for testing: draw oval around the sensor pixel
+                gc.fillOval(eist.getSensor().getX()-2, (int) eist.getSensor().getY()-2, 4, 4);
+                // ---
+                /*
+                 * Detect black pixel ahead
+                 */
                 if (pixelReader.getArgb((int) eist.getSensor().getX(), (int) eist.getSensor().getY()) == -16777216) {
-                    eist.isMoving = false;
+                    /*
+                     * Check if not over occupied slot or all slots empty
+                     */
+                    if(ladder.getSlotIdx() == null || !mSlots.get(ladder.getSlotIdx()).getArea().contains(eist.getSensor())) {
+                        /*
+                         * stepped off the path, start falling
+                         */
+                        eist.isFalling = true;
+                    }
+                } else {
+                    eist.isFalling = false;
                 }
             } catch (Exception e) {
                 System.out.println("Exception: " + e);
+                eist.isMoving = false;
             }
         }
 
