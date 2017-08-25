@@ -27,16 +27,14 @@ import game.Sprites.Pad;
 
 public class Main extends Utils {
 
-    private int mCurrentLevel = 4;
+    private int mCurrentLevel = 1;
     private GraphicsContext gc;
 
     private final int FRAME_LAST_IDX = 7;
     private final double FRAME_DURATION_EIST = 90000000;
     private final double FRAME_DURATION_ARTIFACT = 135000000;
     private final double FRAME_DURATION_FALLING = 90000000;
-    private int mCurrentEistFrame = 0;
-    private int mCurrentArtifactFrame = 0;
-    private Integer mCurrentFallingFrame = null;
+
 
     private long lastEistFrameChangeTime;
     private long lastArtifactFrameChangeTime;
@@ -60,9 +58,8 @@ public class Main extends Utils {
         root.getChildren().add(canvas);
         gc = canvas.getGraphicsContext2D();
 
-        Font theFont = Font.font("SansSerif", FontWeight.NORMAL, 20);
-        gc.setFont(theFont);
-        gc.setFill(Color.WHITE);
+        Font sansSerif = Font.font("SansSerif", FontWeight.NORMAL, 20);
+        gc.setFont(sansSerif);
 
         eist = new Player();
         ladder = new Ladder();
@@ -111,7 +108,7 @@ public class Main extends Utils {
                     lastFallingFrameChangeTime = now;
 
                     if (mCurrentFallingFrame < 8) {
-                        System.out.println("mCurrentFallingFrame = " + mCurrentFallingFrame);
+
                         mCurrentFallingFrame++;
 
                     } else {
@@ -146,8 +143,7 @@ public class Main extends Utils {
 
     private void drawBoard() {
 
-        gc.setFill(Color.BLUE);
-        gc.fillRect(0, 0, mSceneWidth, mSceneHeight);
+        gc.clearRect(0, 0, mSceneWidth, mSceneHeight);
 
         gc.drawImage(mBoardImg, 0, 0, mSceneWidth, mSceneHeight);
 
@@ -387,6 +383,7 @@ public class Main extends Utils {
             if (exit.getArea().contains(eist.getCenter())) {
 
                 mCurrentLevel++;
+                mCurrentFallingFrame = 0;
                 loadLevel(mCurrentLevel);
             }
         }
@@ -412,9 +409,6 @@ public class Main extends Utils {
         // Detect black pixel below
         if (mCurrentFallingFrame == null) {
             try {
-                if (pixelReader == null) {
-                    pixelReader = mBoardImg.getPixelReader();
-                }
 
                 boolean leftOut = pixelReader.getArgb(eist.detectionPoint1X, eist.detectionPoint1Y) == -16777216;
                 boolean rightOut = pixelReader.getArgb(eist.detectionPoint2X, eist.detectionPoint2Y) == -16777216;
@@ -431,13 +425,47 @@ public class Main extends Utils {
                             mCurrentFallingFrame = null;
                         }
                     }
+                    // Just left foot off the path
+                    if(leftOut && !rightOut) {
+                        switch (eist.getDirection()) {
+                            case DIR_RIGHT:
+                                eist.y = eist.y - mHalfGridDimension;
+                                break;
+                            case DIR_LEFT:
+                                eist.y = eist.y + mHalfGridDimension;
+                                break;
+                            case DIR_UP:
+                                eist.x = eist.x - mHalfGridDimension;
+                                break;
+                            case DIR_DOWN:
+                                eist.x = eist.x + mHalfGridDimension;
+                                break;
+                        }
+                    }
+                    // Just right foot off the path
+                    if(rightOut && !leftOut) {
+                        switch (eist.getDirection()) {
+                            case DIR_RIGHT:
+                                eist.y = eist.y + mHalfGridDimension;
+                                break;
+                            case DIR_LEFT:
+                                eist.y = eist.y - mHalfGridDimension;
+                                break;
+                            case DIR_UP:
+                                eist.x = eist.x + mHalfGridDimension;
+                                break;
+                            case DIR_DOWN:
+                                eist.x = eist.x - mHalfGridDimension;
+                                break;
+                        }
+                    }
 
                 } else {
                     mCurrentFallingFrame = null;
                 }
 
             } catch (Exception e) {
-                System.out.println("Exception intercepted (pixelReader): " + e);
+                System.out.println("Expected exception: board img not ready :)");
                 eist.isMoving = false;
             }
         }
@@ -464,9 +492,9 @@ public class Main extends Utils {
                         break;
                 }
             }
-            gc.setFill(Color.WHITE);
-            gc.fillOval(eist.detectionPoint1X - 1, eist.detectionPoint1Y - 1, 2, 2);
-            gc.fillOval(eist.detectionPoint2X - 1, eist.detectionPoint2Y - 1, 2, 2);
+            //gc.setFill(Color.WHITE);
+            //gc.fillOval(eist.detectionPoint1X - 1, eist.detectionPoint1Y - 1, 2, 2);
+            //gc.fillOval(eist.detectionPoint2X - 1, eist.detectionPoint2Y - 1, 2, 2);
 
         /*
          * Draw game pad selection;
@@ -508,13 +536,12 @@ public class Main extends Utils {
                 }
                 gc.drawImage(image, button.getMinX(), button.getMinY(), button.getWidth(), button.getHeight());
             }
-
+        }
         /*
          * Just for testing purposes:
          */
-            //gc.fillText(String.valueOf((int) mFps), columns[0], rows[18]);
-            //gc.fillText("Falling: " + eist.isFalling, columns[0], rows[18]);
-        }
+        gc.setFill(Color.WHITE);
+        gc.fillText(String.valueOf((int) mFps), columns[0], rows[18]);
     }
 
     private void updateBoard() {

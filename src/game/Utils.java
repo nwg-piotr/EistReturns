@@ -31,6 +31,10 @@ abstract class Utils extends Application {
     double mSceneHeight;
     double walkingSpeedPerSecond;
 
+    int mCurrentEistFrame = 0;
+    int mCurrentArtifactFrame = 0;
+    Integer mCurrentFallingFrame = null;
+
     boolean turnRight;
 
     boolean mDisableDoorReaction = false;
@@ -43,6 +47,7 @@ abstract class Utils extends Application {
      */
     double mFrameDimension;
     double mGridDimension;
+    double mHalfGridDimension;
     int mDetectionOffset;
     double mRotationRadius;
 
@@ -89,6 +94,7 @@ abstract class Utils extends Application {
         mSceneHeight = (mSceneWidth / 1920) * 1080;
         mFrameDimension = (mSceneWidth / 1920) * 120;
         mGridDimension = mFrameDimension / 2;
+        mHalfGridDimension = mGridDimension / 2;
         mDetectionOffset = (int)mFrameDimension / 6;
 
         System.out.println("mSceneWidth = " + mSceneWidth);
@@ -306,7 +312,9 @@ abstract class Utils extends Application {
 
     void loadLevel(int level) {
 
-        //eist.isFalling = false;
+        System.out.println("LOADING LEVEL " + level);
+
+        mCurrentFallingFrame = null;
         eist.isMoving = false;
         pad.setSelection(null);
 
@@ -316,7 +324,9 @@ abstract class Utils extends Application {
         /*
          * Load board bitmap
          */
-        mBoardImg = new Image(url + "board.png", mSceneWidth, mSceneHeight, true, true, true);
+        mBoardImg = new Image(url + "board.png", mSceneWidth, mSceneHeight, true, true, false);
+
+        pixelReader = mBoardImg.getPixelReader();
 
         String dataString;
         /*
@@ -575,14 +585,9 @@ abstract class Utils extends Application {
         nearest_left = nearest_left - mGridDimension;
         nearest_top = nearest_top - mGridDimension;
 
-        System.out.println("nearest_left: " + nearest_left);
-        System.out.println("nearest_top: " + nearest_top);
-
         try {
-            PixelReader pixelReader = mBoardImg.getPixelReader();
 
             Rectangle2D adjustedSquare = new Rectangle2D(nearest_left, nearest_top, mFrameDimension, mFrameDimension);
-            System.out.println("adjustedSquare: " + adjustedSquare);
 
             int top_left_color = pixelReader.getArgb((int) adjustedSquare.getMinX() + 15, (int) adjustedSquare.getMinY() + 15);
             int top_right_color = pixelReader.getArgb((int) adjustedSquare.getMaxX() - 15, (int) adjustedSquare.getMinY() + 15);
