@@ -128,9 +128,11 @@ abstract class Utils extends Application {
     /*
      * Returns the instantaneous FPS for the last frame rendered.
      */
+    /*
     static double getInstantFPS() {
         return frameRates[index % frameRates.length];
     }
+    */
 
     /**
      * Returns the average FPS for the last frameRates.length frames rendered.

@@ -768,8 +768,6 @@ public class Main extends Utils {
                                         eist.rotation = 180 - (180 * (left / mRotationRadius));
                                     }
                                 } else {
-                                    if (eist.rotation > -180) {
-                                    }
                                     eist.rotation = -180 + (180 * (left / mRotationRadius));
                                 }
                             } else {
