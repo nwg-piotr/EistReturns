@@ -28,7 +28,7 @@ import game.Sprites.Pad;
 
 public class Main extends Utils {
 
-    private int mCurrentLevel = 1;
+    private int mCurrentLevel = 4;
     private GraphicsContext gc;
 
     private final int FRAME_LAST_IDX = 7;
@@ -116,11 +116,14 @@ public class Main extends Utils {
                     }
 
                     if (mCurrentFallingFrame != null) {
+
                         if (mCurrentFallingFrame < 7) {
                             mCurrentFallingFrame++;
+
                         } else {
+
                             mCurrentFallingFrame = null;
-                            //loadLevel(mCurrentLevel);
+                            loadLevel(mCurrentLevel);
                         }
                     }
                 }
@@ -150,7 +153,8 @@ public class Main extends Utils {
 
     private void drawBoard() {
 
-        gc.clearRect(0, 0, mSceneWidth, mSceneHeight);
+        gc.setFill(Color.BLUE);
+        gc.fillRect(0, 0, mSceneWidth, mSceneHeight);
 
         gc.drawImage(mBoardImg, 0, 0, mSceneWidth, mSceneHeight);
 
@@ -221,7 +225,7 @@ public class Main extends Utils {
 
             for (Artifact artifact : mArtifacts) {
 
-                gc.drawImage(mArtifactImg, 160 * mCurrentEistFrame, 0, 160, 160, artifact.getPosX(), artifact.getPosY(), mFrameDimension, mFrameDimension);
+                gc.drawImage(mArtifactImg, 160 * mCurrentArtifactFrame, 0, 160, 160, artifact.getPosX(), artifact.getPosY(), mFrameDimension, mFrameDimension);
 
                 if (artifact.getArea().contains(eist.getCenter())) {
 
@@ -389,7 +393,8 @@ public class Main extends Utils {
              */
             if (exit.getArea().contains(eist.getCenter())) {
 
-                eist.isMoving = false;
+                mCurrentLevel++;
+                loadLevel(mCurrentLevel);
             }
         }
 
@@ -410,11 +415,16 @@ public class Main extends Utils {
             }
 
             try {
-                PixelReader pixelReader = mBoardImg.getPixelReader();
-                    /*
-                     * Detect black pixel ahead
-                     */
-                if (pixelReader.getArgb((int) eist.getCenter().getX(), (int) eist.getCenter().getY()) == -16777216) {
+                if(pixelReader == null) {
+                    pixelReader = mBoardImg.getPixelReader();
+                }
+                /*
+                 * Detect black pixel ahead
+                 */
+                if (pixelReader.getArgb((int) eist.getCenter().getX() -5, (int) eist.getCenter().getY()) == -16777216
+                        && pixelReader.getArgb((int) eist.getCenter().getX() +5 , (int) eist.getCenter().getY()) == -16777216
+                        && pixelReader.getArgb((int) eist.getCenter().getX(), (int) eist.getCenter().getY() - 5) == -16777216
+                        && pixelReader.getArgb((int) eist.getCenter().getX(), (int) eist.getCenter().getY() + 5) == -16777216) {
                     /*
                      * Check if not over occupied slot or all slots empty
                      */

@@ -4,6 +4,7 @@ import javafx.application.Application;
 import javafx.geometry.Point2D;
 import javafx.geometry.Rectangle2D;
 import javafx.scene.image.Image;
+import javafx.scene.image.PixelReader;
 import javafx.scene.input.MouseEvent;
 import javafx.stage.Screen;
 
@@ -33,6 +34,8 @@ abstract class Utils extends Application {
     boolean turnRight;
 
     boolean mDisableDoorReaction = false;
+
+    PixelReader pixelReader;
 
     /**
      * The Frame is a rectangular part of the game board of width of 2 columns and height of 2 rows.
@@ -84,13 +87,16 @@ abstract class Utils extends Application {
         mSceneWidth = primaryScreenBounds.getWidth() / 2;
         mSceneHeight = (mSceneWidth / 1920) * 1080;
         mFrameDimension = (mSceneWidth / 1920) * 120;
-        System.out.println("mFrameDimension = " + mFrameDimension);
-
         mGridDimension = mFrameDimension / 2;
+
+        System.out.println("mSceneWidth = " + mSceneWidth);
+        System.out.println("mSceneHeight = " + mSceneHeight);
+        System.out.println("mFrameDimension = " + mFrameDimension);
+        System.out.println("mGridDimension = " + mGridDimension);
 
         mRotationRadius = mFrameDimension / 4;
 
-        walkingSpeedPerSecond = mSceneWidth / 12d;
+        walkingSpeedPerSecond = mSceneWidth / 14d;
         System.out.println("walkingSpeedPerSecond = " + walkingSpeedPerSecond);
 
         /*
@@ -134,65 +140,77 @@ abstract class Utils extends Application {
 
     void handleMouseEvent(MouseEvent event) {
 
+        eist.isMoving = true;
+
         Point2D pointClicked = new Point2D(event.getSceneX(), event.getSceneY());
 
         /*
          * Check whether menu or board clicked
          */
-        if(pointClicked.getX() > columns[26]) {
+        if (pointClicked.getX() > columns[26]) {
 
             /*
              * Menu clicked. Check which part.
              */
-            if(pointClicked.getY() < rows[11]) {
+            if (pointClicked.getY() < rows[11]) {
                 /*
                  * Arrows clicked. (Temporarily) turn Eist 90 degrees right if the sprite clicked.
                  */
-                if(pad.getButtonLeft().contains(pointClicked)) {
+                if (pad.getButtonLeft().contains(pointClicked)) {
                     pad.setSelection(DIR_LEFT);
-                } else if(pad.getButtonRight().contains(pointClicked)) {
+                } else if (pad.getButtonRight().contains(pointClicked)) {
                     pad.setSelection(DIR_RIGHT);
                 } else if (pad.getButtonUp().contains(pointClicked)) {
                     pad.setSelection(DIR_UP);
                 } else if (pad.getButtonDown().contains(pointClicked)) {
                     pad.setSelection(DIR_DOWN);
-                }  else if (pad.getButtonClear().contains(pointClicked)) {
+                } else if (pad.getButtonClear().contains(pointClicked)) {
                     pad.setSelection(DIR_CLEAR);
                 }
-                // (Temporarily) set Eists movement direction
-                if(pad.getSelection() != null && pad.getSelection() != DIR_CLEAR) {
-                    eist.setDirection(pad.getSelection());
-                }
-
-            } else {
-                /*
-                 * Below arrows clicked. (Temporarily) start/stop Eists movement
-                 */
-                eist.isMoving = !eist.isMoving;
             }
 
         } else {
+
             /*
              * Board clicked
              */
             for (Slot slot : mSlots) {
 
-                if(slot.getArea().contains(pointClicked)) {
+                if (slot.getArea().contains(pointClicked)) {
 
                     int clickedSlotIdx = mSlots.indexOf(slot);
 
-                    if(ladder.getSlotIdx() == null) {
+                    if (ladder.getSlotIdx() == null) {
 
                         ladder.setSlotIdx(clickedSlotIdx);
 
                     } else {
 
-                        if(clickedSlotIdx == ladder.getSlotIdx()) {
+                        if (clickedSlotIdx == ladder.getSlotIdx()) {
 
                             ladder.setSlotIdx(null);
                         }
                     }
 
+                }
+            }
+
+            if (pad.getSelection() != null && pixelReader.getArgb((int) pointClicked.getX(), (int) pointClicked.getY()) != -16777216) {
+
+                Rectangle2D pressedSquare = nearestSquare(pointClicked.getX(), pointClicked.getY());
+
+                if(pressedSquare != null) {
+
+                    if(pad.getSelection() != DIR_CLEAR) {
+
+                        if(arrowAllowed(new Point2D(pressedSquare.getMinX() + mGridDimension, pressedSquare.getMinY() + mGridDimension))) {
+                            placeArrow(pressedSquare.getMinX(), pressedSquare.getMinY());
+                        }
+
+                    } else {
+
+                        removeArrow(pressedSquare);
+                    }
                 }
             }
         }
@@ -204,7 +222,6 @@ abstract class Utils extends Application {
     Image mBoardImg;
 
     Image mEistImg;
-
     Image mEistRightImg;
     Image mEistDownImg;
     Image mEistLeftImg;
@@ -267,7 +284,7 @@ abstract class Utils extends Application {
         mSelDownImg = new Image("images/sprites/button_arrow_down_selected.png");
         mSelClearImg = new Image("images/sprites/button_erase_selected.png");
 
-        pad.setSelection(DIR_CLEAR);
+        pad.setSelection(null);
         pad.setButtonUp(new Rectangle2D(columns[28], rows[1], mGridDimension * 3, mFrameDimension));
         pad.setButtonDown(new Rectangle2D(columns[28], rows[5], mGridDimension * 3, mFrameDimension));
         pad.setButtonLeft(new Rectangle2D(columns[27], rows[3], mFrameDimension, mFrameDimension));
@@ -286,6 +303,10 @@ abstract class Utils extends Application {
     List<Slot> mSlots;
 
     void loadLevel(int level) {
+
+        eist.isFalling = false;
+        eist.isMoving = false;
+        pad.setSelection(null);
 
         String lvlNumberToString = (level < 10) ? "0" + String.valueOf(level) : String.valueOf(level);
         String url = "/res/" + lvlNumberToString;
@@ -456,7 +477,7 @@ abstract class Utils extends Application {
                 slot.setPosY(rows[posY]);
                 slot.setOrientation(orientation);
 
-                if(slot.getOrientation() == ORIENTATION_VERTICAL) {
+                if (slot.getOrientation() == ORIENTATION_VERTICAL) {
                     slot.setArea(new Rectangle2D(columns[posX], rows[posY], mFrameDimension, mGridDimension));
                 } else {
                     slot.setArea(new Rectangle2D(columns[posX], rows[posY], mGridDimension, mFrameDimension));
@@ -494,7 +515,6 @@ abstract class Utils extends Application {
             exit.setPosY(rows[Integer.valueOf(data[4])]);
             exit.setArea(new Rectangle2D(exit.getPosX(), exit.getPosY(), mFrameDimension, mFrameDimension));
             ladder.setSlotIdx(Integer.valueOf(data[5]));
-            // todo missing exit coordinates
         }
     }
 
@@ -535,5 +555,144 @@ abstract class Utils extends Application {
 
     static boolean getRandomBoolean() {
         return Math.random() < 0.5;
+    }
+
+    /**
+     * On the basis of clicked point coordinates, we need to calculate the place to put the arrow in.
+     * Disallowed locations: off the board and on the margin of the board.
+     *
+     * @param touch_x Clicked point X
+     * @param touch_y Clicked point Y
+     * @return Adjusted rectangle coordinates.
+     */
+    private Rectangle2D nearestSquare(double touch_x, double touch_y) {
+
+        double nearest_left = ((int) (touch_x / mGridDimension)) * mGridDimension;
+        double nearest_top = ((int) (touch_y / mGridDimension)) * mGridDimension;
+
+        nearest_left = nearest_left - mGridDimension;
+        nearest_top = nearest_top - mGridDimension;
+
+        System.out.println("nearest_left: " + nearest_left);
+        System.out.println("nearest_top: " + nearest_top);
+
+        try {
+            PixelReader pixelReader = mBoardImg.getPixelReader();
+
+            Rectangle2D adjustedSquare = new Rectangle2D(nearest_left, nearest_top, mFrameDimension, mFrameDimension);
+            System.out.println("adjustedSquare: " + adjustedSquare);
+
+            int top_left_color = pixelReader.getArgb((int) adjustedSquare.getMinX() + 15, (int) adjustedSquare.getMinY() + 15);
+            int top_right_color = pixelReader.getArgb((int) adjustedSquare.getMaxX() - 15, (int) adjustedSquare.getMinY() + 15);
+            int bottom_left_color = pixelReader.getArgb((int) adjustedSquare.getMinX() + 15, (int) adjustedSquare.getMaxY() - 15);
+            int bottom_right_color = pixelReader.getArgb((int) adjustedSquare.getMaxX() - 15, (int) adjustedSquare.getMaxY() - 15);
+
+
+            // both right stick out -> move LEFT
+            if (top_right_color == -16777216 && bottom_right_color == -16777216) {
+                adjustedSquare = new Rectangle2D(adjustedSquare.getMinX() - mGridDimension, adjustedSquare.getMinY(), mFrameDimension, mFrameDimension);
+            }
+            // both bottom stick out -> MOVE UP
+            if (bottom_left_color == -16777216 && bottom_right_color == -16777216) {
+                adjustedSquare = new Rectangle2D(adjustedSquare.getMinX(), adjustedSquare.getMinY() - mGridDimension, mFrameDimension, mFrameDimension);
+            }
+            // both left stick out -> MOVE RIGHT
+            if (top_left_color == -16777216 && bottom_left_color == -16777216 && top_right_color != -16777216) {
+                adjustedSquare = new Rectangle2D(adjustedSquare.getMinX() + mGridDimension, adjustedSquare.getMinY(), mFrameDimension, mFrameDimension);
+            }
+            // both top stick out -> MOVE DOWN
+            if (top_left_color == -16777216 && top_right_color == -16777216 && bottom_left_color != -16777216) {
+                adjustedSquare = new Rectangle2D(adjustedSquare.getMinX(), adjustedSquare.getMinY() + mGridDimension, mFrameDimension, mFrameDimension);
+            }
+
+            // three corners stick out -> MOVE BOTTOM RIGHT
+            if (top_left_color == -16777216 && top_right_color == -16777216 && bottom_left_color == -16777216) {
+                adjustedSquare = new Rectangle2D(adjustedSquare.getMinX() + mGridDimension, adjustedSquare.getMinY() + mGridDimension, mFrameDimension, mFrameDimension);
+            }
+
+            // just top left corner sticks out -> MOVE BOTTOM RIGHT
+            if (top_left_color == -16777216 && top_right_color != -16777216 && bottom_left_color != -16777216) {
+                adjustedSquare = new Rectangle2D(adjustedSquare.getMinX() + mGridDimension, adjustedSquare.getMinY() + mGridDimension, mFrameDimension, mFrameDimension);
+            }
+
+            // just bottom left corner sticks out -> MOVE TOP RIGHT
+            if (bottom_left_color == -16777216 && top_left_color != -16777216 && bottom_right_color != -16777216) {
+                adjustedSquare = new Rectangle2D(adjustedSquare.getMinX() + mGridDimension, adjustedSquare.getMinY() - mGridDimension, mFrameDimension, mFrameDimension);
+            }
+
+            // just top right corner sticks out -> MOVE BOTTOM LEFT
+            if (top_right_color == -16777216 && top_left_color != -16777216 && bottom_right_color != -16777216) {
+                adjustedSquare = new Rectangle2D(adjustedSquare.getMinX() - mGridDimension, adjustedSquare.getMinY() + mGridDimension, mFrameDimension, mFrameDimension);
+            }
+
+            // Shouldn't happen, but happens: all 4 corners out of the board (WTF?)
+            if (top_right_color == -16777216 && top_left_color != -16777216 && bottom_right_color != -16777216 && bottom_left_color != -16777216) {
+                adjustedSquare = null;
+            }
+
+
+            return (adjustedSquare);
+
+        } catch (Exception e) {
+
+            System.out.println("Couldn't get square: " + e);
+            return (null);
+        }
+    }
+
+    private void placeArrow(double x, double y) {
+
+        Arrow arrow = new Arrow();
+        arrow.setPosX(x);
+        arrow.setPosY(y);
+
+        arrow.setArea(innerRect(x, y));
+        arrow.setDirection(pad.getSelection());
+
+        mArrows.add(arrow);
+    }
+
+    private boolean arrowAllowed(Point2D squareCenter) {
+
+        for(Arrow arrow : mArrows) {
+            if(arrow.getArea().contains(squareCenter)) {
+                return false;
+            }
+        }
+        for(Artifact artifact : mArtifacts) {
+            if(artifact.getArea().contains(squareCenter)) {
+                return false;
+            }
+        }
+        for(Key key : mKeys) {
+            if(key.getArea().contains(squareCenter)) {
+                return false;
+            }
+        }
+        for(Door door : mDoors) {
+            if(door.getArea().contains(squareCenter)) {
+                return false;
+            }
+        }
+        for(Teleport teleport : mTeleports) {
+            if(teleport.getArea().contains(squareCenter)) {
+                return false;
+            }
+        }
+        if(exit.getArea().contains(squareCenter)) {
+            return false;
+        }
+        return true;
+    }
+
+    private void removeArrow(Rectangle2D pressedSquare) {
+
+        for(Arrow arrow : mArrows) {
+            if(arrow.getArea().intersects(pressedSquare)) {
+                mArrows.remove(arrow);
+                break;
+            }
+        }
+
     }
 }
