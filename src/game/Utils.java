@@ -43,6 +43,7 @@ abstract class Utils extends Application {
      */
     double mFrameDimension;
     double mGridDimension;
+    int mDetectionOffset;
     double mRotationRadius;
 
     /**
@@ -88,6 +89,7 @@ abstract class Utils extends Application {
         mSceneHeight = (mSceneWidth / 1920) * 1080;
         mFrameDimension = (mSceneWidth / 1920) * 120;
         mGridDimension = mFrameDimension / 2;
+        mDetectionOffset = (int)mFrameDimension / 6;
 
         System.out.println("mSceneWidth = " + mSceneWidth);
         System.out.println("mSceneHeight = " + mSceneHeight);
@@ -304,7 +306,7 @@ abstract class Utils extends Application {
 
     void loadLevel(int level) {
 
-        eist.isFalling = false;
+        //eist.isFalling = false;
         eist.isMoving = false;
         pad.setSelection(null);
 
@@ -525,7 +527,7 @@ abstract class Utils extends Application {
      * @param outerY Source frame Y
      * @return Centered smaller rectangle
      */
-    private Rectangle2D innerRect(double outerX, double outerY) {
+    Rectangle2D innerRect(double outerX, double outerY) {
         double x = outerX + mGridDimension / 2;
         double y = outerY + mGridDimension / 2;
 

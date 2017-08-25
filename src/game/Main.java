@@ -7,7 +7,6 @@ import javafx.scene.Group;
 import javafx.scene.Scene;
 import javafx.scene.canvas.*;
 
-import javafx.scene.image.PixelReader;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
@@ -108,23 +107,17 @@ public class Main extends Utils {
                     }
                 }
 
-                if (eist.isFalling &&
-                        now - lastFallingFrameChangeTime > FRAME_DURATION_FALLING) {
+                if (mCurrentFallingFrame != null && now - lastFallingFrameChangeTime > FRAME_DURATION_FALLING) {
                     lastFallingFrameChangeTime = now;
-                    if (mCurrentFallingFrame != null) {
+
+                    if (mCurrentFallingFrame < 8) {
+                        System.out.println("mCurrentFallingFrame = " + mCurrentFallingFrame);
                         mCurrentFallingFrame++;
-                    }
 
-                    if (mCurrentFallingFrame != null) {
+                    } else {
 
-                        if (mCurrentFallingFrame < 7) {
-                            mCurrentFallingFrame++;
-
-                        } else {
-
-                            mCurrentFallingFrame = null;
-                            loadLevel(mCurrentLevel);
-                        }
+                        mCurrentFallingFrame = null;
+                        loadLevel(mCurrentLevel);
                     }
                 }
 
@@ -401,7 +394,7 @@ public class Main extends Utils {
         /*
          * Draw Eist
          */
-        if (!eist.isFalling) {
+        if (mCurrentFallingFrame == null) {
 
             if (eist.rotation != 0) {
                 gc.save();
@@ -413,32 +406,36 @@ public class Main extends Utils {
             } else {
                 gc.drawImage(mEistImg, 120 * mCurrentEistFrame, 0, 120, 120, eist.x, eist.y, mFrameDimension, mFrameDimension);
             }
+        }
 
+
+        // Detect black pixel below
+        if(mCurrentFallingFrame == null) {
             try {
-                if(pixelReader == null) {
+                if (pixelReader == null) {
                     pixelReader = mBoardImg.getPixelReader();
                 }
-                /*
-                 * Detect black pixel ahead
-                 */
-                if (pixelReader.getArgb((int) eist.getCenter().getX() -5, (int) eist.getCenter().getY()) == -16777216
-                        && pixelReader.getArgb((int) eist.getCenter().getX() +5 , (int) eist.getCenter().getY()) == -16777216
-                        && pixelReader.getArgb((int) eist.getCenter().getX(), (int) eist.getCenter().getY() - 5) == -16777216
-                        && pixelReader.getArgb((int) eist.getCenter().getX(), (int) eist.getCenter().getY() + 5) == -16777216) {
-                    /*
-                     * Check if not over occupied slot or all slots empty
-                     */
-                    if (ladder.getSlotIdx() == null || !mSlots.get(ladder.getSlotIdx()).getArea().contains(eist.getCenter())) {
-                        /*
-                         * stepped off the path, start falling
-                         */
-                        eist.isFalling = true;
-                        mCurrentFallingFrame = 0;
-                    }
+
+                if (pixelReader.getArgb(eist.detectionPoint1X, eist.detectionPoint1Y) == -16777216
+                        || pixelReader.getArgb(eist.detectionPoint2X, eist.detectionPoint2Y) == -16777216) {
+
+
+                // Check if empty slot or all slots empty
+                if (ladder.getSlotIdx() == null ||
+                        (!mSlots.get(ladder.getSlotIdx()).getArea().contains(new Point2D(eist.detectionPoint1X, eist.detectionPoint1Y))
+                        && !mSlots.get(ladder.getSlotIdx()).getArea().contains(new Point2D(eist.detectionPoint2X, eist.detectionPoint2Y)))) {
+
+                    // Stepped off the path, start falling
+                    mCurrentFallingFrame = 0;
+                }
+
+
+                //    mCurrentFallingFrame = 0;
+
                 } else {
-                    eist.isFalling = false;
                     mCurrentFallingFrame = null;
                 }
+
             } catch (Exception e) {
                 System.out.println("Exception intercepted (pixelReader): " + e);
                 eist.isMoving = false;
@@ -447,78 +444,77 @@ public class Main extends Utils {
 
         if (eist.isMoving) {
 
-            if (eist.isFalling) {
+            if (mCurrentFallingFrame != null) {
 
-                if (mCurrentFallingFrame != null) {
+                switch (eist.getDirection()) {
+                    case DIR_RIGHT:
+                        gc.drawImage(mEistFallingRightImg, 160 * mCurrentFallingFrame, 0, 160, 160, eist.x, eist.y, mFrameDimension, mFrameDimension);
+                        break;
 
-                    switch (eist.getDirection()) {
-                        case DIR_RIGHT:
-                            gc.drawImage(mEistFallingRightImg, 160 * mCurrentFallingFrame, 0, 160, 160, eist.x, eist.y, mFrameDimension, mFrameDimension);
-                            break;
+                    case DIR_DOWN:
+                        gc.drawImage(mEistFallingDownImg, 160 * mCurrentFallingFrame, 0, 160, 160, eist.x, eist.y, mFrameDimension, mFrameDimension);
+                        break;
 
-                        case DIR_DOWN:
-                            gc.drawImage(mEistFallingDownImg, 160 * mCurrentFallingFrame, 0, 160, 160, eist.x, eist.y, mFrameDimension, mFrameDimension);
-                            break;
+                    case DIR_LEFT:
+                        gc.drawImage(mEistFallingLeftImg, 160 * mCurrentFallingFrame, 0, 160, 160, eist.x, eist.y, mFrameDimension, mFrameDimension);
+                        break;
 
-                        case DIR_LEFT:
-                            gc.drawImage(mEistFallingLeftImg, 160 * mCurrentFallingFrame, 0, 160, 160, eist.x, eist.y, mFrameDimension, mFrameDimension);
-                            break;
-
-                        case DIR_UP:
-                            gc.drawImage(mEistFallingUpImg, 160 * mCurrentFallingFrame, 0, 160, 160, eist.x, eist.y, mFrameDimension, mFrameDimension);
-                            break;
-                    }
-                } else {
-                    eist.isFalling = false;
+                    case DIR_UP:
+                        gc.drawImage(mEistFallingUpImg, 160 * mCurrentFallingFrame, 0, 160, 160, eist.x, eist.y, mFrameDimension, mFrameDimension);
+                        break;
                 }
             }
-        }
+            gc.setFill(Color.WHITE);
+            gc.fillOval(eist.detectionPoint1X - 1, eist.detectionPoint1Y - 1, 2, 2);
+            gc.fillOval(eist.detectionPoint2X - 1, eist.detectionPoint2Y - 1, 2, 2);
 
         /*
          * Draw game pad selection;
          */
-        if (pad.getSelection() != null) {
+            if (pad.getSelection() != null) {
 
-            Rectangle2D button;
-            Image image;
-            switch (pad.getSelection()) {
-                case DIR_RIGHT:
-                    button = pad.getButtonRight();
-                    image = mSelRightImg;
-                    break;
+                Rectangle2D button;
+                Image image;
+                switch (pad.getSelection()) {
+                    case DIR_RIGHT:
+                        button = pad.getButtonRight();
+                        image = mSelRightImg;
+                        break;
 
-                case DIR_LEFT:
-                    button = pad.getButtonLeft();
-                    image = mSelLeftImg;
-                    break;
+                    case DIR_LEFT:
+                        button = pad.getButtonLeft();
+                        image = mSelLeftImg;
+                        break;
 
-                case DIR_UP:
-                    button = pad.getButtonUp();
-                    image = mSelUpImg;
-                    break;
+                    case DIR_UP:
+                        button = pad.getButtonUp();
+                        image = mSelUpImg;
+                        break;
 
-                case DIR_DOWN:
-                    button = pad.getButtonDown();
-                    image = mSelDownImg;
-                    break;
+                    case DIR_DOWN:
+                        button = pad.getButtonDown();
+                        image = mSelDownImg;
+                        break;
 
-                case DIR_CLEAR:
-                    button = pad.getButtonClear();
-                    image = mSelClearImg;
-                    break;
+                    case DIR_CLEAR:
+                        button = pad.getButtonClear();
+                        image = mSelClearImg;
+                        break;
 
-                default:
-                    button = pad.getButtonClear();
-                    image = mSelClearImg;
-                    break;
+                    default:
+                        button = pad.getButtonClear();
+                        image = mSelClearImg;
+                        break;
+                }
+                gc.drawImage(image, button.getMinX(), button.getMinY(), button.getWidth(), button.getHeight());
             }
-            gc.drawImage(image, button.getMinX(), button.getMinY(), button.getWidth(), button.getHeight());
-        }
 
         /*
          * Just for testing purposes:
          */
-        gc.fillText(String.valueOf((int) mFps), columns[0], rows[18]);
+            //gc.fillText(String.valueOf((int) mFps), columns[0], rows[18]);
+            //gc.fillText("Falling: " + eist.isFalling, columns[0], rows[18]);
+        }
     }
 
     private void updateBoard() {
@@ -549,8 +545,40 @@ public class Main extends Utils {
                     break;
             }
         }
-        eist.setArea(new Rectangle2D(eist.x, eist.y, mFrameDimension, mFrameDimension));
-        eist.setCenter(new Point2D(eist.x + mGridDimension, eist.y + mGridDimension));
+        Point2D center = new Point2D(eist.x + mGridDimension, eist.y + mGridDimension);
+        eist.setCenter(center);
+        /*
+         * Calculate points to check if black pixel below (triggers falling down)
+         */
+        switch(eist.getDirection()){
+            case DIR_RIGHT:
+                eist.detectionPoint1X = (int)center.getX() + mDetectionOffset;
+                eist.detectionPoint1Y = (int)center.getY() - mDetectionOffset;
+                eist.detectionPoint2X = (int)center.getX() + mDetectionOffset;
+                eist.detectionPoint2Y = (int)center.getY() + mDetectionOffset;
+                break;
+
+            case DIR_DOWN:
+                eist.detectionPoint1X = (int)center.getX() + mDetectionOffset;
+                eist.detectionPoint1Y = (int)center.getY() + mDetectionOffset;
+                eist.detectionPoint2X = (int)center.getX() - mDetectionOffset;
+                eist.detectionPoint2Y = (int)center.getY() + mDetectionOffset;
+                break;
+
+            case DIR_LEFT:
+                eist.detectionPoint1X = (int)center.getX() - mDetectionOffset;
+                eist.detectionPoint1Y = (int)center.getY() + mDetectionOffset;
+                eist.detectionPoint2X = (int)center.getX() - mDetectionOffset;
+                eist.detectionPoint2Y = (int)center.getY() - mDetectionOffset;
+                break;
+
+            case DIR_UP:
+                eist.detectionPoint1X = (int)center.getX() - mDetectionOffset;
+                eist.detectionPoint1Y = (int)center.getY() - mDetectionOffset;
+                eist.detectionPoint2X = (int)center.getX() + mDetectionOffset;
+                eist.detectionPoint2Y = (int)center.getY() - mDetectionOffset;
+                break;
+        }
 
         /*
          * Rotate Eist on arrows (also on doors in the future).
@@ -714,8 +742,8 @@ public class Main extends Utils {
                                     }
                                 } else {
                                     if (eist.rotation > -180) {
-                                        eist.rotation = -180 + (180 * (left / mRotationRadius));
                                     }
+                                    eist.rotation = -180 + (180 * (left / mRotationRadius));
                                 }
                             } else {
                                 eist.rotation = 0;

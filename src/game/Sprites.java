@@ -11,10 +11,13 @@ abstract class Sprites extends Utils {
     static class Player {
 
         boolean isMoving;
-        boolean isFalling;
         double rotation;
         double x;
         double y;
+        int detectionPoint1X;
+        int detectionPoint1Y;
+        int detectionPoint2X;
+        int detectionPoint2Y;
 
         private Integer direction;
         private Integer turning; // TURNING_NOT / _RIGHT / _LEFT / _BACK
