@@ -410,27 +410,27 @@ public class Main extends Utils {
 
 
         // Detect black pixel below
-        if(mCurrentFallingFrame == null) {
+        if (mCurrentFallingFrame == null) {
             try {
                 if (pixelReader == null) {
                     pixelReader = mBoardImg.getPixelReader();
                 }
 
-                if (pixelReader.getArgb(eist.detectionPoint1X, eist.detectionPoint1Y) == -16777216
-                        || pixelReader.getArgb(eist.detectionPoint2X, eist.detectionPoint2Y) == -16777216) {
+                boolean leftOut = pixelReader.getArgb(eist.detectionPoint1X, eist.detectionPoint1Y) == -16777216;
+                boolean rightOut = pixelReader.getArgb(eist.detectionPoint2X, eist.detectionPoint2Y) == -16777216;
+                if (leftOut || rightOut) {
 
-
-                // Check if empty slot or all slots empty
-                if (ladder.getSlotIdx() == null ||
-                        (!mSlots.get(ladder.getSlotIdx()).getArea().contains(new Point2D(eist.detectionPoint1X, eist.detectionPoint1Y))
-                        && !mSlots.get(ladder.getSlotIdx()).getArea().contains(new Point2D(eist.detectionPoint2X, eist.detectionPoint2Y)))) {
-
-                    // Stepped off the path, start falling
+                    // Stepped off the path, start falling...
                     mCurrentFallingFrame = 0;
-                }
 
+                    // Wait! Are we on the ladder?
+                    if(ladder.getSlotIdx() != null) {
+                        if (mSlots.get(ladder.getSlotIdx()).getArea().contains(new Point2D(eist.detectionPoint1X, eist.detectionPoint1Y))
+                                && mSlots.get(ladder.getSlotIdx()).getArea().contains(new Point2D(eist.detectionPoint2X, eist.detectionPoint2Y))) {
 
-                //    mCurrentFallingFrame = 0;
+                            mCurrentFallingFrame = null;
+                        }
+                    }
 
                 } else {
                     mCurrentFallingFrame = null;
@@ -550,33 +550,33 @@ public class Main extends Utils {
         /*
          * Calculate points to check if black pixel below (triggers falling down)
          */
-        switch(eist.getDirection()){
+        switch (eist.getDirection()) {
             case DIR_RIGHT:
-                eist.detectionPoint1X = (int)center.getX() + mDetectionOffset;
-                eist.detectionPoint1Y = (int)center.getY() - mDetectionOffset;
-                eist.detectionPoint2X = (int)center.getX() + mDetectionOffset;
-                eist.detectionPoint2Y = (int)center.getY() + mDetectionOffset;
+                eist.detectionPoint1X = (int) center.getX() + mDetectionOffset;
+                eist.detectionPoint1Y = (int) center.getY() - mDetectionOffset;
+                eist.detectionPoint2X = (int) center.getX() + mDetectionOffset;
+                eist.detectionPoint2Y = (int) center.getY() + mDetectionOffset;
                 break;
 
             case DIR_DOWN:
-                eist.detectionPoint1X = (int)center.getX() + mDetectionOffset;
-                eist.detectionPoint1Y = (int)center.getY() + mDetectionOffset;
-                eist.detectionPoint2X = (int)center.getX() - mDetectionOffset;
-                eist.detectionPoint2Y = (int)center.getY() + mDetectionOffset;
+                eist.detectionPoint1X = (int) center.getX() + mDetectionOffset;
+                eist.detectionPoint1Y = (int) center.getY() + mDetectionOffset;
+                eist.detectionPoint2X = (int) center.getX() - mDetectionOffset;
+                eist.detectionPoint2Y = (int) center.getY() + mDetectionOffset;
                 break;
 
             case DIR_LEFT:
-                eist.detectionPoint1X = (int)center.getX() - mDetectionOffset;
-                eist.detectionPoint1Y = (int)center.getY() + mDetectionOffset;
-                eist.detectionPoint2X = (int)center.getX() - mDetectionOffset;
-                eist.detectionPoint2Y = (int)center.getY() - mDetectionOffset;
+                eist.detectionPoint1X = (int) center.getX() - mDetectionOffset;
+                eist.detectionPoint1Y = (int) center.getY() + mDetectionOffset;
+                eist.detectionPoint2X = (int) center.getX() - mDetectionOffset;
+                eist.detectionPoint2Y = (int) center.getY() - mDetectionOffset;
                 break;
 
             case DIR_UP:
-                eist.detectionPoint1X = (int)center.getX() - mDetectionOffset;
-                eist.detectionPoint1Y = (int)center.getY() - mDetectionOffset;
-                eist.detectionPoint2X = (int)center.getX() + mDetectionOffset;
-                eist.detectionPoint2Y = (int)center.getY() - mDetectionOffset;
+                eist.detectionPoint1X = (int) center.getX() - mDetectionOffset;
+                eist.detectionPoint1Y = (int) center.getY() - mDetectionOffset;
+                eist.detectionPoint2X = (int) center.getX() + mDetectionOffset;
+                eist.detectionPoint2Y = (int) center.getY() - mDetectionOffset;
                 break;
         }
 
