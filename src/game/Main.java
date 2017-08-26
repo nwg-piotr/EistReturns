@@ -33,7 +33,7 @@ public class Main extends Utils {
     private final int FRAME_LAST_IDX = 7;
     private final double FRAME_DURATION_EIST = 90000000;
     private final double FRAME_DURATION_ARTIFACT = 135000000;
-    private final double FRAME_DURATION_FALLING = 90000000;
+    private final double FRAME_DURATION_FALLING = 60000000;
 
 
     private long lastEistFrameChangeTime;
@@ -58,7 +58,7 @@ public class Main extends Utils {
         root.getChildren().add(canvas);
         gc = canvas.getGraphicsContext2D();
 
-        Font sansSerif = Font.font("SansSerif", FontWeight.NORMAL, 20);
+        Font sansSerif = Font.font("SansSerif", FontWeight.NORMAL, 30);
         gc.setFont(sansSerif);
 
         eist = new Player();
@@ -541,7 +541,9 @@ public class Main extends Utils {
          * Just for testing purposes:
          */
         gc.setFill(Color.WHITE);
-        gc.fillText(String.valueOf((int) mFps), columns[0], rows[18]);
+        //gc.fillText(String.valueOf((int) mFps), columns[0], rows[18]);
+        gc.fillText(String.valueOf(mCurrentLevel), columns[28], rows[12]);
+        gc.fillText(String.valueOf(eist.getKeys()), columns[28], rows[14]);
     }
 
     private void updateBoard() {
