@@ -27,7 +27,6 @@ import game.Sprites.Pad;
 
 public class Main extends Utils {
 
-    private int mCurrentLevel = 1;
     private GraphicsContext gc;
 
     private final int FRAME_LAST_IDX = 7;
@@ -42,13 +41,16 @@ public class Main extends Utils {
 
     private double mFps = 0;
 
+    private Font infoFont;
+    private Font levelFont;
+
     @Override
     public void start(Stage stage) throws Exception {
 
         setBoardDimensions();
 
         stage.setTitle("Eist returns");
-        stage.getIcons().add(new Image("images/icons/eist.png"));
+        stage.getIcons().add(new Image("images/common/eist.png"));
         stage.setResizable(false);
 
         Group root = new Group();
@@ -58,8 +60,9 @@ public class Main extends Utils {
         root.getChildren().add(canvas);
         gc = canvas.getGraphicsContext2D();
 
-        Font sansSerif = Font.font("SansSerif", FontWeight.NORMAL, 30);
-        gc.setFont(sansSerif);
+        infoFont = Font.font("SansSerif", FontWeight.NORMAL, 32);
+        levelFont = Font.font("SansSerif", FontWeight.NORMAL, 26);
+        gc.setFont(infoFont);
 
         eist = new Player();
         ladder = new Ladder();
@@ -69,6 +72,7 @@ public class Main extends Utils {
         loadCommonGraphics();
 
         loadLevel(mCurrentLevel);
+        //eist.isMoving = true;
 
         /*
          * (Temporarily) initialize starting values. Later we'll need the loadLevel(int level) method.
@@ -146,6 +150,33 @@ public class Main extends Utils {
         gc.clearRect(0, 0, mSceneWidth, mSceneHeight);
 
         gc.drawImage(mBoardImg, 0, 0, mSceneWidth, mSceneHeight);
+
+        /*
+         * On level0 switch intro messages
+         */
+        if(mCurrentLevel == 0) {
+
+            switch(mArtifacts.size()) {
+                case 3:
+                    gc.drawImage(mIntro01, 0, 0, mSceneWidth, mSceneHeight);
+                    break;
+                case 2:
+                    gc.drawImage(mIntro02, 0, 0, mSceneWidth, mSceneHeight);
+                    break;
+                case 1:
+                    gc.drawImage(mIntro03, 0, 0, mSceneWidth, mSceneHeight);
+                    break;
+                case 0:
+                    gc.drawImage(mIntro04, 0, 0, mSceneWidth, mSceneHeight);
+                    break;
+            }
+            String lvlNumberToString = (mSelectedLevel < 10) ? "0" + String.valueOf(mSelectedLevel) : String.valueOf(mSelectedLevel);
+            gc.setFont(levelFont);
+            gc.fillText("LEVEL " + lvlNumberToString, columns[27], rows[2]);
+        } else {
+
+            gc.drawImage(mBoardImg, 0, 0, mSceneWidth, mSceneHeight);
+        }
 
         /*
          * Switch the Eists source graphics according to the movement direction. It could have been just rotated,
@@ -465,7 +496,7 @@ public class Main extends Utils {
                 }
 
             } catch (Exception e) {
-                System.out.println("Expected exception: board img not ready :)");
+                System.out.println("Expected exception: board img not ready :)" + e);
                 eist.isMoving = false;
             }
         }
@@ -542,6 +573,8 @@ public class Main extends Utils {
          */
         gc.setFill(Color.WHITE);
         //gc.fillText(String.valueOf((int) mFps), columns[0], rows[18]);
+
+        gc.setFont(infoFont);
         gc.fillText(String.valueOf(mCurrentLevel), columns[28], rows[12]);
         gc.fillText(String.valueOf(eist.getKeys()), columns[28], rows[14]);
     }

@@ -1,6 +1,9 @@
 package game;
 
 import javafx.application.Application;
+import javafx.concurrent.Task;
+import javafx.concurrent.WorkerStateEvent;
+import javafx.event.EventHandler;
 import javafx.geometry.Point2D;
 import javafx.geometry.Rectangle2D;
 import javafx.scene.image.Image;
@@ -31,6 +34,10 @@ abstract class Utils extends Application {
     double mSceneHeight;
     double walkingSpeedPerSecond;
 
+    int mCurrentLevel = 0;
+    int mSelectedLevel = 1;
+    final int MAX_LEVEL = 40;
+
     int mCurrentEistFrame = 0;
     int mCurrentArtifactFrame = 0;
     Integer mCurrentFallingFrame = null;
@@ -40,6 +47,11 @@ abstract class Utils extends Application {
     boolean mDisableDoorReaction = false;
 
     PixelReader pixelReader;
+
+    private Rectangle2D mButtonLevelUp;
+    private Rectangle2D mButtonLevelDown;
+    private Rectangle2D mButtonPlay;
+    private Rectangle2D mButtonMenu;
 
     /**
      * The Frame is a rectangular part of the game board of width of 2 columns and height of 2 rows.
@@ -95,7 +107,7 @@ abstract class Utils extends Application {
         mFrameDimension = (mSceneWidth / 1920) * 120;
         mGridDimension = mFrameDimension / 2;
         mHalfGridDimension = mGridDimension / 2;
-        mDetectionOffset = (int)mFrameDimension / 6;
+        mDetectionOffset = (int) mFrameDimension / 6;
 
         System.out.println("mSceneWidth = " + mSceneWidth);
         System.out.println("mSceneHeight = " + mSceneHeight);
@@ -150,78 +162,110 @@ abstract class Utils extends Application {
 
     void handleMouseEvent(MouseEvent event) {
 
-        eist.isMoving = true;
-
         Point2D pointClicked = new Point2D(event.getSceneX(), event.getSceneY());
+
+        if (mCurrentLevel != 0) {
 
         /*
          * Check whether menu or board clicked
          */
-        if (pointClicked.getX() > columns[26]) {
+            if (pointClicked.getX() > columns[26]) {
 
-            /*
-             * Menu clicked. Check which part.
-             */
-            if (pointClicked.getY() < rows[11]) {
                 /*
-                 * Arrows clicked. (Temporarily) turn Eist 90 degrees right if the sprite clicked.
+                 * Menu clicked. Check which part.
                  */
-                if (pad.getButtonLeft().contains(pointClicked)) {
-                    pad.setSelection(DIR_LEFT);
-                } else if (pad.getButtonRight().contains(pointClicked)) {
-                    pad.setSelection(DIR_RIGHT);
-                } else if (pad.getButtonUp().contains(pointClicked)) {
-                    pad.setSelection(DIR_UP);
-                } else if (pad.getButtonDown().contains(pointClicked)) {
-                    pad.setSelection(DIR_DOWN);
-                } else if (pad.getButtonClear().contains(pointClicked)) {
-                    pad.setSelection(DIR_CLEAR);
+                if (pointClicked.getY() < rows[11]) {
+
+                    /*
+                     * Pad clicked
+                     */
+                    eist.isMoving = true;
+
+                    if (pad.getButtonLeft().contains(pointClicked)) {
+                        pad.setSelection(DIR_LEFT);
+                    } else if (pad.getButtonRight().contains(pointClicked)) {
+                        pad.setSelection(DIR_RIGHT);
+                    } else if (pad.getButtonUp().contains(pointClicked)) {
+                        pad.setSelection(DIR_UP);
+                    } else if (pad.getButtonDown().contains(pointClicked)) {
+                        pad.setSelection(DIR_DOWN);
+                    } else if (pad.getButtonClear().contains(pointClicked)) {
+                        pad.setSelection(DIR_CLEAR);
+                    }
                 }
+
+            } else {
+
+                /*
+                 * Board clicked
+                 */
+                eist.isMoving = true;
+
+                for (Slot slot : mSlots) {
+
+                    if (slot.getArea().contains(pointClicked)) {
+
+                        int clickedSlotIdx = mSlots.indexOf(slot);
+
+                        if (ladder.getSlotIdx() == null) {
+
+                            ladder.setSlotIdx(clickedSlotIdx);
+
+                        } else {
+
+                            if (clickedSlotIdx == ladder.getSlotIdx()) {
+
+                                ladder.setSlotIdx(null);
+                            }
+                        }
+
+                    }
+                }
+
+                if (pad.getSelection() != null && pixelReader.getArgb((int) pointClicked.getX(), (int) pointClicked.getY()) != -16777216) {
+
+                    Rectangle2D pressedSquare = nearestSquare(pointClicked.getX(), pointClicked.getY());
+
+                    if (pressedSquare != null) {
+
+                        if (pad.getSelection() != DIR_CLEAR) {
+
+                            if (arrowAllowed(new Point2D(pressedSquare.getMinX() + mGridDimension, pressedSquare.getMinY() + mGridDimension))) {
+                                placeArrow(pressedSquare.getMinX(), pressedSquare.getMinY());
+                            }
+
+                        } else {
+
+                            removeArrow(pressedSquare);
+                        }
+                    }
+                }
+            }
+
+            if(mButtonMenu.contains(pointClicked)) {
+                mCurrentLevel = 0;
+                loadLevel(mCurrentLevel);
             }
 
         } else {
-
             /*
-             * Board clicked
+             * Handle intro menu clicks
              */
-            for (Slot slot : mSlots) {
-
-                if (slot.getArea().contains(pointClicked)) {
-
-                    int clickedSlotIdx = mSlots.indexOf(slot);
-
-                    if (ladder.getSlotIdx() == null) {
-
-                        ladder.setSlotIdx(clickedSlotIdx);
-
-                    } else {
-
-                        if (clickedSlotIdx == ladder.getSlotIdx()) {
-
-                            ladder.setSlotIdx(null);
-                        }
-                    }
-
+            if (mButtonLevelUp.contains(pointClicked)) {
+                if (mSelectedLevel < MAX_LEVEL) {
+                    mSelectedLevel++;
                 }
-            }
-
-            if (pad.getSelection() != null && pixelReader.getArgb((int) pointClicked.getX(), (int) pointClicked.getY()) != -16777216) {
-
-                Rectangle2D pressedSquare = nearestSquare(pointClicked.getX(), pointClicked.getY());
-
-                if(pressedSquare != null) {
-
-                    if(pad.getSelection() != DIR_CLEAR) {
-
-                        if(arrowAllowed(new Point2D(pressedSquare.getMinX() + mGridDimension, pressedSquare.getMinY() + mGridDimension))) {
-                            placeArrow(pressedSquare.getMinX(), pressedSquare.getMinY());
-                        }
-
-                    } else {
-
-                        removeArrow(pressedSquare);
-                    }
+            } else if (mButtonLevelDown.contains(pointClicked)) {
+                if (mSelectedLevel > 1) {
+                    mSelectedLevel--;
                 }
+            } else if (mButtonPlay.contains(pointClicked)) {
+                mCurrentLevel = mSelectedLevel;
+                loadLevel(mCurrentLevel);
+            } else if(mButtonMenu.contains(pointClicked)) {
+
+                mCurrentLevel = 0;
+                loadLevel(mCurrentLevel);
             }
         }
     }
@@ -266,6 +310,11 @@ abstract class Utils extends Application {
     Image mExitClosedImg;
     Image mExitOpenImg;
 
+    Image mIntro01;
+    Image mIntro02;
+    Image mIntro03;
+    Image mIntro04;
+
     void loadCommonGraphics() {
 
         mEistRightImg = new Image("images/sprites/eist_right.png");
@@ -285,6 +334,11 @@ abstract class Utils extends Application {
 
         mTeleportImg = new Image("images/sprites/teleport.png");
 
+        mIntro01 = new Image("images/common/intro01.png");
+        mIntro02 = new Image("images/common/intro02.png");
+        mIntro03 = new Image("images/common/intro03.png");
+        mIntro04 = new Image("images/common/intro04.png");
+
         /*
          * Initialize pad buttons
          */
@@ -300,6 +354,14 @@ abstract class Utils extends Application {
         pad.setButtonLeft(new Rectangle2D(columns[27], rows[3], mFrameDimension, mFrameDimension));
         pad.setButtonRight(new Rectangle2D(columns[30], rows[3], mFrameDimension, mFrameDimension));
         pad.setButtonClear(new Rectangle2D(columns[28], rows[8], mGridDimension * 3, mFrameDimension));
+
+        /*
+         * Initialize intro menu buttons
+         */
+        mButtonLevelDown = new Rectangle2D(columns[27], rows[3], mFrameDimension, mFrameDimension);
+        mButtonLevelUp = new Rectangle2D(columns[29], rows[3], mFrameDimension, mFrameDimension);
+        mButtonPlay = new Rectangle2D(columns[27], rows[6], mFrameDimension * 2, mFrameDimension);
+        mButtonMenu = new Rectangle2D(columns[30], rows[16], mFrameDimension, mFrameDimension);
     }
 
     /**
@@ -530,6 +592,26 @@ abstract class Utils extends Application {
             exit.setArea(new Rectangle2D(exit.getPosX(), exit.getPosY(), mFrameDimension, mFrameDimension));
             ladder.setSlotIdx(Integer.valueOf(data[5]));
         }
+
+        if (level == 0) {
+            Task<Void> sleeper = new Task<Void>() {
+                @Override
+                protected Void call() throws Exception {
+                    try {
+                        Thread.sleep(1000);
+                    } catch (InterruptedException e) {
+                    }
+                    return null;
+                }
+            };
+            sleeper.setOnSucceeded(new EventHandler<WorkerStateEvent>() {
+                @Override
+                public void handle(WorkerStateEvent event) {
+                    eist.isMoving = true;
+                }
+            });
+            new Thread(sleeper).start();
+        }
     }
 
     /**
@@ -663,32 +745,32 @@ abstract class Utils extends Application {
 
     private boolean arrowAllowed(Point2D squareCenter) {
 
-        for(Arrow arrow : mArrows) {
-            if(arrow.getArea().contains(squareCenter)) {
+        for (Arrow arrow : mArrows) {
+            if (arrow.getArea().contains(squareCenter)) {
                 return false;
             }
         }
-        for(Artifact artifact : mArtifacts) {
-            if(artifact.getArea().contains(squareCenter)) {
+        for (Artifact artifact : mArtifacts) {
+            if (artifact.getArea().contains(squareCenter)) {
                 return false;
             }
         }
-        for(Key key : mKeys) {
-            if(key.getArea().contains(squareCenter)) {
+        for (Key key : mKeys) {
+            if (key.getArea().contains(squareCenter)) {
                 return false;
             }
         }
-        for(Door door : mDoors) {
-            if(door.getArea().contains(squareCenter)) {
+        for (Door door : mDoors) {
+            if (door.getArea().contains(squareCenter)) {
                 return false;
             }
         }
-        for(Teleport teleport : mTeleports) {
-            if(teleport.getArea().contains(squareCenter)) {
+        for (Teleport teleport : mTeleports) {
+            if (teleport.getArea().contains(squareCenter)) {
                 return false;
             }
         }
-        if(exit.getArea().contains(squareCenter)) {
+        if (exit.getArea().contains(squareCenter)) {
             return false;
         }
         return true;
@@ -696,8 +778,8 @@ abstract class Utils extends Application {
 
     private void removeArrow(Rectangle2D pressedSquare) {
 
-        for(Arrow arrow : mArrows) {
-            if(arrow.getArea().intersects(pressedSquare)) {
+        for (Arrow arrow : mArrows) {
+            if (arrow.getArea().intersects(pressedSquare)) {
                 mArrows.remove(arrow);
                 break;
             }
