@@ -166,9 +166,9 @@ abstract class Utils extends Application {
 
         if (mCurrentLevel != 0) {
 
-        /*
-         * Check whether menu or board clicked
-         */
+            /*
+             * Check whether menu or board clicked
+             */
             if (pointClicked.getX() > columns[26]) {
 
                 /*
@@ -179,18 +179,21 @@ abstract class Utils extends Application {
                     /*
                      * Pad clicked
                      */
-                    eist.isMoving = true;
-
                     if (pad.getButtonLeft().contains(pointClicked)) {
                         pad.setSelection(DIR_LEFT);
+                        eist.isMoving = true;
                     } else if (pad.getButtonRight().contains(pointClicked)) {
                         pad.setSelection(DIR_RIGHT);
+                        eist.isMoving = true;
                     } else if (pad.getButtonUp().contains(pointClicked)) {
                         pad.setSelection(DIR_UP);
+                        eist.isMoving = true;
                     } else if (pad.getButtonDown().contains(pointClicked)) {
                         pad.setSelection(DIR_DOWN);
+                        eist.isMoving = true;
                     } else if (pad.getButtonClear().contains(pointClicked)) {
                         pad.setSelection(DIR_CLEAR);
+                        eist.isMoving = true;
                     }
                 }
 
