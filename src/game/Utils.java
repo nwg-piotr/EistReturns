@@ -9,7 +9,10 @@ import javafx.geometry.Rectangle2D;
 import javafx.scene.image.Image;
 import javafx.scene.image.PixelReader;
 import javafx.scene.input.MouseEvent;
+import javafx.scene.media.Media;
+import javafx.scene.media.MediaPlayer;
 import javafx.stage.Screen;
+import java.io.File;
 
 import game.Sprites.Player;
 import game.Sprites.Arrow;
@@ -52,6 +55,9 @@ abstract class Utils extends Application {
     private Rectangle2D mButtonLevelDown;
     private Rectangle2D mButtonPlay;
     private Rectangle2D mButtonMenu;
+
+    MediaPlayer trackMainPlayer;
+    MediaPlayer trackLevelPlayer;
 
     /**
      * The Frame is a rectangular part of the game board of width of 2 columns and height of 2 rows.
@@ -319,6 +325,22 @@ abstract class Utils extends Application {
     Image mIntro04;
 
     void loadCommonGraphics() {
+
+        /*
+         * Load media
+         */
+
+        //String musicFile = getClass().getResource("/sounds/eist.mp3").getPath();
+        //String musicFile = "StayTheNight.mp3";     // For example
+
+        Media sound;
+        sound = new Media(new File(getClass().getResource("/sounds/eist.mp3").getPath()).toURI().toString());
+        trackMainPlayer = new MediaPlayer(sound);
+        trackMainPlayer.setCycleCount(MediaPlayer.INDEFINITE);
+
+        sound = new Media(new File(getClass().getResource("/sounds/eist_ingame.mp3").getPath()).toURI().toString());
+        trackLevelPlayer = new MediaPlayer(sound);
+        trackLevelPlayer.setCycleCount(MediaPlayer.INDEFINITE);
 
         mEistRightImg = new Image("images/sprites/eist_right.png");
         mEistDownImg = new Image("images/sprites/eist_down.png");
@@ -598,6 +620,7 @@ abstract class Utils extends Application {
         }
 
         if (level == 0) {
+            trackLevelPlayer.stop();
             Task<Void> sleeper = new Task<Void>() {
                 @Override
                 protected Void call() throws Exception {
@@ -612,9 +635,13 @@ abstract class Utils extends Application {
                 @Override
                 public void handle(WorkerStateEvent event) {
                     eist.isMoving = true;
+                    trackMainPlayer.play();
                 }
             });
             new Thread(sleeper).start();
+        } else {
+            trackMainPlayer.stop();
+            trackLevelPlayer.play();
         }
     }
 
