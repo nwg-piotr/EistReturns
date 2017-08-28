@@ -380,6 +380,7 @@ abstract class Utils extends Application {
 
         mCurrentFallingFrame = null;
         eist.isMoving = false;
+        eist.setKeys(0);
         pad.setSelection(null);
 
         String lvlNumberToString = (level < 10) ? "0" + String.valueOf(level) : String.valueOf(level);
