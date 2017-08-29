@@ -6,10 +6,12 @@ import javafx.concurrent.WorkerStateEvent;
 import javafx.event.EventHandler;
 import javafx.geometry.Point2D;
 import javafx.geometry.Rectangle2D;
+import javafx.scene.control.Alert;
 import javafx.scene.image.Image;
 import javafx.scene.image.PixelReader;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.media.Media;
+import javafx.scene.media.MediaException;
 import javafx.scene.media.MediaPlayer;
 import javafx.stage.Screen;
 import java.io.File;
@@ -56,8 +58,22 @@ abstract class Utils extends Application {
     private Rectangle2D mButtonPlay;
     private Rectangle2D mButtonMenu;
 
-    MediaPlayer trackMainPlayer;
-    MediaPlayer trackLevelPlayer;
+    private Rectangle2D mButtonMuteMusic;
+    private Rectangle2D mButtonMuteSound;
+
+    private MediaPlayer trackMainPlayer;
+    private MediaPlayer trackLevelPlayer;
+    MediaPlayer fxPlayer;
+
+    Media bounceMedia;
+    Media artifactMedia;
+    Media keyMedia;
+    Media doorOpenMedia;
+    Media exitOpenMedia;
+    Media levelLostMedia;
+    Media levelUpMedia;
+    private Media ladderMedia;
+    Media teleportMedia;
 
     /**
      * The Frame is a rectangular part of the game board of width of 2 columns and height of 2 rows.
@@ -68,6 +84,9 @@ abstract class Utils extends Application {
     double mHalfGridDimension;
     int mDetectionOffset;
     double mRotationRadius;
+
+    boolean mMuteMusic;
+    boolean mMuteSound;
 
     /**
      * Eists movement directions; diagonal directions to be used while falling down only.
@@ -170,6 +189,19 @@ abstract class Utils extends Application {
 
         Point2D pointClicked = new Point2D(event.getSceneX(), event.getSceneY());
 
+        if(mButtonMuteMusic.contains(pointClicked)){
+            mMuteMusic = !mMuteMusic;
+            if(trackMainPlayer != null){
+                trackMainPlayer.setMute(mMuteMusic);
+            }
+            if(trackLevelPlayer!= null){
+                trackLevelPlayer.setMute(mMuteMusic);
+            }
+        }
+        if(mButtonMuteSound.contains(pointClicked)){
+            mMuteSound = !mMuteSound;
+        }
+
         if (mCurrentLevel != 0) {
 
             /*
@@ -218,12 +250,30 @@ abstract class Utils extends Application {
 
                         if (ladder.getSlotIdx() == null) {
 
+                            if(!mMuteSound) {
+                                try {
+                                    fxPlayer = new MediaPlayer(ladderMedia);
+                                    fxPlayer.setVolume(1);
+                                    fxPlayer.play();
+                                } catch (MediaException e) {
+                                    System.out.println("Sound not available");
+                                }
+                            }
                             ladder.setSlotIdx(clickedSlotIdx);
 
                         } else {
 
                             if (clickedSlotIdx == ladder.getSlotIdx()) {
 
+                                if(!mMuteSound) {
+                                    try {
+                                        fxPlayer = new MediaPlayer(ladderMedia);
+                                        fxPlayer.setVolume(1);
+                                        fxPlayer.play();
+                                    } catch (MediaException e) {
+                                        System.out.println("Sound not available");
+                                    }
+                                }
                                 ladder.setSlotIdx(null);
                             }
                         }
@@ -324,23 +374,48 @@ abstract class Utils extends Application {
     Image mIntro03;
     Image mIntro04;
 
+    Image mMutedMusicImg;
+    Image mMutedSoundImg;
+
     void loadCommonGraphics() {
 
         /*
          * Load media
          */
+        try {
 
-        //String musicFile = getClass().getResource("/sounds/eist.mp3").getPath();
-        //String musicFile = "StayTheNight.mp3";     // For example
+            Media sound;
+            sound = new Media(new File(getClass().getResource("/sounds/eist.mp3").getPath()).toURI().toString());
+            trackMainPlayer = new MediaPlayer(sound);
+            trackMainPlayer.setVolume(0.4);
+            trackMainPlayer.setCycleCount(MediaPlayer.INDEFINITE);
 
-        Media sound;
-        sound = new Media(new File(getClass().getResource("/sounds/eist.mp3").getPath()).toURI().toString());
-        trackMainPlayer = new MediaPlayer(sound);
-        trackMainPlayer.setCycleCount(MediaPlayer.INDEFINITE);
+            sound = new Media(new File(getClass().getResource("/sounds/eist_ingame.mp3").getPath()).toURI().toString());
+            trackLevelPlayer = new MediaPlayer(sound);
+            trackLevelPlayer.setVolume(0.3);
+            trackLevelPlayer.setCycleCount(MediaPlayer.INDEFINITE);
 
-        sound = new Media(new File(getClass().getResource("/sounds/eist_ingame.mp3").getPath()).toURI().toString());
-        trackLevelPlayer = new MediaPlayer(sound);
-        trackLevelPlayer.setCycleCount(MediaPlayer.INDEFINITE);
+            bounceMedia = new Media(new File(getClass().getResource("/sounds/bounce.wav").getPath()).toURI().toString());
+            artifactMedia = new Media(new File(getClass().getResource("/sounds/amulet.wav").getPath()).toURI().toString());
+            keyMedia = new Media(new File(getClass().getResource("/sounds/key.wav").getPath()).toURI().toString());
+            doorOpenMedia = new Media(new File(getClass().getResource("/sounds/door_open.wav").getPath()).toURI().toString());
+            exitOpenMedia = new Media(new File(getClass().getResource("/sounds/exit.wav").getPath()).toURI().toString());
+            levelLostMedia = new Media(new File(getClass().getResource("/sounds/level_lost.wav").getPath()).toURI().toString());
+            levelUpMedia = new Media(new File(getClass().getResource("/sounds/level.wav").getPath()).toURI().toString());
+            ladderMedia = new Media(new File(getClass().getResource("/sounds/ladder.wav").getPath()).toURI().toString());
+            teleportMedia = new Media(new File(getClass().getResource("/sounds/teleport.wav").getPath()).toURI().toString());
+
+        } catch(MediaException e) {
+
+            System.out.println("Exception: " + e);
+
+            Alert alert = new Alert(Alert.AlertType.WARNING);
+            alert.setTitle("Sound not available");
+            alert.setHeaderText("You may be missing ffmpeg codec");
+            alert.setResizable(true);
+            alert.setContentText(e.toString());
+            alert.showAndWait();
+        }
 
         mEistRightImg = new Image("images/sprites/eist_right.png");
         mEistDownImg = new Image("images/sprites/eist_down.png");
@@ -364,6 +439,9 @@ abstract class Utils extends Application {
         mIntro03 = new Image("images/common/intro03.png");
         mIntro04 = new Image("images/common/intro04.png");
 
+        mMutedMusicImg = new Image("images/common/muted_music.png");
+        mMutedSoundImg = new Image("images/common/muted_sound.png");
+
         /*
          * Initialize pad buttons
          */
@@ -381,12 +459,14 @@ abstract class Utils extends Application {
         pad.setButtonClear(new Rectangle2D(columns[28], rows[8], mGridDimension * 3, mFrameDimension));
 
         /*
-         * Initialize intro menu buttons
+         * Initialize menu buttons
          */
         mButtonLevelDown = new Rectangle2D(columns[27], rows[3], mFrameDimension, mFrameDimension);
         mButtonLevelUp = new Rectangle2D(columns[29], rows[3], mFrameDimension, mFrameDimension);
         mButtonPlay = new Rectangle2D(columns[27], rows[6], mFrameDimension * 2, mFrameDimension);
         mButtonMenu = new Rectangle2D(columns[30], rows[16], mFrameDimension, mFrameDimension);
+        mButtonMuteMusic = new Rectangle2D(columns[30], rows[11], mFrameDimension, mFrameDimension);
+        mButtonMuteSound = new Rectangle2D(columns[30], rows[13], mFrameDimension, mFrameDimension);
     }
 
     /**
@@ -620,13 +700,17 @@ abstract class Utils extends Application {
         }
 
         if (level == 0) {
-            trackLevelPlayer.stop();
+
+            if(trackLevelPlayer != null) {
+                trackLevelPlayer.stop();
+            }
             Task<Void> sleeper = new Task<Void>() {
                 @Override
                 protected Void call() throws Exception {
                     try {
-                        Thread.sleep(1000);
+                        Thread.sleep(500);
                     } catch (InterruptedException e) {
+                        System.out.println(e.toString());
                     }
                     return null;
                 }
@@ -635,13 +719,19 @@ abstract class Utils extends Application {
                 @Override
                 public void handle(WorkerStateEvent event) {
                     eist.isMoving = true;
-                    trackMainPlayer.play();
+                    if(trackMainPlayer != null) {
+                        trackMainPlayer.play();
+                    }
                 }
             });
             new Thread(sleeper).start();
         } else {
-            trackMainPlayer.stop();
-            trackLevelPlayer.play();
+            if(trackMainPlayer != null) {
+                trackMainPlayer.stop();
+            }
+            if(trackLevelPlayer != null) {
+                trackLevelPlayer.play();
+            }
         }
     }
 

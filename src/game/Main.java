@@ -7,6 +7,8 @@ import javafx.scene.Group;
 import javafx.scene.Scene;
 import javafx.scene.canvas.*;
 
+import javafx.scene.media.MediaException;
+import javafx.scene.media.MediaPlayer;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
@@ -118,6 +120,17 @@ public class Main extends Utils {
                     } else {
 
                         mCurrentFallingFrame = null;
+
+                        if(mCurrentLevel > 0 && !mMuteSound) {
+                            try {
+                                fxPlayer = new MediaPlayer(levelLostMedia);
+                                fxPlayer.setVolume(1);
+                                fxPlayer.play();
+                            } catch (MediaException e) {
+                                System.out.println("Sound not available");
+                            }
+                        }
+
                         loadLevel(mCurrentLevel);
                     }
                 }
@@ -176,6 +189,13 @@ public class Main extends Utils {
         } else {
 
             gc.drawImage(mBoardImg, 0, 0, mSceneWidth, mSceneHeight);
+        }
+
+        if(mMuteMusic){
+            gc.drawImage(mMutedMusicImg, columns[30], rows[11], mGridDimension, mGridDimension);
+        }
+        if(mMuteSound){
+            gc.drawImage(mMutedSoundImg, columns[30], rows[13], mGridDimension, mGridDimension);
         }
 
         /*
@@ -250,6 +270,29 @@ public class Main extends Utils {
                 if (artifact.getArea().contains(eist.getCenter())) {
 
                     mArtifacts.remove(artifact);
+
+                    if(mCurrentLevel > 0){
+                        try {
+                            if(mArtifacts.size() > 0) {
+
+                                if(!mMuteSound) {
+                                    fxPlayer = new MediaPlayer(artifactMedia);
+                                    fxPlayer.setVolume(1);
+                                    fxPlayer.play();
+                                }
+
+                            } else {
+
+                                if(!mMuteSound) {
+                                    fxPlayer = new MediaPlayer(exitOpenMedia);
+                                    fxPlayer.setVolume(1);
+                                    fxPlayer.play();
+                                }
+                            }
+                        } catch (MediaException e) {
+                            System.out.println("Sound not available");
+                        }
+                    }
                     break;
                 }
             }
@@ -265,6 +308,16 @@ public class Main extends Utils {
                 gc.drawImage(mTeleportImg, 160 * mCurrentArtifactFrame, 0, 160, 160, teleport.getPosX(), teleport.getPosY(), mFrameDimension, mFrameDimension);
 
                 if (teleport.getArea().contains(eist.getCenter())) {
+
+                    if(mCurrentLevel > 0 && !mMuteSound) {
+                        try {
+                            fxPlayer = new MediaPlayer(teleportMedia);
+                            fxPlayer.setVolume(1);
+                            fxPlayer.play();
+                        } catch (MediaException e) {
+                            System.out.println("Sound not available");
+                        }
+                    }
 
                     if (mTeleports.indexOf(teleport) == 0) {
                         switch (eist.getDirection()) {
@@ -328,6 +381,16 @@ public class Main extends Utils {
 
                 if (key.getArea().contains(eist.getCenter())) {
 
+                    if(mCurrentLevel > 0 && !mMuteSound) {
+                        try {
+                            fxPlayer = new MediaPlayer(keyMedia);
+                            fxPlayer.setVolume(1);
+                            fxPlayer.play();
+                        } catch (MediaException e) {
+                            System.out.println("Sound not available");
+                        }
+                    }
+
                     mKeys.remove(key);
                     eist.setKeys(eist.getKeys() + 1);
                     System.out.println("Keys owned: " + eist.getKeys());
@@ -356,6 +419,16 @@ public class Main extends Utils {
                 if (door.getArea().contains(eist.getCenter())) {
 
                     if (eist.getKeys() > 0) {
+
+                        if(mCurrentLevel > 0 && !mMuteSound) {
+                            try {
+                                fxPlayer = new MediaPlayer(doorOpenMedia);
+                                fxPlayer.setVolume(1);
+                                fxPlayer.play();
+                            } catch (MediaException e) {
+                                System.out.println("Sound not available");
+                            }
+                        }
 
                         eist.setKeys(eist.getKeys() - 1);
                         System.out.println("Keys left: " + eist.getKeys());
@@ -415,6 +488,17 @@ public class Main extends Utils {
 
                 mCurrentLevel++;
                 mCurrentFallingFrame = 0;
+
+                if(mCurrentLevel > 0 && !mMuteSound) {
+                    try {
+                        fxPlayer = new MediaPlayer(levelUpMedia);
+                        fxPlayer.setVolume(1);
+                        fxPlayer.play();
+                    } catch (MediaException e) {
+                        System.out.println("Sound not available");
+                    }
+                }
+
                 loadLevel(mCurrentLevel);
             }
         }
@@ -960,6 +1044,16 @@ public class Main extends Utils {
     }
 
     private void reactToDoor(Door door) {
+
+        if(mCurrentLevel > 0 && !mMuteSound) {
+            try {
+                fxPlayer = new MediaPlayer(bounceMedia);
+                fxPlayer.setVolume(1);
+                fxPlayer.play();
+            } catch (MediaException e) {
+                System.out.println("Sound not available");
+            }
+        }
 
         turnRight = getRandomBoolean();
 
