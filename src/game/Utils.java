@@ -327,8 +327,9 @@ abstract class Utils extends Application {
                 loadLevel(mCurrentLevel);
             } else if (mButtonMenu.contains(pointClicked)) {
 
-                mCurrentLevel = 0;
-                loadLevel(mCurrentLevel);
+                displayAboutAlert();
+                //mCurrentLevel = 0;
+                //loadLevel(mCurrentLevel);
             }
         }
     }
@@ -526,7 +527,6 @@ abstract class Utils extends Application {
                 arrow.setDirection(Integer.valueOf(positions[2]));
                 mArrows.add(arrow);
             }
-            System.out.println("Loaded arrows: " + mArrows.size());
         }
 
         /*
@@ -553,7 +553,6 @@ abstract class Utils extends Application {
                 artifact.setArea(innerRect(columns[posX], rows[posY]));
                 mArtifacts.add(artifact);
             }
-            System.out.println("Loaded artifacts: " + mArtifacts.size());
         }
 
         /*
@@ -579,7 +578,6 @@ abstract class Utils extends Application {
                 teleport.setArea(innerRect(columns[posX], rows[posY]));
                 mTeleports.add(teleport);
             }
-            System.out.println("Loaded teleports: " + mTeleports.size());
         }
 
         /*
@@ -606,7 +604,6 @@ abstract class Utils extends Application {
                 key.setArea(innerRect(columns[posX], rows[posY]));
                 mKeys.add(key);
             }
-            System.out.println("Loaded keys: " + mArtifacts.size());
         }
 
         /*
@@ -636,7 +633,6 @@ abstract class Utils extends Application {
                 door.setArea(innerRect(columns[posX], rows[posY]));
                 mDoors.add(door);
             }
-            System.out.println("Loaded doors: " + mDoors.size());
         }
 
         /*
@@ -668,7 +664,6 @@ abstract class Utils extends Application {
                 }
                 mSlots.add(slot);
             }
-            System.out.println("Loaded slots: " + mDoors.size());
         }
 
         /*
@@ -688,7 +683,6 @@ abstract class Utils extends Application {
          */
         dataString = datToString(getClass().getResource(url + "level.dat").getPath());
         if (dataString != null) {
-            System.out.println("Level data: " + dataString);
 
             String[] data = dataString.split(",");
 
@@ -925,5 +919,16 @@ abstract class Utils extends Application {
     }
     private void displayErrorAlert(String content) {
         displayErrorAlert(null, content);
+    }
+
+    private void displayAboutAlert() {
+        Alert alert = new Alert(Alert.AlertType.INFORMATION);
+        alert.setTitle("About the game");
+        alert.setHeaderText(null);
+        alert.setContentText("Eist returns\narcade-puzzle game\n\u00a91992-2017 nwg (Piotr Miller)\n\n" +
+                "This program is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License version 3.0, as published by the Free Software Foundation." +
+                "\n\nhttps://github.com/nwg-piotr/EistReturns");
+
+        alert.showAndWait();
     }
 }
