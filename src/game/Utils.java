@@ -952,11 +952,27 @@ abstract class Utils extends Application {
     private void displayAboutAlert() {
         Alert alert = new Alert(Alert.AlertType.INFORMATION);
         alert.setTitle("About the game");
-        alert.setHeaderText(null);
-        alert.setContentText("Eist returns\narcade-puzzle game\n\u00a91992-2017 nwg (Piotr Miller)\n\n" +
-                "This program is free software; you can redistribute it and/or modify it under the terms of the GNU " +
+        alert.setHeaderText("Eist returns\narcade-puzzle game\n\u00a91992-2017 nwg (Piotr Miller)");
+        alert.setResizable(true);
+
+        String message = "This program is free software; you can redistribute it and/or modify it under the terms of the GNU " +
                 "General Public License version 3.0, as published by the Free Software Foundation." +
-                "\n\nhttps://github.com/nwg-piotr/EistReturns");
+                "\n\nhttps://github.com/nwg-piotr/EistReturns";
+
+        TextArea textArea = new TextArea(message);
+        textArea.setEditable(false);
+        textArea.setWrapText(true);
+
+        textArea.setMaxWidth(Double.MAX_VALUE);
+        textArea.setMaxHeight(Double.MAX_VALUE);
+        GridPane.setVgrow(textArea, Priority.ALWAYS);
+        GridPane.setHgrow(textArea, Priority.ALWAYS);
+
+        GridPane content = new GridPane();
+        content.setMaxWidth(Double.MAX_VALUE);
+        content.add(textArea, 0, 1);
+
+        alert.getDialogPane().setExpandableContent(content);
 
         alert.showAndWait();
     }
