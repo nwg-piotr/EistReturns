@@ -62,8 +62,8 @@ public class Main extends Utils {
         root.getChildren().add(canvas);
         gc = canvas.getGraphicsContext2D();
 
-        infoFont = Font.font("SansSerif", FontWeight.NORMAL, 32);
-        levelFont = Font.font("SansSerif", FontWeight.NORMAL, 26);
+        infoFont = Font.font("SansSerif", FontWeight.NORMAL, 64 / DIMENSION_DIVIDER);
+        levelFont = Font.font("SansSerif", FontWeight.NORMAL, 52 / DIMENSION_DIVIDER);
         gc.setFont(infoFont);
 
         eist = new Player();

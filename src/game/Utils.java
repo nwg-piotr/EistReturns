@@ -42,6 +42,7 @@ abstract class Utils extends Application {
     int mCurrentLevel = 0;
     int mSelectedLevel = 1;
     final int MAX_LEVEL = 40;
+    final double DIMENSION_DIVIDER = 2;
 
     int mCurrentEistFrame = 0;
     int mCurrentArtifactFrame = 0;
@@ -127,7 +128,7 @@ abstract class Utils extends Application {
          * Source graphics has been drawn as fullHD (1920 x 1080).
          */
         Rectangle2D primaryScreenBounds = Screen.getPrimary().getVisualBounds();
-        mSceneWidth = primaryScreenBounds.getWidth() / 2;
+        mSceneWidth = primaryScreenBounds.getWidth() / DIMENSION_DIVIDER;
         mSceneHeight = (mSceneWidth / 1920) * 1080;
         mFrameDimension = (mSceneWidth / 1920) * 120;
         mGridDimension = mFrameDimension / 2;
