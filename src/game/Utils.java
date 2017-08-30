@@ -14,6 +14,7 @@ import javafx.scene.media.Media;
 import javafx.scene.media.MediaException;
 import javafx.scene.media.MediaPlayer;
 import javafx.stage.Screen;
+
 import java.io.File;
 
 import game.Sprites.Player;
@@ -114,6 +115,8 @@ abstract class Utils extends Application {
     Exit exit;
     Pad pad;
 
+    Alert mErrorAlert;
+
     /**
      * To place the game board content (arrows, artifacts, teleports etc), we'll divide it into rows and columns grid.
      * The column is half the width of the Frame. The row is half the height of the Frame.
@@ -190,16 +193,16 @@ abstract class Utils extends Application {
 
         Point2D pointClicked = new Point2D(event.getSceneX(), event.getSceneY());
 
-        if(mButtonMuteMusic.contains(pointClicked)){
+        if (mButtonMuteMusic.contains(pointClicked)) {
             mMuteMusic = !mMuteMusic;
-            if(trackMainPlayer != null){
+            if (trackMainPlayer != null) {
                 trackMainPlayer.setMute(mMuteMusic);
             }
-            if(trackLevelPlayer!= null){
+            if (trackLevelPlayer != null) {
                 trackLevelPlayer.setMute(mMuteMusic);
             }
         }
-        if(mButtonMuteSound.contains(pointClicked)){
+        if (mButtonMuteSound.contains(pointClicked)) {
             mMuteSound = !mMuteSound;
         }
 
@@ -251,13 +254,13 @@ abstract class Utils extends Application {
 
                         if (ladder.getSlotIdx() == null) {
 
-                            if(!mMuteSound) {
+                            if (!mMuteSound) {
                                 try {
                                     fxPlayer = new MediaPlayer(ladderMedia);
                                     fxPlayer.setVolume(1);
                                     fxPlayer.play();
                                 } catch (MediaException e) {
-                                    System.out.println("Sound not available");
+                                    displayErrorAlert("Media player error", e.toString());
                                 }
                             }
                             ladder.setSlotIdx(clickedSlotIdx);
@@ -266,13 +269,13 @@ abstract class Utils extends Application {
 
                             if (clickedSlotIdx == ladder.getSlotIdx()) {
 
-                                if(!mMuteSound) {
+                                if (!mMuteSound) {
                                     try {
                                         fxPlayer = new MediaPlayer(ladderMedia);
                                         fxPlayer.setVolume(1);
                                         fxPlayer.play();
                                     } catch (MediaException e) {
-                                        System.out.println("Sound not available");
+                                        displayErrorAlert("Media player error", e.toString());
                                     }
                                 }
                                 ladder.setSlotIdx(null);
@@ -302,7 +305,7 @@ abstract class Utils extends Application {
                 }
             }
 
-            if(mButtonMenu.contains(pointClicked)) {
+            if (mButtonMenu.contains(pointClicked)) {
                 mCurrentLevel = 0;
                 loadLevel(mCurrentLevel);
             }
@@ -322,7 +325,7 @@ abstract class Utils extends Application {
             } else if (mButtonPlay.contains(pointClicked)) {
                 mCurrentLevel = mSelectedLevel;
                 loadLevel(mCurrentLevel);
-            } else if(mButtonMenu.contains(pointClicked)) {
+            } else if (mButtonMenu.contains(pointClicked)) {
 
                 mCurrentLevel = 0;
                 loadLevel(mCurrentLevel);
@@ -396,6 +399,12 @@ abstract class Utils extends Application {
             trackLevelPlayer.setVolume(0.3);
             trackLevelPlayer.setCycleCount(MediaPlayer.INDEFINITE);
 
+        } catch (MediaException e) {
+
+            displayErrorAlert("Media player error", e.toString());
+        }
+
+        try {
             bounceMedia = new Media(new File(getClass().getResource("/sounds/bounce.wav").getPath()).toURI().toString());
             artifactMedia = new Media(new File(getClass().getResource("/sounds/amulet.wav").getPath()).toURI().toString());
             keyMedia = new Media(new File(getClass().getResource("/sounds/key.wav").getPath()).toURI().toString());
@@ -406,16 +415,8 @@ abstract class Utils extends Application {
             ladderMedia = new Media(new File(getClass().getResource("/sounds/ladder.wav").getPath()).toURI().toString());
             teleportMedia = new Media(new File(getClass().getResource("/sounds/teleport.wav").getPath()).toURI().toString());
 
-        } catch(MediaException e) {
-
-            System.out.println("Exception: " + e);
-
-            Alert alert = new Alert(Alert.AlertType.WARNING);
-            alert.setTitle("Sound not available");
-            alert.setHeaderText("You may be missing ffmpeg codec");
-            alert.setResizable(true);
-            alert.setContentText(e.toString());
-            alert.showAndWait();
+        } catch (NullPointerException e) {
+            displayErrorAlert("Media *.wav file found", e.toString());
         }
 
         mEistRightImg = new Image("images/sprites/eist_right.png");
@@ -702,7 +703,7 @@ abstract class Utils extends Application {
 
         if (level == 0) {
 
-            if(trackLevelPlayer != null) {
+            if (trackLevelPlayer != null) {
                 trackLevelPlayer.stop();
             }
             Task<Void> sleeper = new Task<Void>() {
@@ -720,17 +721,17 @@ abstract class Utils extends Application {
                 @Override
                 public void handle(WorkerStateEvent event) {
                     eist.isMoving = true;
-                    if(trackMainPlayer != null) {
+                    if (trackMainPlayer != null) {
                         trackMainPlayer.play();
                     }
                 }
             });
             new Thread(sleeper).start();
         } else {
-            if(trackMainPlayer != null) {
+            if (trackMainPlayer != null) {
                 trackMainPlayer.stop();
             }
-            if(trackLevelPlayer != null) {
+            if (trackLevelPlayer != null) {
                 trackLevelPlayer.play();
             }
         }
@@ -762,7 +763,6 @@ abstract class Utils extends Application {
             content = new String(Files.readAllBytes(path)).trim();
         } catch (IOException e) {
             content = null;
-            e.printStackTrace();
         }
 
         if (content != null && content.isEmpty()) {
@@ -906,6 +906,24 @@ abstract class Utils extends Application {
                 break;
             }
         }
+    }
 
+    private void displayErrorAlert(String header, String content) {
+        if (mErrorAlert != null && mErrorAlert.isShowing()) {
+            return;
+        }
+        mErrorAlert = new Alert(Alert.AlertType.ERROR);
+        mErrorAlert.setResizable(true);
+        mErrorAlert.setTitle("Error");
+        if (header != null) {
+            mErrorAlert.setHeaderText(header);
+        }
+        if (content != null) {
+            mErrorAlert.setContentText(content);
+        }
+        mErrorAlert.showAndWait();
+    }
+    private void displayErrorAlert(String content) {
+        displayErrorAlert(null, content);
     }
 }
