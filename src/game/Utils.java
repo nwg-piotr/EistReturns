@@ -131,7 +131,7 @@ abstract class Utils extends Application {
     double[] rows = new double[19];
     double[] columns = new double[33];
 
-    void setBoardDimensions() {
+    void setBoard() {
 
         /*
          * The dimensions of the Scene and the game board inside will derive from the users' screen width.
@@ -144,26 +144,25 @@ abstract class Utils extends Application {
         mGridDimension = mFrameDimension / 2;
         mHalfGridDimension = mGridDimension / 2;
         mDetectionOffset = (int) mFrameDimension / 6;
+        mRotationRadius = mFrameDimension / 4;
+        walkingSpeedPerSecond = mSceneWidth / 14d;
 
         System.out.println("mSceneWidth = " + mSceneWidth);
         System.out.println("mSceneHeight = " + mSceneHeight);
         System.out.println("mFrameDimension = " + mFrameDimension);
         System.out.println("mGridDimension = " + mGridDimension);
+        System.out.println("walkingSpeedPerSecond = " + walkingSpeedPerSecond);
 
+        /*
+         * For future use - create the folder which user can upload custom levels data to.
+         */
         File mEistFolder = new File(System.getProperty("user.home") + "/.EistReturns");
         if (mEistFolder.mkdir()) {
             System.out.println("EistReturns folder created");
         }
-        prefs = Preferences.userNodeForPackage(Main.class);
-        mSelectedLevel = prefs.getInt("level", 1);
-
-        mRotationRadius = mFrameDimension / 4;
-
-        walkingSpeedPerSecond = mSceneWidth / 14d;
-        System.out.println("walkingSpeedPerSecond = " + walkingSpeedPerSecond);
 
         /*
-         * Board grid coordinates
+         * Calculate board grid coordinates
          */
         for (int i = 0; i < rows.length; i++) {
             rows[i] = (mGridDimension) * i;
@@ -171,6 +170,14 @@ abstract class Utils extends Application {
         for (int i = 0; i < columns.length; i++) {
             columns[i] = (mGridDimension) * i;
         }
+
+        /*
+         * Saved preferences
+         */
+        prefs = Preferences.userNodeForPackage(Main.class);
+        mSelectedLevel = prefs.getInt("level", 1);
+        mMuteSound = prefs.getBoolean("msound", false);
+        mMuteMusic = prefs.getBoolean("mmusic", false);
     }
 
     /**
@@ -193,7 +200,6 @@ abstract class Utils extends Application {
      * Returns the average FPS for the last frameRates.length frames rendered.
      * (Original for loop replaced with foreach).
      */
-
     static double getAverageFPS() {
         double total = 0.0d;
 
@@ -209,6 +215,7 @@ abstract class Utils extends Application {
 
         if (mButtonMuteMusic.contains(pointClicked)) {
             mMuteMusic = !mMuteMusic;
+            prefs.putBoolean("mmusic", mMuteMusic);
             if (trackMainPlayer != null) {
                 trackMainPlayer.setMute(mMuteMusic);
             }
@@ -218,6 +225,7 @@ abstract class Utils extends Application {
         }
         if (mButtonMuteSound.contains(pointClicked)) {
             mMuteSound = !mMuteSound;
+            prefs.putBoolean("msound", mMuteSound);
         }
 
         if (mCurrentLevel != 0) {
@@ -404,17 +412,18 @@ abstract class Utils extends Application {
          * Load media
          */
         try {
-
             Media sound;
             sound = new Media(new File(getClass().getResource("/sounds/eist.mp3").getPath()).toURI().toString());
             trackMainPlayer = new MediaPlayer(sound);
             trackMainPlayer.setVolume(0.4);
             trackMainPlayer.setCycleCount(MediaPlayer.INDEFINITE);
+            trackMainPlayer.setMute(mMuteMusic);
 
             sound = new Media(new File(getClass().getResource("/sounds/eist_ingame.mp3").getPath()).toURI().toString());
             trackLevelPlayer = new MediaPlayer(sound);
             trackLevelPlayer.setVolume(0.3);
             trackLevelPlayer.setCycleCount(MediaPlayer.INDEFINITE);
+            trackMainPlayer.setMute(mMuteMusic);
 
         } catch (MediaException e) {
 

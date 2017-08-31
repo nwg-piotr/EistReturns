@@ -49,7 +49,7 @@ public class Main extends Utils {
     @Override
     public void start(Stage stage) throws Exception {
 
-        setBoardDimensions();
+        setBoard();
 
         stage.setTitle("Eist returns");
         stage.getIcons().add(new Image("images/common/eist.png"));
