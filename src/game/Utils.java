@@ -37,6 +37,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.prefs.Preferences;
 
 abstract class Utils extends Application {
 
@@ -111,6 +112,8 @@ abstract class Utils extends Application {
     static final int ORIENTATION_HORIZONTAL = 0;
     static final int ORIENTATION_VERTICAL = 1;
 
+    Preferences prefs;
+
     /**
      * Sprites and other game objects come here.
      */
@@ -119,7 +122,7 @@ abstract class Utils extends Application {
     Exit exit;
     Pad pad;
 
-    Alert mErrorAlert;
+    private Alert mErrorAlert;
 
     /**
      * To place the game board content (arrows, artifacts, teleports etc), we'll divide it into rows and columns grid.
@@ -146,6 +149,13 @@ abstract class Utils extends Application {
         System.out.println("mSceneHeight = " + mSceneHeight);
         System.out.println("mFrameDimension = " + mFrameDimension);
         System.out.println("mGridDimension = " + mGridDimension);
+
+        File mEistFolder = new File(System.getProperty("user.home") + "/.EistReturns");
+        if (mEistFolder.mkdir()) {
+            System.out.println("EistReturns folder created");
+        }
+        prefs = Preferences.userNodeForPackage(Main.class);
+        mSelectedLevel = prefs.getInt("level", 1);
 
         mRotationRadius = mFrameDimension / 4;
 
@@ -321,10 +331,12 @@ abstract class Utils extends Application {
             if (mButtonLevelUp.contains(pointClicked)) {
                 if (mSelectedLevel < MAX_LEVEL) {
                     mSelectedLevel++;
+                    prefs.putInt("level", mSelectedLevel);
                 }
             } else if (mButtonLevelDown.contains(pointClicked)) {
                 if (mSelectedLevel > 1) {
                     mSelectedLevel--;
+                    prefs.putInt("level", mSelectedLevel);
                 }
             } else if (mButtonPlay.contains(pointClicked)) {
                 mCurrentLevel = mSelectedLevel;
