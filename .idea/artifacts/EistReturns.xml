@@ -3,14 +3,10 @@
     <output-path>$PROJECT_DIR$/out/artifacts/EistReturns</output-path>
     <properties id="javafx-properties">
       <options>
-        <option name="appClass" value="game.Main" />
+        <option name="appClass" value="game.Start" />
         <option name="description" value="" />
         <option name="htmlPlaceholderId" value="" />
-        <option name="icons">
-          <JavaFxApplicationIcons>
-            <option name="linuxIcon" value="$PROJECT_DIR$/src/images/common/eist.png" />
-          </JavaFxApplicationIcons>
-        </option>
+        <option name="nativeBundle" value="exe" />
         <option name="title" value="" />
         <option name="vendor" value="" />
         <option name="version" value="" />

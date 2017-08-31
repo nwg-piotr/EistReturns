@@ -413,7 +413,7 @@ abstract class Utils extends Application {
          */
         try {
             Media sound;
-            sound = new Media(new File(getClass().getResource("/sounds/eist.mp3").getPath()).toURI().toString());
+            sound = new Media(new File(getClass().getResource("/sounds/eist.mp3").getPath().replace('\\', '/')).toURI().toString());
             trackMainPlayer = new MediaPlayer(sound);
             trackMainPlayer.setVolume(0.4);
             trackMainPlayer.setCycleCount(MediaPlayer.INDEFINITE);
