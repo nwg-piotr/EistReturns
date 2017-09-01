@@ -58,6 +58,9 @@ abstract class Utils extends Application {
 
     boolean mDisableDoorReaction = false;
 
+    int mTurnsCounter;
+    int mTurnsBest;
+
     PixelReader pixelReader;
 
     private Rectangle2D mButtonLevelUp;
@@ -110,7 +113,7 @@ abstract class Utils extends Application {
     static final int TURNING_BACK = 3;
 
     static final int ORIENTATION_HORIZONTAL = 0;
-    static final int ORIENTATION_VERTICAL = 1;
+    private static final int ORIENTATION_VERTICAL = 1;
 
     Preferences prefs;
 
@@ -517,6 +520,13 @@ abstract class Utils extends Application {
         pad.setSelection(null);
 
         String lvlNumberToString = (level < 10) ? "0" + String.valueOf(level) : String.valueOf(level);
+
+        mTurnsCounter = 0;
+        /*
+         * load saved level best score, if any.
+         */
+        mTurnsBest = prefs.getInt(lvlNumberToString + "best", 0);
+
         String url = "/res/" + lvlNumberToString;
 
         /*
@@ -736,13 +746,10 @@ abstract class Utils extends Application {
                     return null;
                 }
             };
-            sleeper.setOnSucceeded(new EventHandler<WorkerStateEvent>() {
-                @Override
-                public void handle(WorkerStateEvent event) {
-                    eist.isMoving = true;
-                    if (trackMainPlayer != null) {
-                        trackMainPlayer.play();
-                    }
+            sleeper.setOnSucceeded(event -> {
+                eist.isMoving = true;
+                if (trackMainPlayer != null) {
+                    trackMainPlayer.play();
                 }
             });
             new Thread(sleeper).start();
@@ -752,6 +759,7 @@ abstract class Utils extends Application {
             }
             if (trackLevelPlayer != null) {
                 trackLevelPlayer.play();
+                trackLevelPlayer.setMute(mMuteMusic);
             }
         }
     }
@@ -763,7 +771,7 @@ abstract class Utils extends Application {
      * @param outerY Source frame Y
      * @return Centered smaller rectangle
      */
-    Rectangle2D innerRect(double outerX, double outerY) {
+    private Rectangle2D innerRect(double outerX, double outerY) {
         double x = outerX + mGridDimension / 2;
         double y = outerY + mGridDimension / 2;
 
@@ -927,7 +935,7 @@ abstract class Utils extends Application {
         }
     }
 
-    private void displayExceptionAlert(String header, Exception e) {
+    void displayExceptionAlert(String header, Exception e) {
         if (mErrorAlert != null && mErrorAlert.isShowing()) {
             return;
         }
@@ -966,6 +974,7 @@ abstract class Utils extends Application {
 
         mErrorAlert.showAndWait();
     }
+
     private void displayExceptionAlert(Exception e) {
         displayExceptionAlert(null, e);
     }
@@ -995,6 +1004,16 @@ abstract class Utils extends Application {
 
         alert.getDialogPane().setExpandableContent(content);
 
-        alert.showAndWait();
+        alert.show();
+    }
+
+    void displayNewBestAlert(int oldBest, int newBest) {
+        Alert alert = new Alert(Alert.AlertType.INFORMATION);
+        alert.setTitle("Congrats!");
+        alert.setHeaderText("New best score!");
+        alert.setContentText("Old best: " + oldBest +", yours: " + newBest);
+        alert.setResizable(true);
+
+        alert.show();
     }
 }

@@ -45,6 +45,7 @@ public class Main extends Utils {
 
     private Font infoFont;
     private Font levelFont;
+    private Font turnsFont;
 
     @Override
     public void start(Stage stage) throws Exception {
@@ -64,6 +65,7 @@ public class Main extends Utils {
 
         infoFont = Font.font("SansSerif", FontWeight.NORMAL, 64 / DIMENSION_DIVIDER);
         levelFont = Font.font("SansSerif", FontWeight.NORMAL, 52 / DIMENSION_DIVIDER);
+        turnsFont = Font.font("SansSerif", FontWeight.NORMAL, 32 / DIMENSION_DIVIDER);
         gc.setFont(infoFont);
 
         eist = new Player();
@@ -486,6 +488,14 @@ public class Main extends Utils {
              */
             if (exit.getArea().contains(eist.getCenter())) {
 
+                if(mTurnsCounter < mTurnsBest || mTurnsBest == 0) {
+                    String lvlNumberToString = (mCurrentLevel < 10) ? "0" + String.valueOf(mCurrentLevel) : String.valueOf(mCurrentLevel);
+                    prefs.putInt(lvlNumberToString + "best", mTurnsCounter);
+                    if(mTurnsCounter < mTurnsBest) {
+                        displayNewBestAlert(mTurnsBest, mTurnsCounter);
+                    }
+                }
+
                 mCurrentLevel++;
                 mCurrentFallingFrame = 0;
 
@@ -495,7 +505,7 @@ public class Main extends Utils {
                         fxPlayer.setVolume(1);
                         fxPlayer.play();
                     } catch (MediaException e) {
-                        System.out.println("Sound not available");
+                        displayExceptionAlert("Sound not available", e);
                     }
                 }
 
@@ -661,6 +671,13 @@ public class Main extends Utils {
         gc.setFont(infoFont);
         gc.fillText(String.valueOf(mCurrentLevel), columns[28], rows[12]);
         gc.fillText(String.valueOf(eist.getKeys()), columns[28], rows[14]);
+        gc.setFont(turnsFont);
+        gc.fillText("Turns: " + mTurnsCounter, columns[27], rows[15]);
+        if(mTurnsBest > 0) {
+            gc.fillText("Best: " + mTurnsBest, columns[27], rows[16]);
+        } else {
+            gc.fillText("Best: -", columns[27], rows[16]);
+        }
     }
 
     private void updateBoard() {
@@ -966,6 +983,8 @@ public class Main extends Utils {
 
         turnRight = getRandomBoolean();
 
+        mTurnsCounter++;
+
         switch (eist.getDirection()) {
             case DIR_RIGHT:
                 switch (arrow.getDirection()) {
@@ -1044,6 +1063,8 @@ public class Main extends Utils {
     }
 
     private void reactToDoor(Door door) {
+
+        mTurnsCounter++;
 
         if(mCurrentLevel > 0 && !mMuteSound) {
             try {
