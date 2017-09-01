@@ -47,6 +47,7 @@ abstract class Utils extends Application {
 
     int mCurrentLevel = 0;
     int mSelectedLevel = 1;
+    int mAchievedLevel = 0;
     final int MAX_LEVEL = 40;
     final double DIMENSION_DIVIDER = 2;
 
@@ -179,6 +180,7 @@ abstract class Utils extends Application {
          */
         prefs = Preferences.userNodeForPackage(Main.class);
         mSelectedLevel = prefs.getInt("level", 1);
+        mAchievedLevel = prefs.getInt("achieved", 0);
         mMuteSound = prefs.getBoolean("msound", false);
         mMuteMusic = prefs.getBoolean("mmusic", false);
     }
@@ -331,6 +333,7 @@ abstract class Utils extends Application {
             }
 
             if (mButtonMenu.contains(pointClicked)) {
+                mSelectedLevel = mCurrentLevel;
                 mCurrentLevel = 0;
                 loadLevel(mCurrentLevel);
             }
@@ -340,7 +343,7 @@ abstract class Utils extends Application {
              * Handle intro menu clicks
              */
             if (mButtonLevelUp.contains(pointClicked)) {
-                if (mSelectedLevel < MAX_LEVEL) {
+                if (mSelectedLevel < mAchievedLevel) {
                     mSelectedLevel++;
                     prefs.putInt("level", mSelectedLevel);
                 }

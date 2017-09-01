@@ -75,6 +75,8 @@ public class Main extends Utils {
 
         loadCommonGraphics();
 
+        mSelectedLevel = prefs.getInt("achieved", 1);
+
         loadLevel(mCurrentLevel);
         //eist.isMoving = true;
 
@@ -497,6 +499,12 @@ public class Main extends Utils {
                 }
 
                 mCurrentLevel++;
+
+                if(mCurrentLevel > mAchievedLevel) {
+                    prefs.putInt("achieved", mCurrentLevel);
+                }
+                prefs.putInt("level", mCurrentLevel);
+
                 mCurrentFallingFrame = 0;
 
                 if(mCurrentLevel > 0 && !mMuteSound) {
@@ -590,7 +598,7 @@ public class Main extends Utils {
                 }
 
             } catch (Exception e) {
-                System.out.println("Expected exception: board img not ready :)" + e);
+                e.printStackTrace();
                 eist.isMoving = false;
             }
         }
