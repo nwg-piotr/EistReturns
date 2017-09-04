@@ -53,7 +53,7 @@ public class Main extends Utils {
         setBoard();
 
         stage.setTitle("Eist returns");
-        stage.getIcons().add(new Image("images/common/eist.png"));
+        stage.getIcons().add(new Image("/images/common/eist.png"));
         stage.setResizable(false);
         if(mDimensionDivider == 1.0){
             stage.setFullScreen(true);
@@ -81,12 +81,6 @@ public class Main extends Utils {
         mSelectedLevel = prefs.getInt("achieved", 1);
 
         loadLevel(mCurrentLevel);
-        //eist.isMoving = true;
-
-        /*
-         * (Temporarily) initialize starting values. Later we'll need the loadLevel(int level) method.
-         */
-        eist.setKeys(0);
 
         mScene.setOnMouseClicked(this::handleMouseEvent);
 

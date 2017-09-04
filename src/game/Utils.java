@@ -1,6 +1,7 @@
 package game;
 
 import javafx.application.Application;
+import javafx.application.Platform;
 import javafx.concurrent.Task;
 import javafx.geometry.Point2D;
 import javafx.geometry.Rectangle2D;
@@ -30,6 +31,7 @@ import game.Sprites.Slot;
 import game.Sprites.Ladder;
 import game.Sprites.Exit;
 import game.Sprites.Pad;
+import javafx.stage.Stage;
 
 import java.io.*;
 import java.nio.file.Files;
@@ -456,39 +458,39 @@ abstract class Utils extends Application {
             displayExceptionAlert("Media *.wav file found", e);
         }
 
-        mEistRightImg = new Image("images/sprites/eist_right.png");
-        mEistDownImg = new Image("images/sprites/eist_down.png");
-        mEistLeftImg = new Image("images/sprites/eist_left.png");
-        mEistUpImg = new Image("images/sprites/eist_up.png");
+        mEistRightImg = new Image("/images/sprites/eist_right.png");
+        mEistDownImg = new Image("/images/sprites/eist_down.png");
+        mEistLeftImg = new Image("/images/sprites/eist_left.png");
+        mEistUpImg = new Image("/images/sprites/eist_up.png");
 
-        mEistFallingRightImg = new Image("images/sprites/falldown_right.png");
-        mEistFallingDownImg = new Image("images/sprites/falldown_down.png");
-        mEistFallingLeftImg = new Image("images/sprites/falldown_left.png");
-        mEistFallingUpImg = new Image("images/sprites/falldown_up.png");
+        mEistFallingRightImg = new Image("/images/sprites/falldown_right.png");
+        mEistFallingDownImg = new Image("/images/sprites/falldown_down.png");
+        mEistFallingLeftImg = new Image("/images/sprites/falldown_left.png");
+        mEistFallingUpImg = new Image("/images/sprites/falldown_up.png");
 
-        mArrowRightImg = new Image("images/sprites/arrow_right.png");
-        mArrowDownImg = new Image("images/sprites/arrow_down.png");
-        mArrowLeftImg = new Image("images/sprites/arrow_left.png");
-        mArrowUpImg = new Image("images/sprites/arrow_up.png");
+        mArrowRightImg = new Image("/images/sprites/arrow_right.png");
+        mArrowDownImg = new Image("/images/sprites/arrow_down.png");
+        mArrowLeftImg = new Image("/images/sprites/arrow_left.png");
+        mArrowUpImg = new Image("/images/sprites/arrow_up.png");
 
-        mTeleportImg = new Image("images/sprites/teleport.png");
+        mTeleportImg = new Image("/images/sprites/teleport.png");
 
-        mIntro01 = new Image("images/common/intro01.png");
-        mIntro02 = new Image("images/common/intro02.png");
-        mIntro03 = new Image("images/common/intro03.png");
-        mIntro04 = new Image("images/common/intro04.png");
+        mIntro01 = new Image("/images/common/intro01.png");
+        mIntro02 = new Image("/images/common/intro02.png");
+        mIntro03 = new Image("/images/common/intro03.png");
+        mIntro04 = new Image("/images/common/intro04.png");
 
-        mMutedMusicImg = new Image("images/common/muted_music.png");
-        mMutedSoundImg = new Image("images/common/muted_sound.png");
+        mMutedMusicImg = new Image("/images/common/muted_music.png");
+        mMutedSoundImg = new Image("/images/common/muted_sound.png");
 
         /*
          * Initialize pad buttons
          */
-        mSelRightImg = new Image("images/sprites/button_arrow_right_selected.png");
-        mSelLeftImg = new Image("images/sprites/button_arrow_left_selected.png");
-        mSelUpImg = new Image("images/sprites/button_arrow_up_selected.png");
-        mSelDownImg = new Image("images/sprites/button_arrow_down_selected.png");
-        mSelClearImg = new Image("images/sprites/button_erase_selected.png");
+        mSelRightImg = new Image("/images/sprites/button_arrow_right_selected.png");
+        mSelLeftImg = new Image("/images/sprites/button_arrow_left_selected.png");
+        mSelUpImg = new Image("/images/sprites/button_arrow_up_selected.png");
+        mSelDownImg = new Image("/images/sprites/button_arrow_down_selected.png");
+        mSelClearImg = new Image("/images/sprites/button_erase_selected.png");
 
         pad.setSelection(null);
         pad.setButtonUp(new Rectangle2D(columns[28], rows[1], mGridDimension * 3, mFrameDimension));
@@ -1061,7 +1063,7 @@ abstract class Utils extends Application {
                 default:
                     break;
             }
+            Platform.exit();
         }
-
     }
 }
