@@ -2,11 +2,10 @@ package game;
 
 import javafx.application.Application;
 import javafx.concurrent.Task;
-import javafx.concurrent.WorkerStateEvent;
-import javafx.event.EventHandler;
 import javafx.geometry.Point2D;
 import javafx.geometry.Rectangle2D;
 import javafx.scene.control.Alert;
+import javafx.scene.control.ChoiceDialog;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextArea;
 import javafx.scene.image.Image;
@@ -37,6 +36,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.prefs.Preferences;
 
 abstract class Utils extends Application {
@@ -49,7 +49,8 @@ abstract class Utils extends Application {
     int mSelectedLevel = 1;
     int mAchievedLevel = 0;
     final int MAX_LEVEL = 40;
-    final double DIMENSION_DIVIDER = 2;
+
+    double mDimensionDivider;
 
     int mCurrentEistFrame = 0;
     int mCurrentArtifactFrame = 0;
@@ -69,6 +70,7 @@ abstract class Utils extends Application {
     private Rectangle2D mButtonPlay;
     private Rectangle2D mButtonMenu;
 
+    private Rectangle2D mButtonAbout;
     private Rectangle2D mButtonMuteMusic;
     private Rectangle2D mButtonMuteSound;
 
@@ -138,11 +140,21 @@ abstract class Utils extends Application {
     void setBoard() {
 
         /*
+         * Saved preferences
+         */
+        prefs = Preferences.userNodeForPackage(Main.class);
+        mSelectedLevel = prefs.getInt("level", 1);
+        mAchievedLevel = prefs.getInt("achieved", 0);
+        mMuteSound = prefs.getBoolean("msound", false);
+        mMuteMusic = prefs.getBoolean("mmusic", false);
+        mDimensionDivider = prefs.getDouble("divider", 1.5);
+
+        /*
          * The dimensions of the Scene and the game board inside will derive from the users' screen width.
          * Source graphics has been drawn as fullHD (1920 x 1080).
          */
         Rectangle2D primaryScreenBounds = Screen.getPrimary().getVisualBounds();
-        mSceneWidth = primaryScreenBounds.getWidth() / DIMENSION_DIVIDER;
+        mSceneWidth = primaryScreenBounds.getWidth() / mDimensionDivider;
         mSceneHeight = (mSceneWidth / 1920) * 1080;
         mFrameDimension = (mSceneWidth / 1920) * 120;
         mGridDimension = mFrameDimension / 2;
@@ -174,15 +186,6 @@ abstract class Utils extends Application {
         for (int i = 0; i < columns.length; i++) {
             columns[i] = (mGridDimension) * i;
         }
-
-        /*
-         * Saved preferences
-         */
-        prefs = Preferences.userNodeForPackage(Main.class);
-        mSelectedLevel = prefs.getInt("level", 1);
-        mAchievedLevel = prefs.getInt("achieved", 0);
-        mMuteSound = prefs.getBoolean("msound", false);
-        mMuteMusic = prefs.getBoolean("mmusic", false);
     }
 
     /**
@@ -231,6 +234,9 @@ abstract class Utils extends Application {
         if (mButtonMuteSound.contains(pointClicked)) {
             mMuteSound = !mMuteSound;
             prefs.putBoolean("msound", mMuteSound);
+        }
+        if(mButtonAbout.contains(pointClicked)){
+            displayAboutAlert();
         }
 
         if (mCurrentLevel != 0) {
@@ -343,7 +349,7 @@ abstract class Utils extends Application {
              * Handle intro menu clicks
              */
             if (mButtonLevelUp.contains(pointClicked)) {
-                if (mSelectedLevel < mAchievedLevel) {
+                if (mSelectedLevel < mAchievedLevel && mSelectedLevel < MAX_LEVEL) {
                     mSelectedLevel++;
                     prefs.putInt("level", mSelectedLevel);
                 }
@@ -357,9 +363,8 @@ abstract class Utils extends Application {
                 loadLevel(mCurrentLevel);
             } else if (mButtonMenu.contains(pointClicked)) {
 
-                displayAboutAlert();
-                //mCurrentLevel = 0;
-                //loadLevel(mCurrentLevel);
+                //displayAboutAlert();
+                displaySizeDialog();
             }
         }
     }
@@ -419,7 +424,7 @@ abstract class Utils extends Application {
          */
         try {
             Media sound;
-            sound = new Media(new File(getClass().getResource("/sounds/eist.mp3").getPath().replace('\\', '/')).toURI().toString());
+            sound = new Media(new File(getClass().getResource("/sounds/eist.mp3").getPath()).toURI().toString());
             trackMainPlayer = new MediaPlayer(sound);
             trackMainPlayer.setVolume(0.4);
             trackMainPlayer.setCycleCount(MediaPlayer.INDEFINITE);
@@ -433,7 +438,7 @@ abstract class Utils extends Application {
 
         } catch (MediaException e) {
 
-            displayExceptionAlert("Media player error", e);
+            displayExceptionAlert("Media player error (missing ffmpeg codec?)", e);
         }
 
         try {
@@ -499,6 +504,7 @@ abstract class Utils extends Application {
         mButtonLevelUp = new Rectangle2D(columns[29], rows[3], mFrameDimension, mFrameDimension);
         mButtonPlay = new Rectangle2D(columns[27], rows[6], mFrameDimension * 2, mFrameDimension);
         mButtonMenu = new Rectangle2D(columns[30], rows[16], mFrameDimension, mFrameDimension);
+        mButtonAbout = new Rectangle2D(columns[27], rows[9], mFrameDimension * 2, mGridDimension);
         mButtonMuteMusic = new Rectangle2D(columns[30], rows[11], mFrameDimension, mFrameDimension);
         mButtonMuteSound = new Rectangle2D(columns[30], rows[13], mFrameDimension, mFrameDimension);
     }
@@ -1014,9 +1020,48 @@ abstract class Utils extends Application {
         Alert alert = new Alert(Alert.AlertType.INFORMATION);
         alert.setTitle("Congrats!");
         alert.setHeaderText("New best score!");
-        alert.setContentText("Old best: " + oldBest +", yours: " + newBest);
+        alert.setContentText("Old best: " + oldBest + ", yours: " + newBest);
         alert.setResizable(true);
 
         alert.show();
+    }
+
+    void displaySizeDialog() {
+        List<String> choices = new ArrayList<>();
+        choices.add("Small");
+        choices.add("Medium");
+        choices.add("Full screen");
+
+        ChoiceDialog<String> dialog;
+
+        if(mDimensionDivider == 1) {
+            dialog = new ChoiceDialog<>("Full screen", choices);
+        } else if (mDimensionDivider == 1.5) {
+            dialog = new ChoiceDialog<>("Medium", choices);
+        } else {
+            dialog = new ChoiceDialog<>("Small", choices);
+        }
+        dialog.setTitle("Setting the game window size");
+        dialog.setHeaderText("Select size and restart the game");
+        dialog.setContentText("Choose the window size:");
+
+        Optional<String> result = dialog.showAndWait();
+        if (result.isPresent()) {
+            System.out.println("Your choice: " + result.get());
+            switch (result.get()) {
+                case "Small":
+                    prefs.putDouble("divider", 2.0);
+                    break;
+                case "Medium":
+                    prefs.putDouble("divider", 1.5);
+                    break;
+                case "Full screen":
+                    prefs.putDouble("divider", 1.0);
+                    break;
+                default:
+                    break;
+            }
+        }
+
     }
 }

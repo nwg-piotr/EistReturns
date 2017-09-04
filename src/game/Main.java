@@ -55,6 +55,9 @@ public class Main extends Utils {
         stage.setTitle("Eist returns");
         stage.getIcons().add(new Image("images/common/eist.png"));
         stage.setResizable(false);
+        if(mDimensionDivider == 1.0){
+            stage.setFullScreen(true);
+        }
 
         Group root = new Group();
         Scene mScene = new Scene(root, mSceneWidth, mSceneHeight);
@@ -63,9 +66,9 @@ public class Main extends Utils {
         root.getChildren().add(canvas);
         gc = canvas.getGraphicsContext2D();
 
-        infoFont = Font.font("SansSerif", FontWeight.NORMAL, 64 / DIMENSION_DIVIDER);
-        levelFont = Font.font("SansSerif", FontWeight.NORMAL, 52 / DIMENSION_DIVIDER);
-        turnsFont = Font.font("SansSerif", FontWeight.NORMAL, 32 / DIMENSION_DIVIDER);
+        infoFont = Font.font("SansSerif", FontWeight.NORMAL, 64 / mDimensionDivider);
+        levelFont = Font.font("SansSerif", FontWeight.NORMAL, 52 / mDimensionDivider);
+        turnsFont = Font.font("SansSerif", FontWeight.NORMAL, 32 / mDimensionDivider);
         gc.setFont(infoFont);
 
         eist = new Player();
