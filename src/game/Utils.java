@@ -31,11 +31,13 @@ import game.Sprites.Slot;
 import game.Sprites.Ladder;
 import game.Sprites.Exit;
 import game.Sprites.Pad;
-import javafx.stage.Stage;
 
 import java.io.*;
+import java.net.URL;
+import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -426,13 +428,13 @@ abstract class Utils extends Application {
          */
         try {
             Media sound;
-            sound = new Media(new File(getClass().getResource("/sounds/eist.mp3").getPath()).toURI().toString());
+            sound = new Media(ClassLoader.getSystemResource("sounds/eist.mp3").toExternalForm());
             trackMainPlayer = new MediaPlayer(sound);
             trackMainPlayer.setVolume(0.4);
             trackMainPlayer.setCycleCount(MediaPlayer.INDEFINITE);
             trackMainPlayer.setMute(mMuteMusic);
 
-            sound = new Media(new File(getClass().getResource("/sounds/eist_ingame.mp3").getPath()).toURI().toString());
+            sound = new Media(ClassLoader.getSystemResource("sounds/eist_ingame.mp3").toExternalForm());
             trackLevelPlayer = new MediaPlayer(sound);
             trackLevelPlayer.setVolume(0.3);
             trackLevelPlayer.setCycleCount(MediaPlayer.INDEFINITE);
@@ -444,53 +446,70 @@ abstract class Utils extends Application {
         }
 
         try {
-            bounceMedia = new Media(new File(getClass().getResource("/sounds/bounce.wav").getPath()).toURI().toString());
-            artifactMedia = new Media(new File(getClass().getResource("/sounds/amulet.wav").getPath()).toURI().toString());
-            keyMedia = new Media(new File(getClass().getResource("/sounds/key.wav").getPath()).toURI().toString());
-            doorOpenMedia = new Media(new File(getClass().getResource("/sounds/door_open.wav").getPath()).toURI().toString());
-            exitOpenMedia = new Media(new File(getClass().getResource("/sounds/exit.wav").getPath()).toURI().toString());
-            levelLostMedia = new Media(new File(getClass().getResource("/sounds/level_lost.wav").getPath()).toURI().toString());
-            levelUpMedia = new Media(new File(getClass().getResource("/sounds/level.wav").getPath()).toURI().toString());
-            ladderMedia = new Media(new File(getClass().getResource("/sounds/ladder.wav").getPath()).toURI().toString());
-            teleportMedia = new Media(new File(getClass().getResource("/sounds/teleport.wav").getPath()).toURI().toString());
+            //bounceMedia = new Media(new File(getClass().getResource("/sounds/bounce.wav").getPath()).toURI().toString());
+            bounceMedia = new Media(ClassLoader.getSystemResource("sounds/bounce.wav").toExternalForm());
 
-        } catch (NullPointerException e) {
+            //artifactMedia = new Media(new File(getClass().getResource("/sounds/amulet.wav").getPath()).toURI().toString());
+            artifactMedia = new Media(ClassLoader.getSystemResource("sounds/amulet.wav").toExternalForm());
+
+            //keyMedia = new Media(new File(getClass().getResource("/sounds/key.wav").getPath()).toURI().toString());
+            keyMedia = new Media(ClassLoader.getSystemResource("sounds/key.wav").toExternalForm());
+
+            //doorOpenMedia = new Media(new File(getClass().getResource("/sounds/door_open.wav").getPath()).toURI().toString());
+            doorOpenMedia = new Media(ClassLoader.getSystemResource("sounds/door_open.wav").toExternalForm());
+
+            //exitOpenMedia = new Media(new File(getClass().getResource("/sounds/exit.wav").getPath()).toURI().toString());
+            exitOpenMedia = new Media(ClassLoader.getSystemResource("sounds/exit.wav").toExternalForm());
+
+            //levelLostMedia = new Media(new File(getClass().getResource("/sounds/level_lost.wav").getPath()).toURI().toString());
+            levelLostMedia = new Media(ClassLoader.getSystemResource("sounds/level_lost.wav").toExternalForm());
+
+            //levelUpMedia = new Media(new File(getClass().getResource("/sounds/level.wav").getPath()).toURI().toString());
+            levelUpMedia = new Media(ClassLoader.getSystemResource("sounds/level.wav").toExternalForm());
+
+            //ladderMedia = new Media(new File(getClass().getResource("/sounds/ladder.wav").getPath()).toURI().toString());
+            ladderMedia = new Media(ClassLoader.getSystemResource("sounds/ladder.wav").toExternalForm());
+
+            //teleportMedia = new Media(new File(getClass().getResource("/sounds/teleport.wav").getPath()).toURI().toString());
+            teleportMedia = new Media(ClassLoader.getSystemResource("sounds/teleport.wav").toExternalForm());
+
+        } catch (Exception e) {
             displayExceptionAlert("Media *.wav file found", e);
         }
 
-        mEistRightImg = new Image("/images/sprites/eist_right.png");
-        mEistDownImg = new Image("/images/sprites/eist_down.png");
-        mEistLeftImg = new Image("/images/sprites/eist_left.png");
-        mEistUpImg = new Image("/images/sprites/eist_up.png");
+        mEistRightImg = new Image(ClassLoader.getSystemResource("images/sprites/eist_right.png").toExternalForm());
+        mEistDownImg = new Image(ClassLoader.getSystemResource("images/sprites/eist_down.png").toExternalForm());
+        mEistLeftImg = new Image(ClassLoader.getSystemResource("images/sprites/eist_left.png").toExternalForm());
+        mEistUpImg = new Image(ClassLoader.getSystemResource("images/sprites/eist_up.png").toExternalForm());
 
-        mEistFallingRightImg = new Image("/images/sprites/falldown_right.png");
-        mEistFallingDownImg = new Image("/images/sprites/falldown_down.png");
-        mEistFallingLeftImg = new Image("/images/sprites/falldown_left.png");
-        mEistFallingUpImg = new Image("/images/sprites/falldown_up.png");
+        mEistFallingRightImg = new Image(ClassLoader.getSystemResource("images/sprites/falldown_right.png").toExternalForm());
+        mEistFallingDownImg = new Image(ClassLoader.getSystemResource("images/sprites/falldown_down.png").toExternalForm());
+        mEistFallingLeftImg = new Image(ClassLoader.getSystemResource("images/sprites/falldown_left.png").toExternalForm());
+        mEistFallingUpImg = new Image(ClassLoader.getSystemResource("images/sprites/falldown_up.png").toExternalForm());
 
-        mArrowRightImg = new Image("/images/sprites/arrow_right.png");
-        mArrowDownImg = new Image("/images/sprites/arrow_down.png");
-        mArrowLeftImg = new Image("/images/sprites/arrow_left.png");
-        mArrowUpImg = new Image("/images/sprites/arrow_up.png");
+        mArrowRightImg = new Image(ClassLoader.getSystemResource("images/sprites/arrow_right.png").toExternalForm());
+        mArrowDownImg = new Image(ClassLoader.getSystemResource("images/sprites/arrow_down.png").toExternalForm());
+        mArrowLeftImg = new Image(ClassLoader.getSystemResource("images/sprites/arrow_left.png").toExternalForm());
+        mArrowUpImg = new Image(ClassLoader.getSystemResource("images/sprites/arrow_up.png").toExternalForm());
 
-        mTeleportImg = new Image("/images/sprites/teleport.png");
+        mTeleportImg = new Image("images/sprites/teleport.png");
 
-        mIntro01 = new Image("/images/common/intro01.png");
-        mIntro02 = new Image("/images/common/intro02.png");
-        mIntro03 = new Image("/images/common/intro03.png");
-        mIntro04 = new Image("/images/common/intro04.png");
+        mIntro01 = new Image(ClassLoader.getSystemResource("images/common/intro01.png").toExternalForm());
+        mIntro02 = new Image(ClassLoader.getSystemResource("images/common/intro02.png").toExternalForm());
+        mIntro03 = new Image(ClassLoader.getSystemResource("images/common/intro03.png").toExternalForm());
+        mIntro04 = new Image(ClassLoader.getSystemResource("images/common/intro04.png").toExternalForm());
 
-        mMutedMusicImg = new Image("/images/common/muted_music.png");
-        mMutedSoundImg = new Image("/images/common/muted_sound.png");
+        mMutedMusicImg = new Image(ClassLoader.getSystemResource("images/common/muted_music.png").toExternalForm());
+        mMutedSoundImg = new Image(ClassLoader.getSystemResource("images/common/muted_sound.png").toExternalForm());
 
         /*
          * Initialize pad buttons
          */
-        mSelRightImg = new Image("/images/sprites/button_arrow_right_selected.png");
-        mSelLeftImg = new Image("/images/sprites/button_arrow_left_selected.png");
-        mSelUpImg = new Image("/images/sprites/button_arrow_up_selected.png");
-        mSelDownImg = new Image("/images/sprites/button_arrow_down_selected.png");
-        mSelClearImg = new Image("/images/sprites/button_erase_selected.png");
+        mSelRightImg = new Image(ClassLoader.getSystemResource("images/sprites/button_arrow_right_selected.png").toExternalForm());
+        mSelLeftImg = new Image(ClassLoader.getSystemResource("images/sprites/button_arrow_left_selected.png").toExternalForm());
+        mSelUpImg = new Image(ClassLoader.getSystemResource("images/sprites/button_arrow_up_selected.png").toExternalForm());
+        mSelDownImg = new Image(ClassLoader.getSystemResource("images/sprites/button_arrow_down_selected.png").toExternalForm());
+        mSelClearImg = new Image(ClassLoader.getSystemResource("images/sprites/button_erase_selected.png").toExternalForm());
 
         pad.setSelection(null);
         pad.setButtonUp(new Rectangle2D(columns[28], rows[1], mGridDimension * 3, mFrameDimension));
@@ -538,12 +557,13 @@ abstract class Utils extends Application {
          */
         mTurnsBest = prefs.getInt(lvlNumberToString + "best", 0);
 
-        String url = "/res/" + lvlNumberToString;
+        String urlString = "levels/" + lvlNumberToString;
 
         /*
          * Load board bitmap
          */
-        mBoardImg = new Image(url + "board.png", mSceneWidth, mSceneHeight, true, true, false);
+        mBoardImg = new Image(ClassLoader.getSystemResource(urlString + "board.png").toExternalForm(), mSceneWidth, mSceneHeight, true, true, false);
+        System.out.println("-----------------|" + ClassLoader.getSystemResource(urlString + "board.png"));
 
         pixelReader = mBoardImg.getPixelReader();
 
@@ -552,7 +572,7 @@ abstract class Utils extends Application {
          * Load arrows
          */
         mArrows = new ArrayList<>();
-        dataString = datToString(getClass().getResource(url + "arrows.dat").getPath());
+        dataString = datToString(urlString + "arrows.dat");
         if (dataString != null && !dataString.isEmpty()) {
 
             String[] arrows = dataString.split(":");
@@ -578,9 +598,9 @@ abstract class Utils extends Application {
         /*
          * Load artifacts (called "amulets" in resources due to historical reasons ;)
          */
-        mArtifactImg = new Image(url + "amulet.png");
+        mArtifactImg = new Image(urlString + "amulet.png");
         mArtifacts = new ArrayList<>();
-        dataString = datToString(getClass().getResource(url + "amulets.dat").getPath());
+        dataString = datToString(urlString + "amulets.dat");
         if (dataString != null) {
 
             String[] artifacts = dataString.split(":");
@@ -605,7 +625,7 @@ abstract class Utils extends Application {
          * Load teleports
          */
         mTeleports = new ArrayList<>();
-        dataString = datToString(getClass().getResource(url + "teleports.dat").getPath());
+        dataString = datToString(urlString + "teleports.dat");
         if (dataString != null) {
 
             String[] teleports = dataString.split(":");
@@ -629,9 +649,9 @@ abstract class Utils extends Application {
         /*
          * Load keys
          */
-        mKeyImg = new Image(url + "key.png");
+        mKeyImg = new Image(urlString + "key.png");
         mKeys = new ArrayList<>();
-        dataString = datToString(getClass().getResource(url + "keys.dat").getPath());
+        dataString = datToString(urlString + "keys.dat");
         if (dataString != null) {
 
             String[] keys = dataString.split(":");
@@ -655,10 +675,10 @@ abstract class Utils extends Application {
         /*
          * Load doors
          */
-        mDoorHImg = new Image(url + "door_h.png");
-        mDoorVImg = new Image(url + "door_v.png");
+        mDoorHImg = new Image(urlString + "door_h.png");
+        mDoorVImg = new Image(urlString + "door_v.png");
         mDoors = new ArrayList<>();
-        dataString = datToString(getClass().getResource(url + "doors.dat").getPath());
+        dataString = datToString(urlString + "doors.dat");
         if (dataString != null) {
 
             String[] artifacts = dataString.split(":");
@@ -685,7 +705,7 @@ abstract class Utils extends Application {
          * Load ladder slots
          */
         mSlots = new ArrayList<>();
-        dataString = datToString(getClass().getResource(url + "slots.dat").getPath());
+        dataString = datToString(urlString + "slots.dat");
         if (dataString != null) {
 
             String[] slots = dataString.split(":");
@@ -715,19 +735,19 @@ abstract class Utils extends Application {
         /*
          * Load ladder bitmaps
          */
-        mLadderHImg = new Image(url + "ladder_h.png", mFrameDimension, mFrameDimension, true, true, true);
-        mLadderVImg = new Image(url + "ladder_v.png", mFrameDimension, mFrameDimension, true, true, true);
+        mLadderHImg = new Image(urlString + "ladder_h.png", mFrameDimension, mFrameDimension, true, true, true);
+        mLadderVImg = new Image(urlString + "ladder_v.png", mFrameDimension, mFrameDimension, true, true, true);
 
         /*
          * Load exit bitmaps
          */
-        mExitClosedImg = new Image(url + "exit_closed.png", mFrameDimension, mFrameDimension, true, true, true);
-        mExitOpenImg = new Image(url + "exit_open.png", mFrameDimension, mFrameDimension, true, true, true);
+        mExitClosedImg = new Image(urlString + "exit_closed.png", mFrameDimension, mFrameDimension, true, true, true);
+        mExitOpenImg = new Image(urlString + "exit_open.png", mFrameDimension, mFrameDimension, true, true, true);
 
         /*
          * Load level data
          */
-        dataString = datToString(getClass().getResource(url + "level.dat").getPath());
+        dataString = datToString(urlString + "level.dat");
         if (dataString != null) {
 
             String[] data = dataString.split(",");
@@ -789,24 +809,32 @@ abstract class Utils extends Application {
         return new Rectangle2D(x, y, mGridDimension, mGridDimension);
     }
 
-    private String datToString(String url) {
+    private String datToString(String urlString) {
 
-        File file = new File(url).getAbsoluteFile();
+        StringBuilder stringBuilder = new StringBuilder();
+        InputStream inputStream = Utils.class.getClassLoader().getResourceAsStream(urlString);
+        String output = null;
 
-        Path path = file.toPath().toAbsolutePath();
+        if (inputStream == null) {
+            return null;
+        } else {
 
-        String content;
+            BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(inputStream));
+            try {
+                String line;
+                while ((line = bufferedReader.readLine()) != null) {
+                    stringBuilder.append(line).append("\n");
+                }
+                output = stringBuilder.toString().trim();
 
-        try {
-            content = new String(Files.readAllBytes(path)).trim();
-        } catch (IOException e) {
-            content = null;
+            } catch (IOException e) {
+                displayExceptionAlert("Error reading InputStream", e);
+            }
+            if(output != null && output.equals("")){
+                output =  null;
+            }
+            return output;
         }
-
-        if (content != null && content.isEmpty()) {
-            content = null;
-        }
-        return content;
     }
 
     static boolean getRandomBoolean() {

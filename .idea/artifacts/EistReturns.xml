@@ -14,25 +14,7 @@
     <root id="root">
       <element id="archive" name="EistReturns.jar">
         <element id="module-output" name="EistReturns" />
-        <element id="directory" name="META-INF">
-          <element id="file-copy" path="$PROJECT_DIR$/out/artifacts/EistReturns/META-INF/MANIFEST.MF" />
-          <element id="file-copy" path="$PROJECT_DIR$/META-INF/MANIFEST.MF" />
-        </element>
-      </element>
-      <element id="directory" name="sounds">
-        <element id="file-copy" path="$PROJECT_DIR$/resources/sounds/amulet.wav" />
-        <element id="file-copy" path="$PROJECT_DIR$/resources/sounds/bounce.wav" />
-        <element id="file-copy" path="$PROJECT_DIR$/resources/sounds/door_open.wav" />
-        <element id="file-copy" path="$PROJECT_DIR$/resources/sounds/eist.mp3" />
-        <element id="file-copy" path="$PROJECT_DIR$/resources/sounds/eist_ingame.mp3" />
-        <element id="file-copy" path="$PROJECT_DIR$/resources/sounds/exit.wav" />
-        <element id="file-copy" path="$PROJECT_DIR$/resources/sounds/falldown.wav" />
-        <element id="file-copy" path="$PROJECT_DIR$/resources/sounds/key.wav" />
-        <element id="file-copy" path="$PROJECT_DIR$/resources/sounds/ladder.wav" />
-        <element id="file-copy" path="$PROJECT_DIR$/resources/sounds/level.wav" />
-        <element id="file-copy" path="$PROJECT_DIR$/resources/sounds/level_lost.wav" />
-        <element id="file-copy" path="$PROJECT_DIR$/resources/sounds/life.wav" />
-        <element id="file-copy" path="$PROJECT_DIR$/resources/sounds/teleport.wav" />
+        <element id="dir-copy" path="$PROJECT_DIR$/resources" />
       </element>
     </root>
   </artifact>
