@@ -394,7 +394,6 @@ public class Main extends Utils {
 
                     mKeys.remove(key);
                     eist.setKeys(eist.getKeys() + 1);
-                    System.out.println("Keys owned: " + eist.getKeys());
                     break;
                 }
             }
@@ -432,7 +431,6 @@ public class Main extends Utils {
                         }
 
                         eist.setKeys(eist.getKeys() - 1);
-                        System.out.println("Keys left: " + eist.getKeys());
                         doorToRemove = door;
 
                     } else {

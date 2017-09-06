@@ -239,7 +239,7 @@ abstract class Utils extends Application {
             mMuteSound = !mMuteSound;
             prefs.putBoolean("msound", mMuteSound);
         }
-        if(mButtonAbout.contains(pointClicked)){
+        if(mButtonAbout.contains(pointClicked) && mCurrentLevel == 0){
             displayAboutAlert();
         }
 
@@ -542,8 +542,6 @@ abstract class Utils extends Application {
 
     void loadLevel(int level) {
 
-        System.out.println("LOADING LEVEL " + level);
-
         mCurrentFallingFrame = null;
         eist.isMoving = false;
         eist.setKeys(0);
@@ -563,7 +561,6 @@ abstract class Utils extends Application {
          * Load board bitmap
          */
         mBoardImg = new Image(ClassLoader.getSystemResource(urlString + "board.png").toExternalForm(), mSceneWidth, mSceneHeight, true, true, false);
-        System.out.println("-----------------|" + ClassLoader.getSystemResource(urlString + "board.png"));
 
         pixelReader = mBoardImg.getPixelReader();
 
@@ -1056,7 +1053,7 @@ abstract class Utils extends Application {
         alert.show();
     }
 
-    void displaySizeDialog() {
+    private void displaySizeDialog() {
         List<String> choices = new ArrayList<>();
         choices.add("Small");
         choices.add("Medium");
