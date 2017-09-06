@@ -5,10 +5,7 @@ import javafx.application.Platform;
 import javafx.concurrent.Task;
 import javafx.geometry.Point2D;
 import javafx.geometry.Rectangle2D;
-import javafx.scene.control.Alert;
-import javafx.scene.control.ChoiceDialog;
-import javafx.scene.control.Label;
-import javafx.scene.control.TextArea;
+import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.image.PixelReader;
 import javafx.scene.input.MouseEvent;
@@ -55,6 +52,8 @@ abstract class Utils extends Application {
     final int MAX_LEVEL = 40;
 
     double mDimensionDivider;
+    double rem;
+    double cs;
 
     int mCurrentEistFrame = 0;
     int mCurrentArtifactFrame = 0;
@@ -166,6 +165,7 @@ abstract class Utils extends Application {
         mDetectionOffset = (int) mFrameDimension / 6;
         mRotationRadius = mFrameDimension / 4;
         walkingSpeedPerSecond = mSceneWidth / 14d;
+        rem = javafx.scene.text.Font.getDefault().getSize() / 13;
 
         System.out.println("mSceneWidth = " + mSceneWidth);
         System.out.println("mSceneHeight = " + mSceneHeight);
@@ -1023,7 +1023,7 @@ abstract class Utils extends Application {
 
         String message = "This program is free software; you can redistribute it and/or modify it under the terms of the GNU " +
                 "General Public License version 3.0, as published by the Free Software Foundation." +
-                "\n\nhttps://github.com/nwg-piotr/EistReturns";
+                "\n\nhttps://github.com/nwg-piotr/EistReturns\n\nrem = "+ rem;
 
         TextArea textArea = new TextArea(message);
         textArea.setEditable(false);
