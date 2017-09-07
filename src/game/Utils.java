@@ -11,6 +11,7 @@ import javafx.scene.image.PixelReader;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Priority;
+import javafx.scene.media.AudioClip;
 import javafx.scene.media.Media;
 import javafx.scene.media.MediaException;
 import javafx.scene.media.MediaPlayer;
@@ -44,11 +45,13 @@ abstract class Utils extends Application {
     int mCurrentLevel = 0;
     int mSelectedLevel = 1;
     int mAchievedLevel = 0;
-    final int MAX_LEVEL = 40;
+    /**
+     * This was left as final int, since in the future may be replaced with a value stored in prefs.
+     */
+    private final int MAX_LEVEL = 40;
 
     double mDimensionDivider;
     double rem;
-    double cs;
 
     int mCurrentEistFrame = 0;
     int mCurrentArtifactFrame = 0;
@@ -75,26 +78,15 @@ abstract class Utils extends Application {
     private MediaPlayer trackMainPlayer;
     private MediaPlayer trackLevelPlayer;
 
-    MediaPlayer fxBounce;
-    MediaPlayer fxArtifact;
-    MediaPlayer fxKey;
-    MediaPlayer fxDoor;
-    MediaPlayer fxExit;
-    MediaPlayer fxLevelLost;
-    MediaPlayer fxLevelUp;
-    private MediaPlayer fxLadder;
-    MediaPlayer fxTeleport;
-
-
-    private Media bounceMedia;
-    private Media artifactMedia;
-    private Media keyMedia;
-    private Media doorOpenMedia;
-    private Media exitOpenMedia;
-    private Media levelLostMedia;
-    private Media levelUpMedia;
-    private Media ladderMedia;
-    private Media teleportMedia;
+    AudioClip fxBounce;
+    AudioClip fxArtifact;
+    AudioClip fxKey;
+    AudioClip fxDoor;
+    AudioClip fxExit;
+    AudioClip fxLevelLost;
+    AudioClip fxLevelUp;
+    private AudioClip fxLadder;
+    AudioClip fxTeleport;
 
     /**
      * The Frame is a rectangular part of the game board of width of 2 columns and height of 2 rows.
@@ -203,15 +195,6 @@ abstract class Utils extends Application {
     static long lastUpdate = 0;
     static int index = 0;
     static double[] frameRates = new double[5];
-
-    /*
-     * Returns the instantaneous FPS for the last frame rendered.
-     */
-    /*
-    static double getInstantFPS() {
-        return frameRates[index % frameRates.length];
-    }
-    */
 
     /**
      * Returns the average FPS for the last frameRates.length frames rendered.
@@ -360,7 +343,6 @@ abstract class Utils extends Application {
                 loadLevel(mCurrentLevel);
             } else if (mButtonMenu.contains(pointClicked)) {
 
-                //displayAboutAlert();
                 displaySizeDialog();
             }
         }
@@ -439,59 +421,32 @@ abstract class Utils extends Application {
         }
 
         try {
-            bounceMedia = new Media(ClassLoader.getSystemResource("sounds/bounce.wav").toExternalForm());
-            fxBounce = new MediaPlayer(bounceMedia);
+            fxBounce = new AudioClip(ClassLoader.getSystemResource("sounds/bounce.wav").toExternalForm());
             fxBounce.setVolume(1);
-            fxBounce.setMute(mMuteSound);
-            fxBounce.setOnEndOfMedia(() -> fxBounce.stop());
 
-            artifactMedia = new Media(ClassLoader.getSystemResource("sounds/amulet.wav").toExternalForm());
-            fxArtifact = new MediaPlayer(artifactMedia);
+            fxArtifact = new AudioClip(ClassLoader.getSystemResource("sounds/amulet.wav").toExternalForm());
             fxArtifact.setVolume(1);
-            fxArtifact.setMute(mMuteSound);
-            fxArtifact.setOnEndOfMedia(() -> fxArtifact.stop());
 
-            keyMedia = new Media(ClassLoader.getSystemResource("sounds/key.wav").toExternalForm());
-            fxKey = new MediaPlayer(keyMedia);
+            fxKey = new AudioClip(ClassLoader.getSystemResource("sounds/key.wav").toExternalForm());
             fxKey.setVolume(1);
-            fxKey.setMute(mMuteSound);
-            fxKey.setOnEndOfMedia(() -> fxKey.stop());
 
-            doorOpenMedia = new Media(ClassLoader.getSystemResource("sounds/door_open.wav").toExternalForm());
-            fxDoor = new MediaPlayer(doorOpenMedia);
+            fxDoor = new AudioClip(ClassLoader.getSystemResource("sounds/door_open.wav").toExternalForm());
             fxDoor.setVolume(1);
-            fxDoor.setMute(mMuteSound);
-            fxDoor.setOnEndOfMedia(() -> fxDoor.stop());
 
-            exitOpenMedia = new Media(ClassLoader.getSystemResource("sounds/exit.wav").toExternalForm());
-            fxExit = new MediaPlayer(exitOpenMedia);
+            fxExit = new AudioClip(ClassLoader.getSystemResource("sounds/exit.wav").toExternalForm());
             fxExit.setVolume(1);
-            fxExit.setMute(mMuteSound);
-            fxExit.setOnEndOfMedia(() -> fxExit.stop());
 
-            levelLostMedia = new Media(ClassLoader.getSystemResource("sounds/level_lost.wav").toExternalForm());
-            fxLevelLost = new MediaPlayer(levelLostMedia);
+            fxLevelLost = new AudioClip(ClassLoader.getSystemResource("sounds/level_lost.wav").toExternalForm());
             fxLevelLost.setVolume(1);
-            fxLevelLost.setMute(mMuteSound);
-            fxLevelLost.setOnEndOfMedia(() -> fxLevelLost.stop());
 
-            levelUpMedia = new Media(ClassLoader.getSystemResource("sounds/level.wav").toExternalForm());
-            fxLevelUp = new MediaPlayer(levelUpMedia);
+            fxLevelUp = new AudioClip(ClassLoader.getSystemResource("sounds/level.wav").toExternalForm());
             fxLevelUp.setVolume(1);
-            fxLevelUp.setMute(mMuteSound);
-            fxLevelUp.setOnEndOfMedia(() -> fxLevelUp.stop());
 
-            ladderMedia = new Media(ClassLoader.getSystemResource("sounds/ladder.wav").toExternalForm());
-            fxLadder = new MediaPlayer(ladderMedia);
+            fxLadder = new AudioClip(ClassLoader.getSystemResource("sounds/ladder.wav").toExternalForm());
             fxLadder.setVolume(1);
-            fxLadder.setMute(mMuteSound);
-            fxLadder.setOnEndOfMedia(() -> fxLadder.stop());
 
-            teleportMedia = new Media(ClassLoader.getSystemResource("sounds/teleport.wav").toExternalForm());
-            fxTeleport = new MediaPlayer(teleportMedia);
+            fxTeleport = new AudioClip(ClassLoader.getSystemResource("sounds/teleport.wav").toExternalForm());
             fxTeleport.setVolume(1);
-            fxTeleport.setMute(mMuteSound);
-            fxTeleport.setOnEndOfMedia(() -> fxTeleport.stop());
 
         } catch (Exception e) {
             displayExceptionAlert("Media *.wav file found", e);
@@ -991,7 +946,7 @@ abstract class Utils extends Application {
         }
     }
 
-    void displayExceptionAlert(String header, Exception e) {
+    private void displayExceptionAlert(String header, Exception e) {
         if (mErrorAlert != null && mErrorAlert.isShowing()) {
             return;
         }
@@ -1043,7 +998,7 @@ abstract class Utils extends Application {
 
         String message = "This program is free software; you can redistribute it and/or modify it under the terms of the GNU " +
                 "General Public License version 3.0, as published by the Free Software Foundation." +
-                "\n\nhttps://github.com/nwg-piotr/EistReturns\n\nrem = "+ rem;
+                "\n\nhttps://github.com/nwg-piotr/EistReturns";
 
         TextArea textArea = new TextArea(message);
         textArea.setEditable(false);

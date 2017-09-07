@@ -627,10 +627,10 @@ public class Main extends Utils {
             }
         }
         /*
-         * Just for testing purposes:
+         * Uncomment for testing if your system keeps 60 FPS rate. See comments in the Start class.
          */
         gc.setFill(Color.WHITE);
-        gc.fillText(String.valueOf((int) mFps), columns[0], rows[18]);
+        //gc.fillText(String.valueOf((int) mFps), columns[0], rows[18]);
 
         gc.setFont(infoFont);
         gc.fillText(String.valueOf(mCurrentLevel), columns[28], rows[12]);
