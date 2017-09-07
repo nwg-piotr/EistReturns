@@ -30,11 +30,6 @@ import game.Sprites.Exit;
 import game.Sprites.Pad;
 
 import java.io.*;
-import java.net.URL;
-import java.nio.charset.Charset;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -79,17 +74,27 @@ abstract class Utils extends Application {
 
     private MediaPlayer trackMainPlayer;
     private MediaPlayer trackLevelPlayer;
-    MediaPlayer fxPlayer;
 
-    Media bounceMedia;
-    Media artifactMedia;
-    Media keyMedia;
-    Media doorOpenMedia;
-    Media exitOpenMedia;
-    Media levelLostMedia;
-    Media levelUpMedia;
+    MediaPlayer fxBounce;
+    MediaPlayer fxArtifact;
+    MediaPlayer fxKey;
+    MediaPlayer fxDoor;
+    MediaPlayer fxExit;
+    MediaPlayer fxLevelLost;
+    MediaPlayer fxLevelUp;
+    private MediaPlayer fxLadder;
+    MediaPlayer fxTeleport;
+
+
+    private Media bounceMedia;
+    private Media artifactMedia;
+    private Media keyMedia;
+    private Media doorOpenMedia;
+    private Media exitOpenMedia;
+    private Media levelLostMedia;
+    private Media levelUpMedia;
     private Media ladderMedia;
-    Media teleportMedia;
+    private Media teleportMedia;
 
     /**
      * The Frame is a rectangular part of the game board of width of 2 columns and height of 2 rows.
@@ -292,13 +297,7 @@ abstract class Utils extends Application {
                         if (ladder.getSlotIdx() == null) {
 
                             if (!mMuteSound) {
-                                try {
-                                    fxPlayer = new MediaPlayer(ladderMedia);
-                                    fxPlayer.setVolume(1);
-                                    fxPlayer.play();
-                                } catch (MediaException e) {
-                                    displayExceptionAlert("Media player error", e);
-                                }
+                                fxLadder.play();
                             }
                             ladder.setSlotIdx(clickedSlotIdx);
 
@@ -307,13 +306,7 @@ abstract class Utils extends Application {
                             if (clickedSlotIdx == ladder.getSlotIdx()) {
 
                                 if (!mMuteSound) {
-                                    try {
-                                        fxPlayer = new MediaPlayer(ladderMedia);
-                                        fxPlayer.setVolume(1);
-                                        fxPlayer.play();
-                                    } catch (MediaException e) {
-                                        displayExceptionAlert("Media player error", e);
-                                    }
+                                    fxLadder.play();
                                 }
                                 ladder.setSlotIdx(null);
                             }
@@ -446,32 +439,59 @@ abstract class Utils extends Application {
         }
 
         try {
-            //bounceMedia = new Media(new File(getClass().getResource("/sounds/bounce.wav").getPath()).toURI().toString());
             bounceMedia = new Media(ClassLoader.getSystemResource("sounds/bounce.wav").toExternalForm());
+            fxBounce = new MediaPlayer(bounceMedia);
+            fxBounce.setVolume(1);
+            fxBounce.setMute(mMuteSound);
+            fxBounce.setOnEndOfMedia(() -> fxBounce.stop());
 
-            //artifactMedia = new Media(new File(getClass().getResource("/sounds/amulet.wav").getPath()).toURI().toString());
             artifactMedia = new Media(ClassLoader.getSystemResource("sounds/amulet.wav").toExternalForm());
+            fxArtifact = new MediaPlayer(artifactMedia);
+            fxArtifact.setVolume(1);
+            fxArtifact.setMute(mMuteSound);
+            fxArtifact.setOnEndOfMedia(() -> fxArtifact.stop());
 
-            //keyMedia = new Media(new File(getClass().getResource("/sounds/key.wav").getPath()).toURI().toString());
             keyMedia = new Media(ClassLoader.getSystemResource("sounds/key.wav").toExternalForm());
+            fxKey = new MediaPlayer(keyMedia);
+            fxKey.setVolume(1);
+            fxKey.setMute(mMuteSound);
+            fxKey.setOnEndOfMedia(() -> fxKey.stop());
 
-            //doorOpenMedia = new Media(new File(getClass().getResource("/sounds/door_open.wav").getPath()).toURI().toString());
             doorOpenMedia = new Media(ClassLoader.getSystemResource("sounds/door_open.wav").toExternalForm());
+            fxDoor = new MediaPlayer(doorOpenMedia);
+            fxDoor.setVolume(1);
+            fxDoor.setMute(mMuteSound);
+            fxDoor.setOnEndOfMedia(() -> fxDoor.stop());
 
-            //exitOpenMedia = new Media(new File(getClass().getResource("/sounds/exit.wav").getPath()).toURI().toString());
             exitOpenMedia = new Media(ClassLoader.getSystemResource("sounds/exit.wav").toExternalForm());
+            fxExit = new MediaPlayer(exitOpenMedia);
+            fxExit.setVolume(1);
+            fxExit.setMute(mMuteSound);
+            fxExit.setOnEndOfMedia(() -> fxExit.stop());
 
-            //levelLostMedia = new Media(new File(getClass().getResource("/sounds/level_lost.wav").getPath()).toURI().toString());
             levelLostMedia = new Media(ClassLoader.getSystemResource("sounds/level_lost.wav").toExternalForm());
+            fxLevelLost = new MediaPlayer(levelLostMedia);
+            fxLevelLost.setVolume(1);
+            fxLevelLost.setMute(mMuteSound);
+            fxLevelLost.setOnEndOfMedia(() -> fxLevelLost.stop());
 
-            //levelUpMedia = new Media(new File(getClass().getResource("/sounds/level.wav").getPath()).toURI().toString());
             levelUpMedia = new Media(ClassLoader.getSystemResource("sounds/level.wav").toExternalForm());
+            fxLevelUp = new MediaPlayer(levelUpMedia);
+            fxLevelUp.setVolume(1);
+            fxLevelUp.setMute(mMuteSound);
+            fxLevelUp.setOnEndOfMedia(() -> fxLevelUp.stop());
 
-            //ladderMedia = new Media(new File(getClass().getResource("/sounds/ladder.wav").getPath()).toURI().toString());
             ladderMedia = new Media(ClassLoader.getSystemResource("sounds/ladder.wav").toExternalForm());
+            fxLadder = new MediaPlayer(ladderMedia);
+            fxLadder.setVolume(1);
+            fxLadder.setMute(mMuteSound);
+            fxLadder.setOnEndOfMedia(() -> fxLadder.stop());
 
-            //teleportMedia = new Media(new File(getClass().getResource("/sounds/teleport.wav").getPath()).toURI().toString());
             teleportMedia = new Media(ClassLoader.getSystemResource("sounds/teleport.wav").toExternalForm());
+            fxTeleport = new MediaPlayer(teleportMedia);
+            fxTeleport.setVolume(1);
+            fxTeleport.setMute(mMuteSound);
+            fxTeleport.setOnEndOfMedia(() -> fxTeleport.stop());
 
         } catch (Exception e) {
             displayExceptionAlert("Media *.wav file found", e);

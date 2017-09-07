@@ -7,8 +7,6 @@ import javafx.scene.Group;
 import javafx.scene.Scene;
 import javafx.scene.canvas.*;
 
-import javafx.scene.media.MediaException;
-import javafx.scene.media.MediaPlayer;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
@@ -123,13 +121,7 @@ public class Main extends Utils {
                         mCurrentFallingFrame = null;
 
                         if(mCurrentLevel > 0 && !mMuteSound) {
-                            try {
-                                fxPlayer = new MediaPlayer(levelLostMedia);
-                                fxPlayer.setVolume(1);
-                                fxPlayer.play();
-                            } catch (MediaException e) {
-                                System.out.println("Sound not available");
-                            }
+                            fxLevelLost.play();
                         }
 
                         loadLevel(mCurrentLevel);
@@ -273,25 +265,18 @@ public class Main extends Utils {
                     mArtifacts.remove(artifact);
 
                     if(mCurrentLevel > 0){
-                        try {
-                            if(mArtifacts.size() > 0) {
 
-                                if(!mMuteSound) {
-                                    fxPlayer = new MediaPlayer(artifactMedia);
-                                    fxPlayer.setVolume(1);
-                                    fxPlayer.play();
-                                }
+                        if(mArtifacts.size() > 0) {
 
-                            } else {
-
-                                if(!mMuteSound) {
-                                    fxPlayer = new MediaPlayer(exitOpenMedia);
-                                    fxPlayer.setVolume(1);
-                                    fxPlayer.play();
-                                }
+                            if(!mMuteSound) {
+                                fxArtifact.play();
                             }
-                        } catch (MediaException e) {
-                            System.out.println("Sound not available");
+
+                        } else {
+
+                            if(!mMuteSound) {
+                                fxExit.play();
+                            }
                         }
                     }
                     break;
@@ -311,13 +296,7 @@ public class Main extends Utils {
                 if (teleport.getArea().contains(eist.getCenter())) {
 
                     if(mCurrentLevel > 0 && !mMuteSound) {
-                        try {
-                            fxPlayer = new MediaPlayer(teleportMedia);
-                            fxPlayer.setVolume(1);
-                            fxPlayer.play();
-                        } catch (MediaException e) {
-                            System.out.println("Sound not available");
-                        }
+                        fxTeleport.play();
                     }
 
                     if (mTeleports.indexOf(teleport) == 0) {
@@ -383,13 +362,7 @@ public class Main extends Utils {
                 if (key.getArea().contains(eist.getCenter())) {
 
                     if(mCurrentLevel > 0 && !mMuteSound) {
-                        try {
-                            fxPlayer = new MediaPlayer(keyMedia);
-                            fxPlayer.setVolume(1);
-                            fxPlayer.play();
-                        } catch (MediaException e) {
-                            System.out.println("Sound not available");
-                        }
+                        fxKey.play();
                     }
 
                     mKeys.remove(key);
@@ -421,13 +394,7 @@ public class Main extends Utils {
                     if (eist.getKeys() > 0) {
 
                         if(mCurrentLevel > 0 && !mMuteSound) {
-                            try {
-                                fxPlayer = new MediaPlayer(doorOpenMedia);
-                                fxPlayer.setVolume(1);
-                                fxPlayer.play();
-                            } catch (MediaException e) {
-                                System.out.println("Sound not available");
-                            }
+                            fxDoor.play();
                         }
 
                         eist.setKeys(eist.getKeys() - 1);
@@ -503,13 +470,7 @@ public class Main extends Utils {
                 mCurrentFallingFrame = 0;
 
                 if(mCurrentLevel > 0 && !mMuteSound) {
-                    try {
-                        fxPlayer = new MediaPlayer(levelUpMedia);
-                        fxPlayer.setVolume(1);
-                        fxPlayer.play();
-                    } catch (MediaException e) {
-                        displayExceptionAlert("Sound not available", e);
-                    }
+                    fxLevelUp.play();
                 }
 
                 loadLevel(mCurrentLevel);
@@ -669,7 +630,7 @@ public class Main extends Utils {
          * Just for testing purposes:
          */
         gc.setFill(Color.WHITE);
-        //gc.fillText(String.valueOf((int) mFps), columns[0], rows[18]);
+        gc.fillText(String.valueOf((int) mFps), columns[0], rows[18]);
 
         gc.setFont(infoFont);
         gc.fillText(String.valueOf(mCurrentLevel), columns[28], rows[12]);
@@ -1070,13 +1031,7 @@ public class Main extends Utils {
         mTurnsCounter++;
 
         if(mCurrentLevel > 0 && !mMuteSound) {
-            try {
-                fxPlayer = new MediaPlayer(bounceMedia);
-                fxPlayer.setVolume(1);
-                fxPlayer.play();
-            } catch (MediaException e) {
-                System.out.println("Sound not available");
-            }
+            fxBounce.play();
         }
 
         turnRight = getRandomBoolean();
