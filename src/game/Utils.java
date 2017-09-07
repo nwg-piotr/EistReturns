@@ -1025,8 +1025,13 @@ abstract class Utils extends Application {
         alert.setResizable(true);
 
         String message = "This program is free software; you can redistribute it and/or modify it under the terms of the GNU " +
-                "General Public License version 3.0, as published by the Free Software Foundation." +
-                "\n\nhttps://github.com/nwg-piotr/EistReturns";
+                "General Public License version 3.0, as published by the Free Software Foundation. Find the source code at" +
+                " https://github.com/nwg-piotr/EistReturns" +
+                "\n\nThe game was created with the following software:" +
+                "\nGraphics: Inkscape, GIMP" +
+                "\nSounds: LMMS, Audacity" +
+                "\nIDE: IntelliJ IDEA Community Edition" +
+                "\nSystem: Manjaro Linux, Antergos Linux";
 
         TextArea textArea = new TextArea(message);
         textArea.setEditable(false);
