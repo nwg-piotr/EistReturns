@@ -28,6 +28,7 @@ import game.Sprites.Key;
 import game.Sprites.Slot;
 import game.Sprites.Ladder;
 import game.Sprites.Exit;
+import game.Sprites.Ornament;
 import game.Sprites.Pad;
 
 import java.io.*;
@@ -376,6 +377,7 @@ abstract class Utils extends Application {
     Image mSelClearImg;
 
     Image mArtifactImg;
+    Image mOrnamentImg;
     Image mTeleportImg;
     Image mKeyImg;
     Image mDoorHImg;
@@ -514,6 +516,7 @@ abstract class Utils extends Application {
     List<Key> mKeys;
     List<Door> mDoors;
     List<Slot> mSlots;
+    List<Ornament> mOrnaments;
 
     void loadLevel(int level) {
 
@@ -590,6 +593,31 @@ abstract class Utils extends Application {
 
                 artifact.setArea(innerRect(columns[posX], rows[posY]));
                 mArtifacts.add(artifact);
+            }
+        }
+
+        /*
+         * Load ornaments
+         */
+        mOrnamentImg = new Image(urlString + "ornament.png");
+        mOrnaments = new ArrayList<>();
+        dataString = datToString(urlString + "ornaments.dat");
+        if (dataString != null) {
+
+            String[] ornaments = dataString.split(":");
+
+            for (String single_entry : ornaments) {
+
+                String[] positions = single_entry.split(",");
+
+                int posX = Integer.valueOf(positions[0]);
+                int posY = Integer.valueOf(positions[1]);
+
+                Ornament ornament = new Ornament();
+                ornament.setPosX(columns[posX]);
+                ornament.setPosY(rows[posY]);
+
+                mOrnaments.add(ornament);
             }
         }
 

@@ -17,6 +17,7 @@ import javafx.scene.image.Image;
 import game.Sprites.Player;
 import game.Sprites.Arrow;
 import game.Sprites.Artifact;
+import game.Sprites.Ornament;
 import game.Sprites.Teleport;
 import game.Sprites.Key;
 import game.Sprites.Door;
@@ -281,6 +282,17 @@ public class Main extends Utils {
                     }
                     break;
                 }
+            }
+        }
+
+        /*
+         * Draw ornaments
+         */
+        if (mOrnamentImg != null && mOrnaments.size() > 0) {
+
+            for (Ornament ornament : mOrnaments) {
+
+                gc.drawImage(mOrnamentImg, 160 * mCurrentArtifactFrame, 0, 160, 160, ornament.getPosX(), ornament.getPosY(), mFrameDimension, mFrameDimension);
             }
         }
 
