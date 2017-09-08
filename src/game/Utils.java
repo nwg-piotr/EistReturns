@@ -771,7 +771,7 @@ abstract class Utils extends Application {
 
         if (level == 0) {
 
-            if (trackLevelPlayer != null) {
+            if (trackLevelPlayer != null && trackLevelPlayer.getStatus().equals(MediaPlayer.Status.PLAYING)) {
                 trackLevelPlayer.stop();
             }
             Task<Void> sleeper = new Task<Void>() {
@@ -787,13 +787,13 @@ abstract class Utils extends Application {
             };
             sleeper.setOnSucceeded(event -> {
                 eist.isMoving = true;
-                if (trackMainPlayer != null) {
+                if (trackMainPlayer != null && !trackMainPlayer.getStatus().equals(MediaPlayer.Status.PLAYING)) {
                     trackMainPlayer.play();
                 }
             });
             new Thread(sleeper).start();
         } else {
-            if (trackMainPlayer != null) {
+            if (trackMainPlayer != null && trackMainPlayer.getStatus().equals(MediaPlayer.Status.PLAYING)) {
                 trackMainPlayer.stop();
             }
             if (trackLevelPlayer != null) {
