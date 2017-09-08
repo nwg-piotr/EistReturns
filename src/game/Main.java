@@ -472,7 +472,12 @@ public class Main extends Utils {
                     }
                 }
 
-                mCurrentLevel++;
+                if(mCurrentLevel + 1 < MAX_LEVEL) {
+                    mCurrentLevel++;
+                } else {
+                    mGameFinished =  true;
+                    mCurrentLevel = 0;
+                }
 
                 if(mCurrentLevel > mAchievedLevel) {
                     prefs.putInt("achieved", mCurrentLevel);

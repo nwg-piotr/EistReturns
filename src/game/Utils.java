@@ -49,7 +49,8 @@ abstract class Utils extends Application {
     /**
      * This was left as final int, since in the future may be replaced with a value stored in prefs.
      */
-    private final int MAX_LEVEL = 40;
+    final int MAX_LEVEL = 40;
+    boolean mGameFinished = false;
 
     double mDimensionDivider;
     double rem;
@@ -394,6 +395,7 @@ abstract class Utils extends Application {
     Image mIntro02;
     Image mIntro03;
     Image mIntro04;
+    Image mIntroFinished;
 
     Image mMutedMusicImg;
     Image mMutedSoundImg;
@@ -475,6 +477,7 @@ abstract class Utils extends Application {
         mIntro02 = new Image(ClassLoader.getSystemResource("images/common/intro02.png").toExternalForm());
         mIntro03 = new Image(ClassLoader.getSystemResource("images/common/intro03.png").toExternalForm());
         mIntro04 = new Image(ClassLoader.getSystemResource("images/common/intro04.png").toExternalForm());
+        mIntroFinished = new Image(ClassLoader.getSystemResource("images/common/you_won.png").toExternalForm());
 
         mMutedMusicImg = new Image(ClassLoader.getSystemResource("images/common/muted_music.png").toExternalForm());
         mMutedSoundImg = new Image(ClassLoader.getSystemResource("images/common/muted_sound.png").toExternalForm());
@@ -524,6 +527,11 @@ abstract class Utils extends Application {
         eist.isMoving = false;
         eist.setKeys(0);
         pad.setSelection(null);
+
+        if(mGameFinished){
+            mIntro01 = mIntroFinished;
+            fxLevelUp.play();
+        }
 
         String lvlNumberToString = (level < 10) ? "0" + String.valueOf(level) : String.valueOf(level);
 
