@@ -12,7 +12,6 @@ import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Priority;
 import javafx.scene.media.AudioClip;
-import javafx.scene.media.Media;
 import javafx.scene.media.MediaException;
 import javafx.scene.media.MediaPlayer;
 import javafx.stage.Screen;
@@ -77,8 +76,8 @@ abstract class Utils extends Application {
     private Rectangle2D mButtonMuteMusic;
     private Rectangle2D mButtonMuteSound;
 
-    private MediaPlayer trackMainPlayer;
-    private MediaPlayer trackLevelPlayer;
+    private AudioClip trackMainPlayer;
+    private AudioClip trackLevelPlayer;
 
     AudioClip fxBounce;
     AudioClip fxArtifact;
@@ -217,13 +216,24 @@ abstract class Utils extends Application {
 
         if (mButtonMuteMusic.contains(pointClicked)) {
             mMuteMusic = !mMuteMusic;
+            if(mCurrentLevel == 0) {
+                if (trackMainPlayer != null) {
+                    if (trackMainPlayer.isPlaying()) {
+                        trackMainPlayer.stop();
+                    } else {
+                        trackMainPlayer.play();
+                    }
+                }
+            } else {
+                if (trackLevelPlayer != null) {
+                    if (trackLevelPlayer.isPlaying()) {
+                        trackLevelPlayer.stop();
+                    } else {
+                        trackLevelPlayer.play();
+                    }
+                }
+            }
             prefs.putBoolean("mmusic", mMuteMusic);
-            if (trackMainPlayer != null) {
-                trackMainPlayer.setMute(mMuteMusic);
-            }
-            if (trackLevelPlayer != null) {
-                trackLevelPlayer.setMute(mMuteMusic);
-            }
         }
         if (mButtonMuteSound.contains(pointClicked)) {
             mMuteSound = !mMuteSound;
@@ -406,18 +416,12 @@ abstract class Utils extends Application {
          * Load media
          */
         try {
-            Media sound;
-            sound = new Media(ClassLoader.getSystemResource("sounds/eist.mp3").toExternalForm());
-            trackMainPlayer = new MediaPlayer(sound);
+            trackMainPlayer = new AudioClip(ClassLoader.getSystemResource("sounds/eist.mp3").toExternalForm());
             trackMainPlayer.setVolume(0.4);
             trackMainPlayer.setCycleCount(MediaPlayer.INDEFINITE);
-            trackMainPlayer.setMute(mMuteMusic);
 
-            sound = new Media(ClassLoader.getSystemResource("sounds/eist_ingame.mp3").toExternalForm());
-            trackLevelPlayer = new MediaPlayer(sound);
+            trackLevelPlayer = new AudioClip(ClassLoader.getSystemResource("sounds/eist_ingame.mp3").toExternalForm());
             trackLevelPlayer.setVolume(0.3);
-            trackLevelPlayer.setCycleCount(MediaPlayer.INDEFINITE);
-            trackMainPlayer.setMute(mMuteMusic);
 
         } catch (MediaException e) {
 
@@ -771,7 +775,7 @@ abstract class Utils extends Application {
 
         if (level == 0) {
 
-            if (trackLevelPlayer != null && trackLevelPlayer.getStatus().equals(MediaPlayer.Status.PLAYING)) {
+            if (trackLevelPlayer != null && trackLevelPlayer.isPlaying()) {
                 trackLevelPlayer.stop();
             }
             Task<Void> sleeper = new Task<Void>() {
@@ -787,18 +791,18 @@ abstract class Utils extends Application {
             };
             sleeper.setOnSucceeded(event -> {
                 eist.isMoving = true;
-                if (trackMainPlayer != null && !trackMainPlayer.getStatus().equals(MediaPlayer.Status.PLAYING)) {
+                if (trackMainPlayer != null && !mMuteMusic) {
                     trackMainPlayer.play();
                 }
             });
             new Thread(sleeper).start();
+
         } else {
-            if (trackMainPlayer != null && trackMainPlayer.getStatus().equals(MediaPlayer.Status.PLAYING)) {
+            if (trackMainPlayer != null && trackMainPlayer.isPlaying()) {
                 trackMainPlayer.stop();
             }
-            if (trackLevelPlayer != null) {
+            if (trackLevelPlayer != null && !mMuteMusic && !trackLevelPlayer.isPlaying()) {
                 trackLevelPlayer.play();
-                trackLevelPlayer.setMute(mMuteMusic);
             }
         }
     }
