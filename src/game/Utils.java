@@ -12,6 +12,7 @@ import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Priority;
 import javafx.scene.media.AudioClip;
+import javafx.scene.media.Media;
 import javafx.scene.media.MediaException;
 import javafx.scene.media.MediaPlayer;
 import javafx.stage.Screen;
@@ -40,6 +41,7 @@ abstract class Utils extends Application {
 
     double mSceneWidth;
     double mSceneHeight;
+    double mCenterX;
     double walkingSpeedPerSecond;
 
     int mCurrentLevel = 0;
@@ -76,8 +78,8 @@ abstract class Utils extends Application {
     private Rectangle2D mButtonMuteMusic;
     private Rectangle2D mButtonMuteSound;
 
-    private AudioClip trackMainPlayer;
-    private AudioClip trackLevelPlayer;
+    private MediaPlayer trackMainPlayer;
+    private MediaPlayer trackLevelPlayer;
 
     AudioClip fxBounce;
     AudioClip fxArtifact;
@@ -188,6 +190,11 @@ abstract class Utils extends Application {
         for (int i = 0; i < columns.length; i++) {
             columns[i] = (mGridDimension) * i;
         }
+        /*
+         * Horizontal center of the game board. Needed to set balance while playing FX sounds.
+         */
+        mCenterX = columns[13] + mGridDimension / 2;
+        System.out.println("mCenterX = " + mCenterX);
     }
 
     /**
@@ -218,7 +225,7 @@ abstract class Utils extends Application {
             mMuteMusic = !mMuteMusic;
             if(mCurrentLevel == 0) {
                 if (trackMainPlayer != null) {
-                    if (trackMainPlayer.isPlaying()) {
+                    if (trackMainPlayer.getStatus().equals(MediaPlayer.Status.PLAYING)) {
                         trackMainPlayer.stop();
                     } else {
                         trackMainPlayer.play();
@@ -226,7 +233,7 @@ abstract class Utils extends Application {
                 }
             } else {
                 if (trackLevelPlayer != null) {
-                    if (trackLevelPlayer.isPlaying()) {
+                    if (trackLevelPlayer.getStatus().equals(MediaPlayer.Status.PLAYING)) {
                         trackLevelPlayer.stop();
                     } else {
                         trackLevelPlayer.play();
@@ -292,6 +299,7 @@ abstract class Utils extends Application {
                         if (ladder.getSlotIdx() == null) {
 
                             if (!mMuteSound) {
+                                fxLadder.setBalance(calculateBalance(mSlots.get(clickedSlotIdx).getPosX()));
                                 fxLadder.play();
                             }
                             ladder.setSlotIdx(clickedSlotIdx);
@@ -301,6 +309,7 @@ abstract class Utils extends Application {
                             if (clickedSlotIdx == ladder.getSlotIdx()) {
 
                                 if (!mMuteSound) {
+                                    fxLadder.setBalance(calculateBalance(mSlots.get(clickedSlotIdx).getPosX()));
                                     fxLadder.play();
                                 }
                                 ladder.setSlotIdx(null);
@@ -416,12 +425,13 @@ abstract class Utils extends Application {
          * Load media
          */
         try {
-            trackMainPlayer = new AudioClip(ClassLoader.getSystemResource("sounds/eist.mp3").toExternalForm());
+            trackMainPlayer = new MediaPlayer(new Media(ClassLoader.getSystemResource("sounds/eist.mp3").toExternalForm()));
             trackMainPlayer.setVolume(0.4);
             trackMainPlayer.setCycleCount(MediaPlayer.INDEFINITE);
 
-            trackLevelPlayer = new AudioClip(ClassLoader.getSystemResource("sounds/eist_ingame.mp3").toExternalForm());
+            trackLevelPlayer = new MediaPlayer(new Media(ClassLoader.getSystemResource("sounds/eist_ingame.mp3").toExternalForm()));
             trackLevelPlayer.setVolume(0.3);
+            trackLevelPlayer.setCycleCount(MediaPlayer.INDEFINITE);
 
         } catch (MediaException e) {
 
@@ -775,7 +785,7 @@ abstract class Utils extends Application {
 
         if (level == 0) {
 
-            if (trackLevelPlayer != null && trackLevelPlayer.isPlaying()) {
+            if (trackLevelPlayer != null && trackLevelPlayer.getStatus().equals(MediaPlayer.Status.PLAYING)) {
                 trackLevelPlayer.stop();
             }
             Task<Void> sleeper = new Task<Void>() {
@@ -791,17 +801,17 @@ abstract class Utils extends Application {
             };
             sleeper.setOnSucceeded(event -> {
                 eist.isMoving = true;
-                if (trackMainPlayer != null && !mMuteMusic) {
+                if (trackMainPlayer != null && !mMuteMusic && !trackMainPlayer.getStatus().equals(MediaPlayer.Status.PLAYING)) {
                     trackMainPlayer.play();
                 }
             });
             new Thread(sleeper).start();
 
         } else {
-            if (trackMainPlayer != null && trackMainPlayer.isPlaying()) {
+            if (trackMainPlayer != null && trackMainPlayer.getStatus().equals(MediaPlayer.Status.PLAYING)) {
                 trackMainPlayer.stop();
             }
-            if (trackLevelPlayer != null && !mMuteMusic && !trackLevelPlayer.isPlaying()) {
+            if (trackLevelPlayer != null && !mMuteMusic && !trackLevelPlayer.getStatus().equals(MediaPlayer.Status.PLAYING)) {
                 trackLevelPlayer.play();
             }
         }
@@ -983,6 +993,16 @@ abstract class Utils extends Application {
                 mArrows.remove(arrow);
                 break;
             }
+        }
+    }
+
+    double calculateBalance(double eistX) {
+        if(eistX < mCenterX) {
+            return -(mCenterX - eistX) / mCenterX;
+        } else if(eistX > mCenterX) {
+            return (eistX - mCenterX) / mCenterX;
+        } else {
+            return 0.0;
         }
     }
 

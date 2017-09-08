@@ -122,6 +122,7 @@ public class Main extends Utils {
                         mCurrentFallingFrame = null;
 
                         if(mCurrentLevel > 0 && !mMuteSound) {
+                            fxLevelLost.setBalance(calculateBalance(eist.x));
                             fxLevelLost.play();
                         }
 
@@ -270,6 +271,7 @@ public class Main extends Utils {
                         if(mArtifacts.size() > 0) {
 
                             if(!mMuteSound) {
+                                fxArtifact.setBalance(calculateBalance(eist.x));
                                 fxArtifact.play();
                             }
 
@@ -308,6 +310,7 @@ public class Main extends Utils {
                 if (teleport.getArea().contains(eist.getCenter())) {
 
                     if(mCurrentLevel > 0 && !mMuteSound) {
+                        fxTeleport.setBalance(calculateBalance(eist.x));
                         fxTeleport.play();
                     }
 
@@ -374,6 +377,7 @@ public class Main extends Utils {
                 if (key.getArea().contains(eist.getCenter())) {
 
                     if(mCurrentLevel > 0 && !mMuteSound) {
+                        fxKey.setBalance(calculateBalance(eist.x));
                         fxKey.play();
                     }
 
@@ -406,6 +410,7 @@ public class Main extends Utils {
                     if (eist.getKeys() > 0) {
 
                         if(mCurrentLevel > 0 && !mMuteSound) {
+                            fxDoor.setBalance(calculateBalance(door.getPosX()));
                             fxDoor.play();
                         }
 
@@ -1048,6 +1053,7 @@ public class Main extends Utils {
         mTurnsCounter++;
 
         if(mCurrentLevel > 0 && !mMuteSound) {
+            fxBounce.setBalance(calculateBalance(eist.x));
             fxBounce.play();
         }
 
