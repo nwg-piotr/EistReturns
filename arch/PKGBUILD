@@ -1,0 +1,24 @@
+# Maintainer: Piotr Miller <nwg.piotr@gmail.com>
+pkgname=('eist-returns')
+pkgver=0.0.1
+pkgrel=1
+pkgdesc="Arcade-puzzle game"
+arch=('i686' 'x86_64')
+url="https://github.com/nwg-piotr/EistReturns"
+license=('GPL3')
+depends=('java-runtime' 'ffmpeg2.8')
+source=("eist-returns.jar"
+	"eist-returns.png"
+	"eist-returns.desktop")
+md5sums=("2cc9a15eadc8d0f8de04f680b8fa946c"
+	"ea36e85adfd27b55d80f3e9b8a61869f"
+	"8a43d93560bc9fd3e0bd057c37135781")
+
+package() {
+	install -D -m 755 eist-returns.jar \
+ 	 "$pkgdir"/usr/share/java/eist-returns/eist-returns.jar
+ 	install -D -m 755 eist-returns.desktop \
+ 	 "$pkgdir"/usr/share/applications/eist-returns.desktop
+ 	install -D -m 644 eist-returns.png \
+ 	 "$pkgdir"/usr/share/eist-returns/eist-returns.png
+}
