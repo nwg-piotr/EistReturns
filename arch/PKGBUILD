@@ -1,0 +1,32 @@
+# Maintainer: Piotr Miller <nwg.piotr@gmail.com>
+pkgname=('eist-returns')
+pkgver=("001")
+pkgrel=1
+pkgdesc="Arcade-puzzle game"
+arch=('i686' 'x86_64')
+url="https://github.com/nwg-piotr/EistReturns"
+license=('GPL3')
+depends=('java-runtime' 'ffmpeg2.8')
+source=("git://github.com/nwg-piotr/EistReturns/arch.git")
+md5sums=('SKIP')
+
+prepare() {
+	cd "$pkgname-$pkgver"
+	patch -p1 -i "$srcdir/$pkgname-$pkgver.patch"
+}
+
+build() {
+	cd "$pkgname-$pkgver"
+	./configure --prefix=/usr
+	make
+}
+
+check() {
+	cd "$pkgname-$pkgver"
+	make -k check
+}
+
+package() {
+	cd "$pkgname-$pkgver"
+	make DESTDIR="$pkgdir/" install
+}
