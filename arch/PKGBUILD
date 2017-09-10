@@ -11,7 +11,7 @@ source=("eist-returns.jar"
 	"eist-returns.png"
 	"eist-returns.desktop")
 md5sums=("2cc9a15eadc8d0f8de04f680b8fa946c"
-	"ea36e85adfd27b55d80f3e9b8a61869f"
+	"5ce6928eb681ed62b1028b17f7f372b6"
 	"fc5226f8fcb27c5e2bed7ac68872613f")
 
 package() {
