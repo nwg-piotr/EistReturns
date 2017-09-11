@@ -1,4 +1,5 @@
 Manifest-Version: 1.0
-Main-Class: game.Start
 Permissions: all-permissions
+Class-Path: /usr/share/java/eist-returns/eist-returns.jar
+Main-Class: game.Start
 
