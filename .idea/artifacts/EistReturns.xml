@@ -1,0 +1,23 @@
+<component name="ArtifactManager">
+  <artifact type="javafx" name="EistReturns">
+    <output-path>$PROJECT_DIR$/out/artifacts/EistReturns</output-path>
+    <properties id="javafx-properties">
+      <options>
+        <option name="appClass" value="game.Main" />
+        <option name="description" value="arcade-puzzle game" />
+        <option name="height" value="720" />
+        <option name="htmlPlaceholderId" value="" />
+        <option name="nativeBundle" value="exe" />
+        <option name="title" value="Eist returns" />
+        <option name="vendor" value="nwg" />
+        <option name="version" value="0.0.1" />
+        <option name="width" value="1280" />
+      </options>
+    </properties>
+    <root id="root">
+      <element id="archive" name="EistReturns.jar">
+        <element id="module-output" name="EistReturns" />
+      </element>
+    </root>
+  </artifact>
+</component>
