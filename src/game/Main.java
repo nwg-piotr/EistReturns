@@ -1,12 +1,14 @@
 package game;
 
 import javafx.animation.AnimationTimer;
+import javafx.event.EventHandler;
 import javafx.geometry.Point2D;
 import javafx.geometry.Rectangle2D;
 import javafx.scene.Group;
 import javafx.scene.Scene;
 import javafx.scene.canvas.*;
 
+import javafx.scene.input.KeyEvent;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
@@ -46,6 +48,8 @@ public class Main extends Utils {
     private Font levelFont;
     private Font turnsFont;
 
+    private boolean mShowFps = false;
+
     @Override
     public void start(Stage stage) throws Exception {
 
@@ -54,7 +58,7 @@ public class Main extends Utils {
         stage.setTitle("Eist returns");
         stage.getIcons().add(new Image("/images/common/eist.png"));
         stage.setResizable(false);
-        if(mDimensionDivider == 1.0){
+        if (mDimensionDivider == 1.0) {
             stage.setFullScreen(true);
         }
 
@@ -82,6 +86,19 @@ public class Main extends Utils {
         loadLevel(mCurrentLevel);
 
         mScene.setOnMouseClicked(this::handleMouseEvent);
+
+        mScene.setOnKeyPressed(new EventHandler<KeyEvent>() {
+            @Override
+            public void handle(KeyEvent event) {
+                switch (event.getCode()) {
+                    case F:
+                        mShowFps = !mShowFps;
+                        break;
+                    default:
+                        break;
+                }
+            }
+        });
 
         lastEistFrameChangeTime = System.nanoTime();
         lastArtifactFrameChangeTime = System.nanoTime();
@@ -121,7 +138,7 @@ public class Main extends Utils {
 
                         mCurrentFallingFrame = null;
 
-                        if(mCurrentLevel > 0 && !mMuteSound) {
+                        if (mCurrentLevel > 0 && !mMuteSound) {
                             fxLevelLost.setBalance(calculateBalance(eist.x));
                             fxLevelLost.play();
                         }
@@ -162,9 +179,9 @@ public class Main extends Utils {
         /*
          * On level0 switch intro messages
          */
-        if(mCurrentLevel == 0) {
+        if (mCurrentLevel == 0) {
 
-            switch(mArtifacts.size()) {
+            switch (mArtifacts.size()) {
                 case 3:
                     gc.drawImage(mIntro01, 0, 0, mSceneWidth, mSceneHeight);
                     break;
@@ -186,10 +203,10 @@ public class Main extends Utils {
             gc.drawImage(mBoardImg, 0, 0, mSceneWidth, mSceneHeight);
         }
 
-        if(mMuteMusic){
+        if (mMuteMusic) {
             gc.drawImage(mMutedMusicImg, columns[30], rows[11], mGridDimension, mGridDimension);
         }
-        if(mMuteSound){
+        if (mMuteSound) {
             gc.drawImage(mMutedSoundImg, columns[30], rows[13], mGridDimension, mGridDimension);
         }
 
@@ -266,18 +283,18 @@ public class Main extends Utils {
 
                     mArtifacts.remove(artifact);
 
-                    if(mCurrentLevel > 0){
+                    if (mCurrentLevel > 0) {
 
-                        if(mArtifacts.size() > 0) {
+                        if (mArtifacts.size() > 0) {
 
-                            if(!mMuteSound) {
+                            if (!mMuteSound) {
                                 fxArtifact.setBalance(calculateBalance(eist.x));
                                 fxArtifact.play();
                             }
 
                         } else {
 
-                            if(!mMuteSound) {
+                            if (!mMuteSound) {
                                 fxExit.play();
                             }
                         }
@@ -309,7 +326,7 @@ public class Main extends Utils {
 
                 if (teleport.getArea().contains(eist.getCenter())) {
 
-                    if(mCurrentLevel > 0 && !mMuteSound) {
+                    if (mCurrentLevel > 0 && !mMuteSound) {
                         fxTeleport.setBalance(calculateBalance(eist.x));
                         fxTeleport.play();
                     }
@@ -376,7 +393,7 @@ public class Main extends Utils {
 
                 if (key.getArea().contains(eist.getCenter())) {
 
-                    if(mCurrentLevel > 0 && !mMuteSound) {
+                    if (mCurrentLevel > 0 && !mMuteSound) {
                         fxKey.setBalance(calculateBalance(eist.x));
                         fxKey.play();
                     }
@@ -409,7 +426,7 @@ public class Main extends Utils {
 
                     if (eist.getKeys() > 0) {
 
-                        if(mCurrentLevel > 0 && !mMuteSound) {
+                        if (mCurrentLevel > 0 && !mMuteSound) {
                             fxDoor.setBalance(calculateBalance(door.getPosX()));
                             fxDoor.play();
                         }
@@ -469,29 +486,29 @@ public class Main extends Utils {
              */
             if (exit.getArea().contains(eist.getCenter())) {
 
-                if(mTurnsCounter < mTurnsBest || mTurnsBest == 0) {
+                if (mTurnsCounter < mTurnsBest || mTurnsBest == 0) {
                     String lvlNumberToString = (mCurrentLevel < 10) ? "0" + String.valueOf(mCurrentLevel) : String.valueOf(mCurrentLevel);
                     prefs.putInt(lvlNumberToString + "best", mTurnsCounter);
-                    if(mTurnsCounter < mTurnsBest) {
+                    if (mTurnsCounter < mTurnsBest) {
                         displayNewBestAlert(mTurnsBest, mTurnsCounter);
                     }
                 }
 
-                if(mCurrentLevel + 1 < MAX_LEVEL) {
+                if (mCurrentLevel + 1 < MAX_LEVEL) {
                     mCurrentLevel++;
                 } else {
-                    mGameFinished =  true;
+                    mGameFinished = true;
                     mCurrentLevel = 0;
                 }
 
-                if(mCurrentLevel > mAchievedLevel) {
+                if (mCurrentLevel > mAchievedLevel) {
                     prefs.putInt("achieved", mCurrentLevel);
                 }
                 prefs.putInt("level", mCurrentLevel);
 
                 mCurrentFallingFrame = 0;
 
-                if(mCurrentLevel > 0 && !mMuteSound) {
+                if (mCurrentLevel > 0 && !mMuteSound) {
                     fxLevelUp.play();
                 }
 
@@ -529,7 +546,7 @@ public class Main extends Utils {
                     mCurrentFallingFrame = 0;
 
                     // Wait! Are we on the ladder?
-                    if(ladder.getSlotIdx() != null) {
+                    if (ladder.getSlotIdx() != null) {
                         if (mSlots.get(ladder.getSlotIdx()).getArea().contains(new Point2D(eist.detectionPoint1X, eist.detectionPoint1Y))
                                 && mSlots.get(ladder.getSlotIdx()).getArea().contains(new Point2D(eist.detectionPoint2X, eist.detectionPoint2Y))) {
 
@@ -537,7 +554,7 @@ public class Main extends Utils {
                         }
                     }
                     // Just left foot off the path
-                    if(leftOut && !rightOut) {
+                    if (leftOut && !rightOut) {
                         switch (eist.getDirection()) {
                             case DIR_RIGHT:
                                 eist.y = eist.y - mHalfGridDimension;
@@ -554,7 +571,7 @@ public class Main extends Utils {
                         }
                     }
                     // Just right foot off the path
-                    if(rightOut && !leftOut) {
+                    if (rightOut && !leftOut) {
                         switch (eist.getDirection()) {
                             case DIR_RIGHT:
                                 eist.y = eist.y + mHalfGridDimension;
@@ -648,21 +665,20 @@ public class Main extends Utils {
                 gc.drawImage(image, button.getMinX(), button.getMinY(), button.getWidth(), button.getHeight());
             }
         }
-        /*
-         * Uncomment for testing if your system keeps 60 FPS rate. See comments in the Start class.
-         */
-        gc.setFill(Color.WHITE);
-        //gc.fillText(String.valueOf((int) mFps), columns[0], rows[18]);
 
+        gc.setFill(Color.WHITE);
         gc.setFont(infoFont);
         gc.fillText(String.valueOf(mCurrentLevel), columns[28], rows[12]);
         gc.fillText(String.valueOf(eist.getKeys()), columns[28], rows[14]);
         gc.setFont(turnsFont);
         gc.fillText("Turns: " + mTurnsCounter, columns[27], rows[15]);
-        if(mTurnsBest > 0) {
+        if (mTurnsBest > 0) {
             gc.fillText("Best: " + mTurnsBest, columns[27], rows[16]);
         } else {
             gc.fillText("Best: -", columns[27], rows[16]);
+        }
+        if(mShowFps) {
+            gc.fillText("FPS: " + String.valueOf((int) mFps), columns[27], rows[17]);
         }
     }
 
@@ -1052,7 +1068,7 @@ public class Main extends Utils {
 
         mTurnsCounter++;
 
-        if(mCurrentLevel > 0 && !mMuteSound) {
+        if (mCurrentLevel > 0 && !mMuteSound) {
             fxBounce.setBalance(calculateBalance(eist.x));
             fxBounce.play();
         }
