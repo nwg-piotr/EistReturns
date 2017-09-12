@@ -542,6 +542,8 @@ abstract class Utils extends Application {
         eist.setKeys(0);
         pad.setSelection(null);
 
+        mAchievedLevel = prefs.getInt("achieved", 0);
+
         if(mGameFinished){
             mIntro01 = mIntroFinished;
             fxLevelUp.play();
