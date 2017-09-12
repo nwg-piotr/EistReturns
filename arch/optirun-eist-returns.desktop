@@ -1,0 +1,11 @@
+#!/usr/bin/env xdg-open
+
+[Desktop Entry]
+Version=1.0
+Type=Application
+Terminal=false
+Exec=optirun java -jar /usr/share/java/eist-returns/eist-returns.jar
+Categories=Games;
+Comment=Arcade-puzzle game
+Icon=/usr/share/eist-returns/eist-returns.png
+Name=Eist returns (optirun)
