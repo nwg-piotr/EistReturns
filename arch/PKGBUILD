@@ -9,8 +9,8 @@ license=('GPL3')
 depends=('java-runtime=8' 'java-openjfx' 'ffmpeg2.8' 'gstreamer' 'libxtst' 'qt5-base' 'webkit2gtk')
 source=("https://github.com/nwg-piotr/EistReturns/raw/master/arch/eist-returns.jar"
 "https://github.com/nwg-piotr/EistReturns/raw/master/arch/eist-returns.png"
-"https://github.com/nwg-piotr/EistReturns/raw/master/arch/eist-returns.desktop"
-"https://github.com/nwg-piotr/EistReturns/raw/master/arch/optirun-eist-returns.desktop")
+"https://github.com/nwg-piotr/EistReturns/raw/master/arch/eist-returns"
+"https://github.com/nwg-piotr/EistReturns/raw/master/arch/eist-returns.desktop")
 md5sums=('abfd3885a45e2f3bfba9675f5d0c342b'
          '5ce6928eb681ed62b1028b17f7f372b6'
          'fc5226f8fcb27c5e2bed7ac68872613f'
