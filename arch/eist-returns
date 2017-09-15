@@ -1,2 +1,2 @@
 #!/bin/sh
-exec /usr/bin/java -jar '-Dprism.verbose=true /usr/share/java/eist-returns/eist-returns.jar' "$@"
+exec /usr/bin/java -jar -Dprism.verbose=true '/usr/share/java/eist-returns/eist-returns.jar' "$@"
