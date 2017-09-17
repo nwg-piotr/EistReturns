@@ -11,7 +11,7 @@ source=("https://github.com/nwg-piotr/EistReturns/raw/master/arch/eist-returns.j
 "https://github.com/nwg-piotr/EistReturns/raw/master/arch/eist-returns.png"
 "https://github.com/nwg-piotr/EistReturns/raw/master/arch/eist-returns"
 "https://github.com/nwg-piotr/EistReturns/raw/master/arch/eist-returns.desktop")
-md5sums=('abfd3885a45e2f3bfba9675f5d0c342b'
+md5sums=('af498fde15f95b7e46b412d9c03b7f3a'
          '5ce6928eb681ed62b1028b17f7f372b6'
          '77e8c0c00a53fb0647ede357b2dd6f4a'
          'f5d2e0cab50fff7ec5633c4f3f289085')
