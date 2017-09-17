@@ -550,7 +550,7 @@ abstract class Utils extends Application {
          */
         mTurnsBest = prefs.getInt(lvlNumberToString + "best", 0);
 
-        String urlString = "levels/" + lvlNumberToString;
+        String urlString = "levels/" + lvlNumberToString + "/";
 
         /*
          * Load board bitmap
