@@ -9,15 +9,16 @@ versions.
 Although I'm still working on some new features, as e.g. the level editor, 
 the game should be fully playable, and not buggy too much.
 
-##Installation
+#Installation
 
-###Windows
+
+#Windows
 
 Download [eist-returns.exe](https://github.com/nwg-piotr/EistReturns/raw/master/windows/eist-returns.exe) file,
 move anywhere, double click to run. If your computer has no Java Runtime Environment installed, 
 you’ll be asked to download and install it from Oracle.
 
-###Arch / Arch-based Linux
+#Arch / Arch-based Linux
 
 Download the latest package from the [arch directory](https://github.com/nwg-piotr/EistReturns/tree/master/arch)
 
