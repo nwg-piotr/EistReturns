@@ -167,12 +167,6 @@ abstract class Utils extends Application {
         walkingSpeedPerSecond = mSceneWidth / 14d;
         rem = javafx.scene.text.Font.getDefault().getSize() / 13;
 
-        System.out.println("mSceneWidth = " + mSceneWidth);
-        System.out.println("mSceneHeight = " + mSceneHeight);
-        System.out.println("mFrameDimension = " + mFrameDimension);
-        System.out.println("mGridDimension = " + mGridDimension);
-        System.out.println("walkingSpeedPerSecond = " + walkingSpeedPerSecond);
-
         /*
          * For future use - create the folder which user can upload custom levels data to.
          */
@@ -194,7 +188,6 @@ abstract class Utils extends Application {
          * Horizontal center of the game board. Needed to set balance while playing FX sounds.
          */
         mCenterX = columns[13] + mGridDimension / 2;
-        System.out.println("mCenterX = " + mCenterX);
     }
 
     /**
@@ -810,12 +803,27 @@ abstract class Utils extends Application {
             new Thread(sleeper).start();
 
         } else {
+
             if (trackMainPlayer != null && trackMainPlayer.getStatus().equals(MediaPlayer.Status.PLAYING)) {
                 trackMainPlayer.stop();
             }
-            if (trackLevelPlayer != null && !mMuteMusic && !trackLevelPlayer.getStatus().equals(MediaPlayer.Status.PLAYING)) {
-                trackLevelPlayer.play();
-            }
+            Task<Void> sleeper = new Task<Void>() {
+                @Override
+                protected Void call() throws Exception {
+                    try {
+                        Thread.sleep(500);
+                    } catch (InterruptedException e) {
+                        System.out.println(e.toString());
+                    }
+                    return null;
+                }
+            };
+            sleeper.setOnSucceeded(event -> {
+                if (trackLevelPlayer != null && !mMuteMusic && !trackLevelPlayer.getStatus().equals(MediaPlayer.Status.PLAYING)) {
+                    trackLevelPlayer.play();
+                }
+            });
+            new Thread(sleeper).start();
         }
     }
 
@@ -891,19 +899,19 @@ abstract class Utils extends Application {
             int bottom_right_color = pixelReader.getArgb((int) adjustedSquare.getMaxX() - 15, (int) adjustedSquare.getMaxY() - 15);
 
 
-            // both right stick out -> move LEFT
+            // both right corner sticks out -> move LEFT
             if (top_right_color == -16777216 && bottom_right_color == -16777216) {
                 adjustedSquare = new Rectangle2D(adjustedSquare.getMinX() - mGridDimension, adjustedSquare.getMinY(), mFrameDimension, mFrameDimension);
             }
-            // both bottom stick out -> MOVE UP
+            // both bottom corners stick out -> MOVE UP
             if (bottom_left_color == -16777216 && bottom_right_color == -16777216) {
                 adjustedSquare = new Rectangle2D(adjustedSquare.getMinX(), adjustedSquare.getMinY() - mGridDimension, mFrameDimension, mFrameDimension);
             }
-            // both left stick out -> MOVE RIGHT
+            // both left corner sticks out -> MOVE RIGHT
             if (top_left_color == -16777216 && bottom_left_color == -16777216 && top_right_color != -16777216) {
                 adjustedSquare = new Rectangle2D(adjustedSquare.getMinX() + mGridDimension, adjustedSquare.getMinY(), mFrameDimension, mFrameDimension);
             }
-            // both top stick out -> MOVE DOWN
+            // both top corners stick out -> MOVE DOWN
             if (top_left_color == -16777216 && top_right_color == -16777216 && bottom_left_color != -16777216) {
                 adjustedSquare = new Rectangle2D(adjustedSquare.getMinX(), adjustedSquare.getMinY() + mGridDimension, mFrameDimension, mFrameDimension);
             }
@@ -998,6 +1006,11 @@ abstract class Utils extends Application {
         }
     }
 
+    /**
+     * Calculates stereo balance for AudioClip to play the sound FX
+     * @param eistX - current Eists X coordinate will be compared to horizontal center of the game board
+     * @return double in range -1.0 to 1.0
+     */
     double calculateBalance(double eistX) {
         if(eistX < mCenterX) {
             return -(mCenterX - eistX) / mCenterX;
