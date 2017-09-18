@@ -32,6 +32,8 @@ import game.Sprites.Ornament;
 import game.Sprites.Pad;
 
 import java.io.*;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -90,6 +92,11 @@ abstract class Utils extends Application {
     AudioClip fxLevelUp;
     private AudioClip fxLadder;
     AudioClip fxTeleport;
+
+    File mUserFolder;
+    File mUserLevelsFolder;
+
+    boolean mLoadUserLevel;
 
     /**
      * The Frame is a rectangular part of the game board of width of 2 columns and height of 2 rows.
@@ -170,9 +177,13 @@ abstract class Utils extends Application {
         /*
          * For future use - create the folder which user can upload custom levels data to.
          */
-        File mEistFolder = new File(System.getProperty("user.home") + "/.EistReturns");
-        if (mEistFolder.mkdir()) {
+        mUserFolder = new File(System.getProperty("user.home") + "/.EistReturns");
+        if (mUserFolder.mkdir()) {
             System.out.println("EistReturns folder created");
+        }
+        mUserLevelsFolder = new File(System.getProperty("user.home") + "/.EistReturns/levels");
+        if (mUserLevelsFolder.mkdir()) {
+            System.out.println("Levels folder created");
         }
 
         /*
@@ -530,6 +541,8 @@ abstract class Utils extends Application {
 
     void loadLevel(int level) {
 
+        System.out.println("\nLOADING LEVEL " + level +"\n");
+
         mCurrentFallingFrame = null;
         eist.isMoving = false;
         eist.setKeys(0);
@@ -552,10 +565,157 @@ abstract class Utils extends Application {
 
         String urlString = "levels/" + lvlNumberToString + "/";
 
+
+        /*
+         * Check if user-defined folder exists
+         */
+        if(level > 0) {
+
+            File userLevel = new File(System.getProperty("user.home") + "/.EistReturns/" + urlString);
+
+            if (userLevel.exists()) {
+
+                mLoadUserLevel = true;
+
+                System.out.println("Found user-defined level: " + userLevel.toString() + "\n");
+                /*
+                 * Let's check if all the necessary data exist in the user-defined folder.
+                 * Skip arrows, teleports and ornaments, as the don't have to exist on each level.
+                 */
+                System.out.println("Checking integrity:");
+
+                File checkMe = new File(userLevel + "/board.png");
+                if(checkMe.exists()){
+                    System.out.println("+Board image found.");
+                } else {
+                    System.out.println("-Board image not found.");
+                    mLoadUserLevel = false;
+                }
+
+                checkMe = new File(userLevel + "/amulet.png");
+                if(checkMe.exists()){
+                    System.out.println("+Artifact image found.");
+                } else {
+                    System.out.println("-Artifact image not found.");
+                    mLoadUserLevel = false;
+                }
+
+                checkMe = new File(userLevel + "/amulets.dat");
+                if(checkMe.exists()){
+                    System.out.println("+Artifacts data found.");
+                } else {
+                    System.out.println("-Artifacts data not found.");
+                    mLoadUserLevel = false;
+                }
+
+                checkMe = new File(userLevel + "/door_h.png");
+                if(checkMe.exists()){
+                    System.out.println("+Horizontal door image found.");
+                } else {
+                    System.out.println("-Horizontal door image not found.");
+                    mLoadUserLevel = false;
+                }
+
+                checkMe = new File(userLevel + "/door_v.png");
+                if(checkMe.exists()){
+                    System.out.println("+Vertical door image found.");
+                } else {
+                    System.out.println("-Vertical door image not found.");
+                    mLoadUserLevel = false;
+                }
+
+                checkMe = new File(userLevel + "/doors.dat");
+                if(checkMe.exists()){
+                    System.out.println("+Doors data found.");
+                } else {
+                    System.out.println("-Doors data not found.");
+                    mLoadUserLevel = false;
+                }
+
+                checkMe = new File(userLevel + "/exit_closed.png");
+                if(checkMe.exists()){
+                    System.out.println("+Closed exit image found.");
+                } else {
+                    System.out.println("-Closed exit image not found.");
+                    mLoadUserLevel = false;
+                }
+
+                checkMe = new File(userLevel + "/exit_open.png");
+                if(checkMe.exists()){
+                    System.out.println("+Open exit image found.");
+                } else {
+                    System.out.println("-Open exit image not found.");
+                    mLoadUserLevel = false;
+                }
+
+                checkMe = new File(userLevel + "/key.png");
+                if(checkMe.exists()){
+                    System.out.println("+Key image found.");
+                } else {
+                    System.out.println("-Key image not found.");
+                    mLoadUserLevel = false;
+                }
+
+                checkMe = new File(userLevel + "/keys.dat");
+                if(checkMe.exists()){
+                    System.out.println("+Keys data found.");
+                } else {
+                    System.out.println("-Keys data not found.");
+                    mLoadUserLevel = false;
+                }
+
+                checkMe = new File(userLevel + "/ladder_h.png");
+                if(checkMe.exists()){
+                    System.out.println("+Horizontal ladder image found.");
+                } else {
+                    System.out.println("-Horizontal ladder image not found.");
+                    mLoadUserLevel = false;
+                }
+
+                checkMe = new File(userLevel + "/ladder_v.png");
+                if(checkMe.exists()){
+                    System.out.println("+Vertical ladder image found.");
+                } else {
+                    System.out.println("-Vertical ladder image not found.");
+                    mLoadUserLevel = false;
+                }
+
+                checkMe = new File(userLevel + "/slots.dat");
+                if(checkMe.exists()){
+                    System.out.println("+Ladder slots data found.");
+                } else {
+                    System.out.println("-Ladder slots data not found.");
+                    mLoadUserLevel = false;
+                }
+
+                checkMe = new File(userLevel + "/level.dat");
+                if(checkMe.exists()){
+                    System.out.println("+level.dat file found.");
+                } else {
+                    System.out.println("-level.dat file not found.");
+                    mLoadUserLevel = false;
+                }
+
+                if(mLoadUserLevel){
+                    urlString = userLevel.toURI().toString();
+                    System.out.println("\nAll necessary level data present. Loading user-defined level.");
+                } else {
+                    System.out.println("\nEssential level file(s) missing. Loading default level.\n");
+                }
+
+            } else {
+                mLoadUserLevel = false;
+                System.out.println("User-defined level not found. Loading from resources.\n");
+            }
+
+        } else {
+            mLoadUserLevel = false;
+        }
+
         /*
          * Load board bitmap
          */
-        mBoardImg = new Image(ClassLoader.getSystemResource(urlString + "board.png").toExternalForm(), mSceneWidth, mSceneHeight, true, true, false);
+        mBoardImg = new Image(urlString + "board.png", mSceneWidth, mSceneHeight, true, true, false);
 
         pixelReader = mBoardImg.getPixelReader();
 
@@ -616,7 +776,9 @@ abstract class Utils extends Application {
         /*
          * Load ornaments
          */
-        mOrnamentImg = new Image(urlString + "ornament.png");
+        if(new File(urlString + "ornament.png").exists()) {
+            mOrnamentImg = new Image(urlString + "ornament.png");
+        }
         mOrnaments = new ArrayList<>();
         dataString = datToString(urlString + "ornaments.dat");
         if (dataString != null) {
@@ -843,12 +1005,28 @@ abstract class Utils extends Application {
 
     private String datToString(String urlString) {
 
+        System.out.println("Reading from file: " + urlString);
+
         StringBuilder stringBuilder = new StringBuilder();
-        InputStream inputStream = Utils.class.getClassLoader().getResourceAsStream(urlString);
+
+        InputStream inputStream;
+
+        if(!mLoadUserLevel) {
+            inputStream = Utils.class.getClassLoader().getResourceAsStream(urlString);
+        } else {
+            try {
+                // This should be done better, still I don't know how...
+                inputStream = new FileInputStream(urlString.substring(5));
+            }catch(FileNotFoundException e){
+                inputStream = null;
+            }
+        }
         String output = null;
 
         if (inputStream == null) {
+            System.out.println("inputStream = null, couldn't read");
             return null;
+
         } else {
 
             BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(inputStream));
