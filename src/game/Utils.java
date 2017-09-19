@@ -1018,7 +1018,7 @@ abstract class Utils extends Application {
 
     private String datToString(String urlString) {
 
-        System.out.println("Reading from file: " + urlString);
+        System.out.println("Loading " + urlString);
 
         StringBuilder stringBuilder = new StringBuilder();
 

@@ -72,7 +72,7 @@ public class Start extends Utils {
     private void handleMouse(MouseEvent event) {
 
         Point2D pointClicked = new Point2D(event.getSceneX(), event.getSceneY());
-        if(pointClicked.getX() > mSplashCenterX) {
+        if(pointClicked.getX() < mSplashCenterX) {
             sleeper.cancel();
             play();
         }
