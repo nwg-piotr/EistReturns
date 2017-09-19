@@ -1,37 +1,23 @@
 package game;
 
+import game.Sprites.*;
 import javafx.animation.AnimationTimer;
-import javafx.application.Platform;
 import javafx.event.EventHandler;
 import javafx.geometry.Point2D;
 import javafx.geometry.Rectangle2D;
 import javafx.scene.Group;
 import javafx.scene.Scene;
-import javafx.scene.canvas.*;
-
+import javafx.scene.canvas.Canvas;
+import javafx.scene.canvas.GraphicsContext;
+import javafx.scene.image.Image;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
 import javafx.scene.transform.Rotate;
 import javafx.stage.Stage;
-import javafx.scene.image.Image;
 
-import game.Sprites.Player;
-import game.Sprites.Arrow;
-import game.Sprites.Artifact;
-import game.Sprites.Ornament;
-import game.Sprites.Teleport;
-import game.Sprites.Key;
-import game.Sprites.Door;
-import game.Sprites.Ladder;
-import game.Sprites.Slot;
-import game.Sprites.Exit;
-import game.Sprites.Pad;
-import javafx.stage.StageStyle;
-import javafx.stage.WindowEvent;
-
-public class Main extends Utils {
+public class Editor extends Utils {
 
     private GraphicsContext gc;
 
@@ -54,12 +40,6 @@ public class Main extends Utils {
     private boolean mShowFps = false;
 
     @Override
-    public void stop(){
-        System.out.println("Stage is closing");
-        // Save file
-    }
-
-    @Override
     public void start(Stage stage) throws Exception {
 
         setBoard();
@@ -74,16 +54,6 @@ public class Main extends Utils {
         Group root = new Group();
         Scene mScene = new Scene(root, mSceneWidth, mSceneHeight);
         stage.setScene(mScene);
-
-        stage.setOnCloseRequest(new EventHandler<WindowEvent>() {
-            @Override
-            public void handle(WindowEvent event) {
-                System.out.println("Window close requested");
-                event.consume();
-                Platform.exit();
-            }
-        });
-
         Canvas canvas = new Canvas(mSceneWidth, mSceneHeight);
         root.getChildren().add(canvas);
         gc = canvas.getGraphicsContext2D();
@@ -106,16 +76,13 @@ public class Main extends Utils {
 
         mScene.setOnMouseClicked(this::handleMouseEvent);
 
-        mScene.setOnKeyPressed(new EventHandler<KeyEvent>() {
-            @Override
-            public void handle(KeyEvent event) {
-                switch (event.getCode()) {
-                    case F:
-                        mShowFps = !mShowFps;
-                        break;
-                    default:
-                        break;
-                }
+        mScene.setOnKeyPressed(event -> {
+            switch (event.getCode()) {
+                case F:
+                    mShowFps = !mShowFps;
+                    break;
+                default:
+                    break;
             }
         });
 

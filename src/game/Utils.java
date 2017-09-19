@@ -32,8 +32,6 @@ import game.Sprites.Ornament;
 import game.Sprites.Pad;
 
 import java.io.*;
-import java.nio.file.Files;
-import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -45,6 +43,10 @@ abstract class Utils extends Application {
     double mSceneHeight;
     double mCenterX;
     double walkingSpeedPerSecond;
+
+    double mSplashWidth;
+    double mSplashHeight;
+    double mSplashCenterX;
 
     int mCurrentLevel = 0;
     int mSelectedLevel = 1;
@@ -146,6 +148,17 @@ abstract class Utils extends Application {
      */
     double[] rows = new double[19];
     double[] columns = new double[33];
+
+    void setSplash() {
+        prefs = Preferences.userNodeForPackage(Main.class);
+        mDimensionDivider = prefs.getDouble("divider", 1.5);
+        Rectangle2D primaryScreenBounds = Screen.getPrimary().getVisualBounds();
+        mSceneWidth = primaryScreenBounds.getWidth() / mDimensionDivider;
+        mSplashWidth = mSceneWidth / 2;
+        mSplashHeight = (mSplashWidth / 8) * 5;
+        mSplashCenterX = mSplashWidth / 2;
+
+    }
 
     void setBoard() {
 
@@ -1286,7 +1299,7 @@ abstract class Utils extends Application {
         alert.show();
     }
 
-    private void displaySizeDialog() {
+    void displaySizeDialog() {
         List<String> choices = new ArrayList<>();
         choices.add("Small");
         choices.add("Medium");
