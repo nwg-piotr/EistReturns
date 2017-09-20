@@ -2,6 +2,8 @@ package game;
 
 import javafx.animation.AnimationTimer;
 import javafx.application.Platform;
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
 import javafx.event.EventHandler;
 import javafx.geometry.Point2D;
 import javafx.geometry.Rectangle2D;
@@ -10,6 +12,7 @@ import javafx.scene.Scene;
 import javafx.scene.canvas.*;
 
 import javafx.scene.input.KeyEvent;
+import javafx.scene.media.MediaPlayer;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
@@ -28,7 +31,6 @@ import game.Sprites.Ladder;
 import game.Sprites.Slot;
 import game.Sprites.Exit;
 import game.Sprites.Pad;
-import javafx.stage.StageStyle;
 import javafx.stage.WindowEvent;
 
 public class Main extends Utils {
@@ -53,6 +55,10 @@ public class Main extends Utils {
 
     private boolean mShowFps = false;
 
+    private AnimationTimer animationTimer;
+    private boolean mTrackMainWasPlaying;
+    private boolean mTrackLevelWasPlaying;
+
     @Override
     public void stop(){
         System.out.println("Stage is closing");
@@ -75,11 +81,13 @@ public class Main extends Utils {
         Scene mScene = new Scene(root, mSceneWidth, mSceneHeight);
         stage.setScene(mScene);
 
+
         stage.setOnCloseRequest(new EventHandler<WindowEvent>() {
             @Override
             public void handle(WindowEvent event) {
                 System.out.println("Window close requested");
                 event.consume();
+                stage.close();
                 Platform.exit();
             }
         });
@@ -123,8 +131,7 @@ public class Main extends Utils {
         lastArtifactFrameChangeTime = System.nanoTime();
         lastFallingFrameChangeTime = System.nanoTime();
 
-        new AnimationTimer() {
-
+        animationTimer = new AnimationTimer() {
             @Override
             public void handle(long now) {
 
@@ -184,7 +191,48 @@ public class Main extends Utils {
                  */
                 mFps = getAverageFPS();
             }
-        }.start();
+        };
+        animationTimer.start();
+
+        /*
+         * Handle the game window minimization:
+         * Stop animation timer, pause and media player / start animation, resume sound when restored.
+         */
+        stage.iconifiedProperty().addListener(new ChangeListener<Boolean>() {
+
+            @Override
+            public void changed(ObservableValue<? extends Boolean> ov, Boolean t, Boolean t1) {
+
+                if(t1){
+
+                    if(trackMainPlayer != null) {
+                        boolean playing = trackMainPlayer.getStatus().equals(MediaPlayer.Status.PLAYING);
+                        mTrackMainWasPlaying = playing;
+                        if(playing) {
+                            trackMainPlayer.pause();
+                        }
+                    }
+                    if(trackLevelPlayer != null) {
+                        boolean playing = trackLevelPlayer.getStatus().equals(MediaPlayer.Status.PLAYING);
+                        mTrackLevelWasPlaying = playing;
+                        if(playing) {
+                            trackLevelPlayer.pause();
+                        }
+                    }
+                    animationTimer.stop();
+
+                } else {
+
+                    if (mTrackMainWasPlaying) {
+                        trackMainPlayer.play();
+                    }
+                    if (mTrackLevelWasPlaying) {
+                        trackLevelPlayer.play();
+                    }
+                    animationTimer.start();
+                }
+            }
+        });
 
         stage.show();
     }

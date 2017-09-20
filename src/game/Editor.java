@@ -44,7 +44,7 @@ public class Editor extends Utils {
 
         setBoard();
 
-        stage.setTitle("Eist returns");
+        stage.setTitle("Level editor");
         stage.getIcons().add(new Image("/images/common/eist.png"));
         stage.setResizable(false);
         if (mDimensionDivider == 1.0) {

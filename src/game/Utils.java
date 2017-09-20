@@ -82,8 +82,8 @@ abstract class Utils extends Application {
     private Rectangle2D mButtonMuteMusic;
     private Rectangle2D mButtonMuteSound;
 
-    private MediaPlayer trackMainPlayer;
-    private MediaPlayer trackLevelPlayer;
+    MediaPlayer trackMainPlayer;
+    MediaPlayer trackLevelPlayer;
 
     AudioClip fxBounce;
     AudioClip fxArtifact;
@@ -441,6 +441,7 @@ abstract class Utils extends Application {
         /*
          * Load media
          */
+
         try {
             trackMainPlayer = new MediaPlayer(new Media(ClassLoader.getSystemResource("sounds/eist.mp3").toExternalForm()));
             trackMainPlayer.setVolume(0.4);
