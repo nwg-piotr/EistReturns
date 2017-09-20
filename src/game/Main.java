@@ -153,6 +153,10 @@ public class Main extends Utils {
                     }
                 }
 
+                /*
+                Count falldown frames (only once, 0 to 7th frame);
+                (mCurrentFallingFrame != null) means: falldown animation in progress
+                */
                 if (mCurrentFallingFrame != null && now - lastFallingFrameChangeTime > FRAME_DURATION_FALLING) {
                     lastFallingFrameChangeTime = now;
 
@@ -162,6 +166,9 @@ public class Main extends Utils {
 
                     } else {
 
+                        /*
+                        Falldown finished
+                         */
                         mCurrentFallingFrame = null;
 
                         if (mCurrentLevel > 0 && !mMuteSound) {
