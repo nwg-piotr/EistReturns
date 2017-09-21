@@ -426,6 +426,16 @@ public class Editor extends Utils {
             }
         }
 
+        if(!mTesting && mSlots != null && mSlots.size() > 0) {
+            for (Slot slot : mSlots) {
+                if(slot.getOrientation() == ORIENTATION_HORIZONTAL) {
+                    gc.drawImage(mSlotHImg, slot.getPosX(), slot.getPosY(), mGridDimension, mFrameDimension);
+                } else {
+                    gc.drawImage(mSlotVImg, slot.getPosX(), slot.getPosY(), mFrameDimension, mGridDimension);
+                }
+            }
+        }
+
         /*
          * Draw doors
          */
@@ -715,8 +725,8 @@ public class Editor extends Utils {
             gc.drawImage(mArrowRightImg, columns[29], rows[7], mFrameDimension, mFrameDimension);
             gc.drawImage(mArrowUpImg, columns[27], rows[9], mFrameDimension, mFrameDimension);
             gc.drawImage(mArrowDownImg, columns[29], rows[9], mFrameDimension, mFrameDimension);
-            gc.drawImage(mDoorHImg, columns[27], rows[11], mFrameDimension, mFrameDimension);
-            gc.drawImage(mDoorVImg, columns[29], rows[11], mFrameDimension, mFrameDimension);
+            gc.drawImage(mSlotHImg, columns[27] + mGridDimension / 2, rows[11], mGridDimension, mFrameDimension);
+            gc.drawImage(mSlotVImg, columns[29], rows[11] + mGridDimension / 2, mFrameDimension, mGridDimension);
             gc.drawImage(mOrnamentImg, 160 * mCurrentArtifactFrame, 0, 160, 160, columns[27], rows[13], mFrameDimension, mFrameDimension);
         }
     }

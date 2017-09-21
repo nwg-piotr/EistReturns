@@ -423,6 +423,9 @@ abstract class Utils extends Application {
     Image mArrowLeftImg;
     Image mArrowUpImg;
 
+    Image mSlotHImg;
+    Image mSlotVImg;
+
     Image mSelRightImg;
     Image mSelDownImg;
     Image mSelLeftImg;
@@ -518,6 +521,9 @@ abstract class Utils extends Application {
         mArrowDownImg = new Image(ClassLoader.getSystemResource("images/sprites/arrow_down.png").toExternalForm());
         mArrowLeftImg = new Image(ClassLoader.getSystemResource("images/sprites/arrow_left.png").toExternalForm());
         mArrowUpImg = new Image(ClassLoader.getSystemResource("images/sprites/arrow_up.png").toExternalForm());
+
+        mSlotHImg = new Image(ClassLoader.getSystemResource("images/sprites/slot_h.png").toExternalForm());
+        mSlotVImg = new Image(ClassLoader.getSystemResource("images/sprites/slot_v.png").toExternalForm());
 
         mTeleportImg = new Image("images/sprites/teleport.png");
 
