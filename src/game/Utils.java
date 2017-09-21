@@ -70,6 +70,7 @@ abstract class Utils extends Application {
     Integer mCurrentFallingFrame = null;
 
     boolean mEditor = false;
+    boolean mTesting = false;
 
     boolean turnRight;
 
@@ -282,29 +283,31 @@ abstract class Utils extends Application {
              */
             if (pointClicked.getX() > columns[26]) {
 
-                /*
-                 * Menu clicked. Check which part.
-                 */
-                if (pointClicked.getY() < rows[11]) {
-
+                if(!mEditor || mTesting) {
                     /*
-                     * Pad clicked
+                     * In-game Menu clicked. Check which part.
                      */
-                    if (pad.getButtonLeft().contains(pointClicked)) {
-                        pad.setSelection(DIR_LEFT);
-                        eist.isMoving = true;
-                    } else if (pad.getButtonRight().contains(pointClicked)) {
-                        pad.setSelection(DIR_RIGHT);
-                        eist.isMoving = true;
-                    } else if (pad.getButtonUp().contains(pointClicked)) {
-                        pad.setSelection(DIR_UP);
-                        eist.isMoving = true;
-                    } else if (pad.getButtonDown().contains(pointClicked)) {
-                        pad.setSelection(DIR_DOWN);
-                        eist.isMoving = true;
-                    } else if (pad.getButtonClear().contains(pointClicked)) {
-                        pad.setSelection(DIR_CLEAR);
-                        eist.isMoving = true;
+                    if (pointClicked.getY() < rows[11]) {
+
+                        /*
+                         * Pad clicked
+                         */
+                        if (pad.getButtonLeft().contains(pointClicked)) {
+                            pad.setSelection(DIR_LEFT);
+                            eist.isMoving = true;
+                        } else if (pad.getButtonRight().contains(pointClicked)) {
+                            pad.setSelection(DIR_RIGHT);
+                            eist.isMoving = true;
+                        } else if (pad.getButtonUp().contains(pointClicked)) {
+                            pad.setSelection(DIR_UP);
+                            eist.isMoving = true;
+                        } else if (pad.getButtonDown().contains(pointClicked)) {
+                            pad.setSelection(DIR_DOWN);
+                            eist.isMoving = true;
+                        } else if (pad.getButtonClear().contains(pointClicked)) {
+                            pad.setSelection(DIR_CLEAR);
+                            eist.isMoving = true;
+                        }
                     }
                 }
 
@@ -365,9 +368,14 @@ abstract class Utils extends Application {
             }
 
             if (mButtonMenu.contains(pointClicked)) {
-                mSelectedLevel = mCurrentLevel;
-                mCurrentLevel = 0;
-                loadLevel(mCurrentLevel);
+
+                if(!mEditor) {
+                    mSelectedLevel = mCurrentLevel;
+                    mCurrentLevel = 0;
+                    loadLevel(mCurrentLevel);
+                } else {
+                    mTesting = !mTesting;
+                }
             }
 
         } else {
@@ -563,12 +571,9 @@ abstract class Utils extends Application {
 
     void loadLevel(int level) {
 
-        if(level != Integer.MAX_VALUE) {
-            System.out.println("\nLOADING LEVEL " + level + "\n");
-        } else {
-            System.out.println("\nLOADING EDITOR\n");
-            mEditor = true;
-        }
+        System.out.println("\nLOADING LEVEL " + level + "\n");
+
+        mEditor =  false;
 
         mCurrentFallingFrame = null;
         eist.isMoving = false;
@@ -586,167 +591,182 @@ abstract class Utils extends Application {
 
         String urlString;
 
-        if(!mEditor) {
+        String lvlNumberToString = (level < 10) ? "0" + String.valueOf(level) : String.valueOf(level);
+            /*
+             * load saved level best score, if any.
+             */
+        mTurnsBest = prefs.getInt(lvlNumberToString + "best", 0);
 
-            String lvlNumberToString = (level < 10) ? "0" + String.valueOf(level) : String.valueOf(level);
-        /*
-         * load saved level best score, if any.
-         */
-            mTurnsBest = prefs.getInt(lvlNumberToString + "best", 0);
-
-            urlString = "levels/" + lvlNumberToString + "/";
+        urlString = "levels/" + lvlNumberToString + "/";
 
         /*
          * Check if user-defined folder exists
          */
-            if (level > 0) {
+        if (level > 0) {
 
-                File userLevel = new File(System.getProperty("user.home") + "/.EistReturns/" + urlString);
+            File userLevel = new File(System.getProperty("user.home") + "/.EistReturns/" + urlString);
 
-                if (userLevel.exists()) {
+            if (userLevel.exists()) {
 
-                    mLoadUserLevel = true;
+                mLoadUserLevel = true;
 
-                    System.out.println("Found user-defined level: " + userLevel.toString() + "\n");
-                /*
-                 * Let's check if all the necessary data exist in the user-defined folder.
-                 * Skip arrows, teleports and ornaments, as the don't have to exist on each level.
-                 */
-                    System.out.println("Checking integrity:");
+                List<String> userLevelLoadingReport = new ArrayList<>();
 
-                    File checkMe = new File(userLevel + "/board.png");
-                    if (checkMe.exists()) {
-                        System.out.println("+Board image found.");
-                    } else {
-                        System.out.println("-Board image not found.");
-                        mLoadUserLevel = false;
-                    }
+                System.out.println("Found user-defined level: " + userLevel.toString() + "\n");
+                    /*
+                     * Let's check if all the necessary data exist in the user-defined folder.
+                     * Skip arrows, teleports and ornaments, as the don't have to exist on each level.
+                     */
+                System.out.println("Checking integrity:");
 
-                    checkMe = new File(userLevel + "/amulet.png");
-                    if (checkMe.exists()) {
-                        System.out.println("+Artifact image found.");
-                    } else {
-                        System.out.println("-Artifact image not found.");
-                        mLoadUserLevel = false;
-                    }
+                File checkMe = new File(userLevel + "/board.png");
+                if (checkMe.exists()) {
+                    System.out.println("+Board image found.");
+                } else {
+                    System.out.println("-Board image not found.");
+                    userLevelLoadingReport.add("Missing " + userLevel + "/board.png");
+                    mLoadUserLevel = false;
+                }
 
-                    checkMe = new File(userLevel + "/amulets.dat");
-                    if (checkMe.exists()) {
-                        System.out.println("+Artifacts data found.");
-                    } else {
-                        System.out.println("-Artifacts data not found.");
-                        mLoadUserLevel = false;
-                    }
+                checkMe = new File(userLevel + "/amulet.png");
+                if (checkMe.exists()) {
+                    System.out.println("+Artifact image found.");
+                } else {
+                    System.out.println("-Artifact image not found.");
+                    userLevelLoadingReport.add("Missing " + userLevel + "/amulet.png");
+                    mLoadUserLevel = false;
+                }
 
-                    checkMe = new File(userLevel + "/door_h.png");
-                    if (checkMe.exists()) {
-                        System.out.println("+Horizontal door image found.");
-                    } else {
-                        System.out.println("-Horizontal door image not found.");
-                        mLoadUserLevel = false;
-                    }
+                checkMe = new File(userLevel + "/amulets.dat");
+                if (checkMe.exists()) {
+                    System.out.println("+Artifacts data found.");
+                } else {
+                    System.out.println("-Artifacts data not found.");
+                    userLevelLoadingReport.add("Missing " + userLevel + "/amulets.dat");
+                    mLoadUserLevel = false;
+                }
 
-                    checkMe = new File(userLevel + "/door_v.png");
-                    if (checkMe.exists()) {
-                        System.out.println("+Vertical door image found.");
-                    } else {
-                        System.out.println("-Vertical door image not found.");
-                        mLoadUserLevel = false;
-                    }
+                checkMe = new File(userLevel + "/door_h.png");
+                if (checkMe.exists()) {
+                    System.out.println("+Horizontal door image found.");
+                } else {
+                    System.out.println("-Horizontal door image not found.");
+                    userLevelLoadingReport.add("Missing " + userLevel + "/door_h.png");
+                    mLoadUserLevel = false;
+                }
 
-                    checkMe = new File(userLevel + "/doors.dat");
-                    if (checkMe.exists()) {
-                        System.out.println("+Doors data found.");
-                    } else {
-                        System.out.println("-Doors data not found.");
-                        mLoadUserLevel = false;
-                    }
+                checkMe = new File(userLevel + "/door_v.png");
+                if (checkMe.exists()) {
+                    System.out.println("+Vertical door image found.");
+                } else {
+                    System.out.println("-Vertical door image not found.");
+                    userLevelLoadingReport.add("Missing " + userLevel + "/door_v.png");
+                    mLoadUserLevel = false;
+                }
 
-                    checkMe = new File(userLevel + "/exit_closed.png");
-                    if (checkMe.exists()) {
-                        System.out.println("+Closed exit image found.");
-                    } else {
-                        System.out.println("-Closed exit image not found.");
-                        mLoadUserLevel = false;
-                    }
+                checkMe = new File(userLevel + "/doors.dat");
+                if (checkMe.exists()) {
+                    System.out.println("+Doors data found.");
+                } else {
+                    System.out.println("-Doors data not found.");
+                    userLevelLoadingReport.add("Missing " + userLevel + "/doors.dat");
+                    mLoadUserLevel = false;
+                }
 
-                    checkMe = new File(userLevel + "/exit_open.png");
-                    if (checkMe.exists()) {
-                        System.out.println("+Open exit image found.");
-                    } else {
-                        System.out.println("-Open exit image not found.");
-                        mLoadUserLevel = false;
-                    }
+                checkMe = new File(userLevel + "/exit_closed.png");
+                if (checkMe.exists()) {
+                    System.out.println("+Closed exit image found.");
+                } else {
+                    System.out.println("-Closed exit image not found.");
+                    userLevelLoadingReport.add("Missing " + userLevel + "/exit_closed.png");
+                    mLoadUserLevel = false;
+                }
 
-                    checkMe = new File(userLevel + "/key.png");
-                    if (checkMe.exists()) {
-                        System.out.println("+Key image found.");
-                    } else {
-                        System.out.println("-Key image not found.");
-                        mLoadUserLevel = false;
-                    }
+                checkMe = new File(userLevel + "/exit_open.png");
+                if (checkMe.exists()) {
+                    System.out.println("+Open exit image found.");
+                } else {
+                    System.out.println("-Open exit image not found.");
+                    userLevelLoadingReport.add("Missing " + userLevel + "/exit_open.png");
+                    mLoadUserLevel = false;
+                }
 
-                    checkMe = new File(userLevel + "/keys.dat");
-                    if (checkMe.exists()) {
-                        System.out.println("+Keys data found.");
-                    } else {
-                        System.out.println("-Keys data not found.");
-                        mLoadUserLevel = false;
-                    }
+                checkMe = new File(userLevel + "/key.png");
+                if (checkMe.exists()) {
+                    System.out.println("+Key image found.");
+                } else {
+                    System.out.println("-Key image not found.");
+                    userLevelLoadingReport.add("Missing " + userLevel + "/key.png");
+                    mLoadUserLevel = false;
+                }
 
-                    checkMe = new File(userLevel + "/ladder_h.png");
-                    if (checkMe.exists()) {
-                        System.out.println("+Horizontal ladder image found.");
-                    } else {
-                        System.out.println("-Horizontal ladder image not found.");
-                        mLoadUserLevel = false;
-                    }
+                checkMe = new File(userLevel + "/keys.dat");
+                if (checkMe.exists()) {
+                    System.out.println("+Keys data found.");
+                } else {
+                    System.out.println("-Keys data not found.");
+                    userLevelLoadingReport.add("Missing " + userLevel + "/keys.dat");
+                    mLoadUserLevel = false;
+                }
 
-                    checkMe = new File(userLevel + "/ladder_v.png");
-                    if (checkMe.exists()) {
-                        System.out.println("+Vertical ladder image found.");
-                    } else {
-                        System.out.println("-Vertical ladder image not found.");
-                        mLoadUserLevel = false;
-                    }
+                checkMe = new File(userLevel + "/ladder_h.png");
+                if (checkMe.exists()) {
+                    System.out.println("+Horizontal ladder image found.");
+                } else {
+                    System.out.println("-Horizontal ladder image not found.");
+                    userLevelLoadingReport.add("Missing " + userLevel + "/ladder_h.png");
+                    mLoadUserLevel = false;
+                }
 
-                    checkMe = new File(userLevel + "/slots.dat");
-                    if (checkMe.exists()) {
-                        System.out.println("+Ladder slots data found.");
-                    } else {
-                        System.out.println("-Ladder slots data not found.");
-                        mLoadUserLevel = false;
-                    }
+                checkMe = new File(userLevel + "/ladder_v.png");
+                if (checkMe.exists()) {
+                    System.out.println("+Vertical ladder image found.");
+                } else {
+                    System.out.println("-Vertical ladder image not found.");
+                    userLevelLoadingReport.add("Missing " + userLevel + "/ladder_v.png");
+                    mLoadUserLevel = false;
+                }
 
-                    checkMe = new File(userLevel + "/level.dat");
-                    if (checkMe.exists()) {
-                        System.out.println("+level.dat file found.");
-                    } else {
-                        System.out.println("-level.dat file not found.");
-                        mLoadUserLevel = false;
-                    }
+                checkMe = new File(userLevel + "/slots.dat");
+                if (checkMe.exists()) {
+                    System.out.println("+Ladder slots data found.");
+                } else {
+                    System.out.println("-Ladder slots data not found.");
+                    userLevelLoadingReport.add("Missing " + userLevel + "/slots.dat");
+                    mLoadUserLevel = false;
+                }
 
-                    if (mLoadUserLevel) {
-                        urlString = userLevel.toURI().toString();
-                        System.out.println("\nAll necessary level data present. Loading user-defined level.");
-                    } else {
-                        System.out.println("\nEssential level file(s) missing. Loading default level.\n");
-                    }
+                checkMe = new File(userLevel + "/level.dat");
+                if (checkMe.exists()) {
+                    System.out.println("+level.dat file found.");
+                } else {
+                    System.out.println("-level.dat file not found.");
+                    userLevelLoadingReport.add("Missing " + userLevel + "/level.dat");
+                    mLoadUserLevel = false;
+                }
+
+                if (mLoadUserLevel) {
+                    urlString = userLevel.toURI().toString();
+                    System.out.println("\nAll necessary level data present. Loading user-defined level.");
 
                 } else {
-                    mLoadUserLevel = false;
-                    System.out.println("User-defined level not found. Loading from resources.\n");
+
+                    System.out.println("\nEssential level file(s) missing. Loading default level.\n");
+                    StringBuilder missingFilesList = new StringBuilder();
+                    for(String string : userLevelLoadingReport){
+                        missingFilesList.append(string);
+                        missingFilesList.append("\n");
+                    }
+                    displayMissingUserFiles(missingFilesList.toString());
                 }
 
             } else {
                 mLoadUserLevel = false;
+                System.out.println("User-defined level not found. Loading from resources.\n");
             }
 
         } else {
-
-            File userLevel = new File(System.getProperty("user.home") + "/.EistReturns/levels/editor-data/");
-            urlString = userLevel.toURI().toString();
-
+            mLoadUserLevel = false;
         }
 
         /*
@@ -1017,7 +1037,8 @@ abstract class Utils extends Application {
                 }
             };
             sleeper.setOnSucceeded(event -> {
-                if (trackLevelPlayer != null && !mMuteMusic && !trackLevelPlayer.getStatus().equals(MediaPlayer.Status.PLAYING)) {
+                if (trackLevelPlayer != null && !mMuteMusic && !trackLevelPlayer.getStatus().equals(MediaPlayer.Status.PLAYING)
+                        && !mEditor) {
                     trackLevelPlayer.play();
                 }
             });
@@ -1037,6 +1058,276 @@ abstract class Utils extends Application {
         double y = outerY + mGridDimension / 2;
 
         return new Rectangle2D(x, y, mGridDimension, mGridDimension);
+    }
+
+    /**
+     * Loading files for Editor varies quite much. Let's use a separate method
+     */
+    void loadEditor() {
+
+        System.out.println("\nLOADING EDITOR\n");
+        mEditor = true;
+        mTesting = false;
+
+        mCurrentFallingFrame = null;
+        eist.isMoving = false;
+        eist.setKeys(0);
+        pad.setSelection(null);
+
+        mTurnsCounter = 0;
+
+        String urlString;
+
+        File userLevel = new File(System.getProperty("user.home") + "/.EistReturns/levels/editor-data/");
+        urlString = userLevel.toURI().toString();
+
+        /*
+         * Load board bitmap
+         */
+        System.out.println("Loading board from: " + urlString + "board.png");
+        mBoardImg = new Image(urlString + "board.png", mSceneWidth, mSceneHeight, true, true, false);
+
+        pixelReader = mBoardImg.getPixelReader();
+
+        String dataString;
+        /*
+         * Load arrows
+         */
+        mArrows = new ArrayList<>();
+        dataString = datToString(urlString + "arrows.dat");
+        if (dataString != null && !dataString.isEmpty()) {
+
+            String[] arrows = dataString.split(":");
+
+            for (String single_entry : arrows) {
+
+                String[] positions = single_entry.split(",");
+
+                int posX = Integer.valueOf(positions[0]);
+                int posY = Integer.valueOf(positions[1]);
+
+                Arrow arrow = new Arrow();
+                arrow.setPosX(columns[posX]);
+                arrow.setPosY(rows[posY]);
+
+                arrow.setArea(innerRect(columns[posX], rows[posY]));
+
+                arrow.setDirection(Integer.valueOf(positions[2]));
+                mArrows.add(arrow);
+            }
+        }
+
+        /*
+         * Load artifacts (called "amulets" in resources due to historical reasons ;)
+         */
+        mArtifactImg = new Image(urlString + "amulet.png");
+        mArtifacts = new ArrayList<>();
+        dataString = datToString(urlString + "amulets.dat");
+        if (dataString != null) {
+
+            String[] artifacts = dataString.split(":");
+
+            for (String single_entry : artifacts) {
+
+                String[] positions = single_entry.split(",");
+
+                int posX = Integer.valueOf(positions[0]);
+                int posY = Integer.valueOf(positions[1]);
+
+                Artifact artifact = new Artifact();
+                artifact.setPosX(columns[posX]);
+                artifact.setPosY(rows[posY]);
+
+                artifact.setArea(innerRect(columns[posX], rows[posY]));
+                mArtifacts.add(artifact);
+            }
+        }
+
+        /*
+         * Load ornaments
+         */
+        mOrnamentImg = new Image(urlString + "ornament.png");
+        mOrnaments = new ArrayList<>();
+        dataString = datToString(urlString + "ornaments.dat");
+        if (dataString != null) {
+
+            String[] ornaments = dataString.split(":");
+
+            for (String single_entry : ornaments) {
+
+                String[] positions = single_entry.split(",");
+
+                int posX = Integer.valueOf(positions[0]);
+                int posY = Integer.valueOf(positions[1]);
+
+                Ornament ornament = new Ornament();
+                ornament.setPosX(columns[posX]);
+                ornament.setPosY(rows[posY]);
+
+                mOrnaments.add(ornament);
+            }
+        }
+
+        /*
+         * Load teleports
+         */
+        mTeleports = new ArrayList<>();
+        dataString = datToString(urlString + "teleports.dat");
+        if (dataString != null) {
+
+            String[] teleports = dataString.split(":");
+
+            for (String single_entry : teleports) {
+
+                String[] positions = single_entry.split(",");
+
+                int posX = Integer.valueOf(positions[0]);
+                int posY = Integer.valueOf(positions[1]);
+
+                Teleport teleport = new Teleport();
+                teleport.setPosX(columns[posX]);
+                teleport.setPosY(rows[posY]);
+
+                teleport.setArea(innerRect(columns[posX], rows[posY]));
+                mTeleports.add(teleport);
+            }
+        }
+
+        /*
+         * Load keys
+         */
+        mKeyImg = new Image(urlString + "key.png");
+        mKeys = new ArrayList<>();
+        dataString = datToString(urlString + "keys.dat");
+        if (dataString != null) {
+
+            String[] keys = dataString.split(":");
+
+            for (String single_entry : keys) {
+
+                String[] positions = single_entry.split(",");
+
+                int posX = Integer.valueOf(positions[0]);
+                int posY = Integer.valueOf(positions[1]);
+
+                Key key = new Key();
+                key.setPosX(columns[posX]);
+                key.setPosY(rows[posY]);
+
+                key.setArea(innerRect(columns[posX], rows[posY]));
+                mKeys.add(key);
+            }
+        }
+
+        /*
+         * Load doors
+         */
+        mDoorHImg = new Image(urlString + "door_h.png");
+        mDoorVImg = new Image(urlString + "door_v.png");
+        mDoors = new ArrayList<>();
+        dataString = datToString(urlString + "doors.dat");
+        if (dataString != null) {
+
+            String[] artifacts = dataString.split(":");
+
+            for (String single_entry : artifacts) {
+
+                String[] positions = single_entry.split(",");
+
+                int posX = Integer.valueOf(positions[0]);
+                int posY = Integer.valueOf(positions[1]);
+                int orientation = Integer.valueOf(positions[2]);
+
+                Door door = new Door();
+                door.setPosX(columns[posX]);
+                door.setPosY(rows[posY]);
+                door.setOrientation(orientation);
+
+                door.setArea(innerRect(columns[posX], rows[posY]));
+                mDoors.add(door);
+            }
+        }
+
+        /*
+         * Load ladder slots
+         */
+        mSlots = new ArrayList<>();
+        dataString = datToString(urlString + "slots.dat");
+        if (dataString != null) {
+
+            String[] slots = dataString.split(":");
+
+            for (String single_entry : slots) {
+
+                String[] positions = single_entry.split(",");
+
+                int posX = Integer.valueOf(positions[0]);
+                int posY = Integer.valueOf(positions[1]);
+                int orientation = Integer.valueOf(positions[2]);
+
+                Slot slot = new Slot();
+                slot.setPosX(columns[posX]);
+                slot.setPosY(rows[posY]);
+                slot.setOrientation(orientation);
+
+                if (slot.getOrientation() == ORIENTATION_VERTICAL) {
+                    slot.setArea(new Rectangle2D(columns[posX], rows[posY], mFrameDimension, mGridDimension));
+                } else {
+                    slot.setArea(new Rectangle2D(columns[posX], rows[posY], mGridDimension, mFrameDimension));
+                }
+                mSlots.add(slot);
+            }
+        }
+
+        /*
+         * Load ladder bitmaps
+         */
+        mLadderHImg = new Image(urlString + "ladder_h.png", mFrameDimension, mFrameDimension, true, true, true);
+        mLadderVImg = new Image(urlString + "ladder_v.png", mFrameDimension, mFrameDimension, true, true, true);
+
+        /*
+         * Load exit bitmaps
+         */
+        mExitClosedImg = new Image(urlString + "exit_closed.png", mFrameDimension, mFrameDimension, true, true, true);
+        mExitOpenImg = new Image(urlString + "exit_open.png", mFrameDimension, mFrameDimension, true, true, true);
+
+        /*
+         * Load level data
+         */
+        dataString = datToString(urlString + "level.dat");
+        if (dataString != null) {
+
+            String[] data = dataString.split(",");
+
+            eist.x = columns[Integer.valueOf(data[0])];
+            eist.y = rows[Integer.valueOf(data[1])];
+            eist.setDirection(Integer.valueOf(data[2]));
+            exit.setPosX(columns[Integer.valueOf(data[3])]);
+            exit.setPosY(rows[Integer.valueOf(data[4])]);
+            exit.setArea(new Rectangle2D(exit.getPosX(), exit.getPosY(), mFrameDimension, mFrameDimension));
+            ladder.setSlotIdx(Integer.valueOf(data[5]));
+        }
+
+        if (trackMainPlayer != null && trackMainPlayer.getStatus().equals(MediaPlayer.Status.PLAYING)) {
+            trackMainPlayer.stop();
+        }
+        Task<Void> sleeper = new Task<Void>() {
+            @Override
+            protected Void call() throws Exception {
+                try {
+                    Thread.sleep(500);
+                } catch (InterruptedException e) {
+                    System.out.println(e.toString());
+                }
+                return null;
+            }
+        };
+        sleeper.setOnSucceeded(event -> {
+            if (trackLevelPlayer != null && !mMuteMusic && !trackLevelPlayer.getStatus().equals(MediaPlayer.Status.PLAYING)) {
+                trackLevelPlayer.play();
+            }
+        });
+        new Thread(sleeper).start();
     }
 
     private String datToString(String urlString) {
@@ -1279,6 +1570,34 @@ abstract class Utils extends Application {
         displayExceptionAlert(null, e);
     }
 
+    private void displayMissingUserFiles(String content){
+
+        Alert alert = new Alert(Alert.AlertType.ERROR);
+        alert.setResizable(true);
+        alert.setTitle("Error loading data");
+        alert.setHeaderText("User defined level misses required files");
+
+        Label label = new Label("Missing files:");
+
+        TextArea textArea = new TextArea(content);
+        textArea.setEditable(false);
+        textArea.setWrapText(true);
+
+        textArea.setMaxWidth(Double.MAX_VALUE);
+        textArea.setMaxHeight(Double.MAX_VALUE);
+        GridPane.setVgrow(textArea, Priority.ALWAYS);
+        GridPane.setHgrow(textArea, Priority.ALWAYS);
+
+        GridPane expContent = new GridPane();
+        expContent.setMaxWidth(Double.MAX_VALUE);
+        expContent.add(label, 0, 0);
+        expContent.add(textArea, 0, 1);
+
+        alert.getDialogPane().setExpandableContent(expContent);
+
+        alert.showAndWait();
+    }
+
     private void displayAboutAlert() {
         Alert alert = new Alert(Alert.AlertType.INFORMATION);
         alert.setTitle("About the game");
@@ -1322,7 +1641,7 @@ abstract class Utils extends Application {
         alert.show();
     }
 
-    void displaySizeDialog() {
+    private void displaySizeDialog() {
         List<String> choices = new ArrayList<>();
         choices.add("Small");
         choices.add("Medium");

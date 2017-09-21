@@ -187,8 +187,7 @@ public class Main extends Utils {
                 lastUpdate = now;
 
                 /*
-                 * Let's use the averaged fps value here for now, but preserve the Utils.getInstantFPS() just in case.
-                 * We need the current fps value to adjust the animation speed according to the current performance.
+                 * Possibly binding the animation speed to current FPS value is unnecessary in JavaFX...
                  */
                 mFps = getAverageFPS();
             }

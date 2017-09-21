@@ -91,10 +91,9 @@ public class Editor extends Utils {
 
         loadCommonGraphics();
 
-        //mSelectedLevel = prefs.getInt("achieved", 1);
-
         mCurrentLevel = Integer.MAX_VALUE;
-        loadLevel(mCurrentLevel);
+        mMuteMusic = true;
+        loadEditor();
 
         mScene.setOnMouseClicked(this::handleMouseEvent);
 
@@ -148,12 +147,11 @@ public class Editor extends Utils {
 
                         mCurrentFallingFrame = null;
 
-                        if (mCurrentLevel > 0 && !mMuteSound) {
+                        if (!mMuteSound) {
                             fxLevelLost.setBalance(calculateBalance(eist.x));
                             fxLevelLost.play();
                         }
-
-                        loadLevel(mCurrentLevel);
+                        loadEditor();
                     }
                 }
 
@@ -227,32 +225,7 @@ public class Editor extends Utils {
 
         gc.drawImage(mBoardImg, 0, 0, mSceneWidth, mSceneHeight);
 
-        /*
-         * On level0 switch intro messages
-         */
-        if (mCurrentLevel == 0) {
-
-            switch (mArtifacts.size()) {
-                case 3:
-                    gc.drawImage(mIntro01, 0, 0, mSceneWidth, mSceneHeight);
-                    break;
-                case 2:
-                    gc.drawImage(mIntro02, 0, 0, mSceneWidth, mSceneHeight);
-                    break;
-                case 1:
-                    gc.drawImage(mIntro03, 0, 0, mSceneWidth, mSceneHeight);
-                    break;
-                case 0:
-                    gc.drawImage(mIntro04, 0, 0, mSceneWidth, mSceneHeight);
-                    break;
-            }
-            String lvlNumberToString = (mSelectedLevel < 10) ? "0" + String.valueOf(mSelectedLevel) : String.valueOf(mSelectedLevel);
-            gc.setFont(levelFont);
-            gc.fillText("LEVEL " + lvlNumberToString, columns[27], rows[2]);
-        } else {
-
-            gc.drawImage(mBoardImg, 0, 0, mSceneWidth, mSceneHeight);
-        }
+        gc.drawImage(mBoardImg, 0, 0, mSceneWidth, mSceneHeight);
 
         if (mMuteMusic) {
             gc.drawImage(mMutedMusicImg, columns[30], rows[11], mGridDimension, mGridDimension);
@@ -334,20 +307,17 @@ public class Editor extends Utils {
 
                     mArtifacts.remove(artifact);
 
-                    if (mCurrentLevel > 0) {
+                    if (mArtifacts.size() > 0) {
 
-                        if (mArtifacts.size() > 0) {
+                        if (!mMuteSound) {
+                            fxArtifact.setBalance(calculateBalance(eist.x));
+                            fxArtifact.play();
+                        }
 
-                            if (!mMuteSound) {
-                                fxArtifact.setBalance(calculateBalance(eist.x));
-                                fxArtifact.play();
-                            }
+                    } else {
 
-                        } else {
-
-                            if (!mMuteSound) {
-                                fxExit.play();
-                            }
+                        if (!mMuteSound) {
+                            fxExit.play();
                         }
                     }
                     break;
@@ -563,7 +533,7 @@ public class Editor extends Utils {
                     fxLevelUp.play();
                 }
 
-                loadLevel(Integer.MAX_VALUE);
+                loadEditor();
             }
         }
 
@@ -717,19 +687,37 @@ public class Editor extends Utils {
             }
         }
 
-        gc.setFill(Color.WHITE);
-        gc.setFont(infoFont);
-        gc.fillText(String.valueOf(mCurrentLevel), columns[28], rows[12]);
-        gc.fillText(String.valueOf(eist.getKeys()), columns[28], rows[14]);
-        gc.setFont(turnsFont);
-        gc.fillText("Turns: " + mTurnsCounter, columns[27], rows[15]);
-        if (mTurnsBest > 0) {
-            gc.fillText("Best: " + mTurnsBest, columns[27], rows[16]);
+        if(mTesting) {
+            gc.setFill(Color.WHITE);
+            gc.setFont(infoFont);
+            gc.fillText("?", columns[28], rows[12]);
+            gc.fillText(String.valueOf(eist.getKeys()), columns[28], rows[14]);
+            gc.setFont(turnsFont);
+            gc.fillText("Turns: " + mTurnsCounter, columns[27], rows[15]);
+            if (mTurnsBest > 0) {
+                gc.fillText("Best: " + mTurnsBest, columns[27], rows[16]);
+            } else {
+                gc.fillText("Best: -", columns[27], rows[16]);
+            }
+            if (mShowFps) {
+                gc.fillText("FPS: " + String.valueOf((int) mFps), columns[27], rows[17]);
+            }
         } else {
-            gc.fillText("Best: -", columns[27], rows[16]);
-        }
-        if(mShowFps) {
-            gc.fillText("FPS: " + String.valueOf((int) mFps), columns[27], rows[17]);
+            gc.setFill(Color.BLACK);
+            gc.fillRect(columns[27], rows[0], mGridDimension * 5, mFrameDimension * 8);
+            gc.drawImage(mDoorHImg, columns[27], rows[1], mFrameDimension, mFrameDimension);
+            gc.drawImage(mDoorVImg, columns[29], rows[1], mFrameDimension, mFrameDimension);
+            gc.drawImage(mArtifactImg, 160 * mCurrentArtifactFrame, 0, 160, 160, columns[27], rows[3], mFrameDimension, mFrameDimension);
+            gc.drawImage(mKeyImg, columns[29], rows[3], mFrameDimension, mFrameDimension);
+            gc.drawImage(mTeleportImg, 160 * mCurrentArtifactFrame, 0, 160, 160, columns[27], rows[5], mFrameDimension, mFrameDimension);
+            gc.drawImage(mExitClosedImg, columns[29], rows[5], mFrameDimension, mFrameDimension);
+            gc.drawImage(mArrowLeftImg, columns[27], rows[7], mFrameDimension, mFrameDimension);
+            gc.drawImage(mArrowRightImg, columns[29], rows[7], mFrameDimension, mFrameDimension);
+            gc.drawImage(mArrowUpImg, columns[27], rows[9], mFrameDimension, mFrameDimension);
+            gc.drawImage(mArrowDownImg, columns[29], rows[9], mFrameDimension, mFrameDimension);
+            gc.drawImage(mDoorHImg, columns[27], rows[11], mFrameDimension, mFrameDimension);
+            gc.drawImage(mDoorVImg, columns[29], rows[11], mFrameDimension, mFrameDimension);
+            gc.drawImage(mOrnamentImg, 160 * mCurrentArtifactFrame, 0, 160, 160, columns[27], rows[13], mFrameDimension, mFrameDimension);
         }
     }
 
