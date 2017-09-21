@@ -60,12 +60,6 @@ public class Main extends Utils {
     private boolean mTrackLevelWasPlaying;
 
     @Override
-    public void stop(){
-        System.out.println("Stage is closing");
-        // Save file
-    }
-
-    @Override
     public void start(Stage stage) throws Exception {
 
         setBoard();

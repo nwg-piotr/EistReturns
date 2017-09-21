@@ -72,25 +72,36 @@ public class Start extends Utils {
     private void handleMouse(MouseEvent event) {
 
         Point2D pointClicked = new Point2D(event.getSceneX(), event.getSceneY());
+        sleeper.cancel();
+
         if(pointClicked.getX() < mSplashCenterX) {
-            sleeper.cancel();
             play();
+        } else {
+            edit();
         }
 
     }
 
-    private void play(String... args) {
+    private void play() {
 
-        /*
-         * On some systems (Dual Intel/Nvidia graphics + Linux) it happens to JavaFX
-         * not to keep FPS at 60 value, which results in extremely high refresh rate,
-         * and high resources consumption. This workaround seems to help.
-         * See: https://stackoverflow.com/a/45827990/4040598
-         */
         Platform.runLater(new Runnable() {
             public void run() {
                 try {
                     new Main().start(new Stage());
+                }catch(Exception e){
+                    e.printStackTrace();
+                }
+            }
+        });
+        splashStage.close();
+    }
+
+    private void edit() {
+
+        Platform.runLater(new Runnable() {
+            public void run() {
+                try {
+                    new Editor().start(new Stage());
                 }catch(Exception e){
                     e.printStackTrace();
                 }

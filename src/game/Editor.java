@@ -2,6 +2,9 @@ package game;
 
 import game.Sprites.*;
 import javafx.animation.AnimationTimer;
+import javafx.application.Platform;
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
 import javafx.event.EventHandler;
 import javafx.geometry.Point2D;
 import javafx.geometry.Rectangle2D;
@@ -11,11 +14,13 @@ import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.image.Image;
 import javafx.scene.input.KeyEvent;
+import javafx.scene.media.MediaPlayer;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
 import javafx.scene.transform.Rotate;
 import javafx.stage.Stage;
+import javafx.stage.WindowEvent;
 
 public class Editor extends Utils {
 
@@ -39,9 +44,14 @@ public class Editor extends Utils {
 
     private boolean mShowFps = false;
 
+    private AnimationTimer animationTimer;
+    private boolean mTrackMainWasPlaying;
+    private boolean mTrackLevelWasPlaying;
+
     @Override
     public void start(Stage stage) throws Exception {
 
+        setEditorFiles();
         setBoard();
 
         stage.setTitle("Level editor");
@@ -54,6 +64,17 @@ public class Editor extends Utils {
         Group root = new Group();
         Scene mScene = new Scene(root, mSceneWidth, mSceneHeight);
         stage.setScene(mScene);
+
+        stage.setOnCloseRequest(new EventHandler<WindowEvent>() {
+            @Override
+            public void handle(WindowEvent event) {
+                System.out.println("Window close requested");
+                event.consume();
+                stage.close();
+                Platform.exit();
+            }
+        });
+
         Canvas canvas = new Canvas(mSceneWidth, mSceneHeight);
         root.getChildren().add(canvas);
         gc = canvas.getGraphicsContext2D();
@@ -70,19 +91,23 @@ public class Editor extends Utils {
 
         loadCommonGraphics();
 
-        mSelectedLevel = prefs.getInt("achieved", 1);
+        //mSelectedLevel = prefs.getInt("achieved", 1);
 
+        mCurrentLevel = Integer.MAX_VALUE;
         loadLevel(mCurrentLevel);
 
         mScene.setOnMouseClicked(this::handleMouseEvent);
 
-        mScene.setOnKeyPressed(event -> {
-            switch (event.getCode()) {
-                case F:
-                    mShowFps = !mShowFps;
-                    break;
-                default:
-                    break;
+        mScene.setOnKeyPressed(new EventHandler<KeyEvent>() {
+            @Override
+            public void handle(KeyEvent event) {
+                switch (event.getCode()) {
+                    case F:
+                        mShowFps = !mShowFps;
+                        break;
+                    default:
+                        break;
+                }
             }
         });
 
@@ -90,8 +115,7 @@ public class Editor extends Utils {
         lastArtifactFrameChangeTime = System.nanoTime();
         lastFallingFrameChangeTime = System.nanoTime();
 
-        new AnimationTimer() {
-
+        animationTimer = new AnimationTimer() {
             @Override
             public void handle(long now) {
 
@@ -151,7 +175,48 @@ public class Editor extends Utils {
                  */
                 mFps = getAverageFPS();
             }
-        }.start();
+        };
+        animationTimer.start();
+
+        /*
+         * Handle the game window minimization:
+         * Stop animation timer, pause and media player / start animation, resume sound when restored.
+         */
+        stage.iconifiedProperty().addListener(new ChangeListener<Boolean>() {
+
+            @Override
+            public void changed(ObservableValue<? extends Boolean> ov, Boolean t, Boolean t1) {
+
+                if(t1){
+
+                    if(trackMainPlayer != null) {
+                        boolean playing = trackMainPlayer.getStatus().equals(MediaPlayer.Status.PLAYING);
+                        mTrackMainWasPlaying = playing;
+                        if(playing) {
+                            trackMainPlayer.pause();
+                        }
+                    }
+                    if(trackLevelPlayer != null) {
+                        boolean playing = trackLevelPlayer.getStatus().equals(MediaPlayer.Status.PLAYING);
+                        mTrackLevelWasPlaying = playing;
+                        if(playing) {
+                            trackLevelPlayer.pause();
+                        }
+                    }
+                    animationTimer.stop();
+
+                } else {
+
+                    if (mTrackMainWasPlaying) {
+                        trackMainPlayer.play();
+                    }
+                    if (mTrackLevelWasPlaying) {
+                        trackLevelPlayer.play();
+                    }
+                    animationTimer.start();
+                }
+            }
+        });
 
         stage.show();
     }
@@ -498,7 +563,7 @@ public class Editor extends Utils {
                     fxLevelUp.play();
                 }
 
-                loadLevel(mCurrentLevel);
+                loadLevel(Integer.MAX_VALUE);
             }
         }
 
