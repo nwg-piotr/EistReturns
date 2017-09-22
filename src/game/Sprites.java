@@ -333,37 +333,6 @@ abstract class Sprites extends Utils {
         }
     }
 
-    static class Life {
-
-        private double posX;
-        private double posY;
-        private Rectangle2D area;
-
-        void setPosX(double x_value) {
-            posX = x_value;
-        }
-
-        void setPosY(double y_value) {
-            posY = y_value;
-        }
-
-        void setArea(Rectangle2D rectangle2D) {
-            area = rectangle2D;
-        }
-
-        double getPosX() {
-            return posX;
-        }
-
-        double getPosY() {
-            return posY;
-        }
-
-        Rectangle2D getArea() {
-            return  area;
-        }
-    }
-
     static class Exit {
 
         private double posX;
@@ -450,6 +419,127 @@ abstract class Sprites extends Utils {
 
         Rectangle2D getButtonClear() {
             return  buttonClear;
+        }
+    }
+
+    static class Toolbar {
+
+        private Integer doorOrientation;
+        private Integer slotOrientation;
+        private Integer arrowDirection;
+        private Integer selection;
+
+        private Rectangle2D doorArea;
+        private Rectangle2D slotArea;
+        private Rectangle2D artifactArea;
+        private Rectangle2D keyArea;
+        private Rectangle2D teleportArea;
+        private Rectangle2D exitArea;
+        private Rectangle2D arrowArea;
+        private Rectangle2D ornamentArea;
+        private Rectangle2D clearArea;
+
+        void setDoorOrientation(Integer value) {
+            doorOrientation = value;
+        }
+
+        void setSlotOrientation(Integer value) {
+            slotOrientation = value;
+        }
+
+        void setArrowDirection(Integer value) {
+            arrowDirection = value;
+        }
+
+        void setSelection(Integer value) {
+            selection = value;
+        }
+
+        void setDoorArea(Rectangle2D rectangle2D) {
+            doorArea = rectangle2D;
+        }
+
+        void setSlotArea(Rectangle2D rectangle2D) {
+            slotArea = rectangle2D;
+        }
+
+        void setArtifactArea(Rectangle2D rectangle2D) {
+            artifactArea = rectangle2D;
+        }
+
+        void setKeyArea(Rectangle2D rectangle2D) {
+            keyArea = rectangle2D;
+        }
+
+        void setTeleportArea(Rectangle2D rectangle2D) {
+            teleportArea = rectangle2D;
+        }
+        void setExitArea(Rectangle2D rectangle2D) {
+            exitArea = rectangle2D;
+        }
+
+        void setArrowArea(Rectangle2D rectangle2D) {
+            arrowArea = rectangle2D;
+        }
+
+        void setOrnamentArea(Rectangle2D rectangle2D) {
+            ornamentArea = rectangle2D;
+        }
+
+        void setClearArea(Rectangle2D rectangle2D) {
+            clearArea = rectangle2D;
+        }
+
+        Integer getArrowDirection() {
+            return arrowDirection;
+        }
+
+        Integer getSlotOrientation() {
+            return slotOrientation;
+        }
+
+        Integer getDoorOrientation() {
+            return doorOrientation;
+        }
+
+        Integer getSelection() {
+            return selection;
+        }
+
+        Rectangle2D getDoorArea() {
+            return doorArea;
+        }
+
+        Rectangle2D getSlotArea() {
+            return slotArea;
+        }
+
+        Rectangle2D getArtifactArea() {
+            return artifactArea;
+        }
+
+        Rectangle2D getKeyArea() {
+            return keyArea;
+        }
+
+        Rectangle2D getTeleportArea() {
+            return  teleportArea;
+        }
+
+        Rectangle2D getExitArea() {
+            return  exitArea;
+        }
+
+        Rectangle2D getArrowArea() {
+            return  arrowArea;
+        }
+
+        Rectangle2D getOrnamentArea() {
+            return  ornamentArea;
+        }
+
+        Rectangle2D getClearArea() {
+            return  clearArea;
         }
     }
 }

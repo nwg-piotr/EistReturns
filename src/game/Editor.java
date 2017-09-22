@@ -88,6 +88,25 @@ public class Editor extends Utils {
         ladder = new Ladder();
         exit = new Exit();
         pad = new Pad();
+        toolbar = new Toolbar();
+
+        /*
+         * Init toolbar areas and initially selected values.
+         */
+        toolbar.setDoorArea(new Rectangle2D(columns[27], rows[1], mFrameDimension, mFrameDimension));
+        toolbar.setSlotArea(new Rectangle2D(columns[29], rows[1], mFrameDimension, mFrameDimension));
+        toolbar.setArtifactArea(new Rectangle2D(columns[27], rows[3], mFrameDimension, mFrameDimension));
+        toolbar.setKeyArea(new Rectangle2D(columns[29], rows[3], mFrameDimension, mFrameDimension));
+        toolbar.setTeleportArea(new Rectangle2D(columns[27], rows[5], mFrameDimension, mFrameDimension));
+        toolbar.setExitArea(new Rectangle2D(columns[29], rows[5], mFrameDimension, mFrameDimension));
+        toolbar.setArrowArea(new Rectangle2D(columns[27], rows[7], mFrameDimension, mFrameDimension));
+        toolbar.setOrnamentArea(new Rectangle2D(columns[29], rows[7], mFrameDimension, mFrameDimension));
+        toolbar.setClearArea(new Rectangle2D(columns[28], rows[9], mFrameDimension, mFrameDimension));
+
+        toolbar.setDoorOrientation(ORIENTATION_HORIZONTAL);
+        toolbar.setSlotOrientation(ORIENTATION_HORIZONTAL);
+        toolbar.setArrowDirection(DIR_LEFT);
+        toolbar.setSelection(null);
 
         loadCommonGraphics();
 
@@ -185,19 +204,19 @@ public class Editor extends Utils {
             @Override
             public void changed(ObservableValue<? extends Boolean> ov, Boolean t, Boolean t1) {
 
-                if(t1){
+                if (t1) {
 
-                    if(trackMainPlayer != null) {
+                    if (trackMainPlayer != null) {
                         boolean playing = trackMainPlayer.getStatus().equals(MediaPlayer.Status.PLAYING);
                         mTrackMainWasPlaying = playing;
-                        if(playing) {
+                        if (playing) {
                             trackMainPlayer.pause();
                         }
                     }
-                    if(trackLevelPlayer != null) {
+                    if (trackLevelPlayer != null) {
                         boolean playing = trackLevelPlayer.getStatus().equals(MediaPlayer.Status.PLAYING);
                         mTrackLevelWasPlaying = playing;
-                        if(playing) {
+                        if (playing) {
                             trackLevelPlayer.pause();
                         }
                     }
@@ -426,9 +445,9 @@ public class Editor extends Utils {
             }
         }
 
-        if(!mTesting && mSlots != null && mSlots.size() > 0) {
+        if (!mTesting && mSlots != null && mSlots.size() > 0) {
             for (Slot slot : mSlots) {
-                if(slot.getOrientation() == ORIENTATION_HORIZONTAL) {
+                if (slot.getOrientation() == ORIENTATION_HORIZONTAL) {
                     gc.drawImage(mSlotHImg, slot.getPosX(), slot.getPosY(), mGridDimension, mFrameDimension);
                 } else {
                     gc.drawImage(mSlotVImg, slot.getPosX(), slot.getPosY(), mFrameDimension, mGridDimension);
@@ -697,7 +716,7 @@ public class Editor extends Utils {
             }
         }
 
-        if(mTesting) {
+        if (mTesting) {
             gc.setFill(Color.WHITE);
             gc.setFont(infoFont);
             gc.fillText("?", columns[28], rows[12]);
@@ -713,21 +732,112 @@ public class Editor extends Utils {
                 gc.fillText("FPS: " + String.valueOf((int) mFps), columns[27], rows[17]);
             }
         } else {
+
+            Rectangle2D area;
             gc.setFill(Color.BLACK);
             gc.fillRect(columns[27], rows[0], mGridDimension * 5, mFrameDimension * 8);
-            gc.drawImage(mDoorHImg, columns[27], rows[1], mFrameDimension, mFrameDimension);
-            gc.drawImage(mDoorVImg, columns[29], rows[1], mFrameDimension, mFrameDimension);
-            gc.drawImage(mArtifactImg, 160 * mCurrentArtifactFrame, 0, 160, 160, columns[27], rows[3], mFrameDimension, mFrameDimension);
-            gc.drawImage(mKeyImg, columns[29], rows[3], mFrameDimension, mFrameDimension);
-            gc.drawImage(mTeleportImg, 160 * mCurrentArtifactFrame, 0, 160, 160, columns[27], rows[5], mFrameDimension, mFrameDimension);
-            gc.drawImage(mExitClosedImg, columns[29], rows[5], mFrameDimension, mFrameDimension);
-            gc.drawImage(mArrowLeftImg, columns[27], rows[7], mFrameDimension, mFrameDimension);
-            gc.drawImage(mArrowRightImg, columns[29], rows[7], mFrameDimension, mFrameDimension);
-            gc.drawImage(mArrowUpImg, columns[27], rows[9], mFrameDimension, mFrameDimension);
-            gc.drawImage(mArrowDownImg, columns[29], rows[9], mFrameDimension, mFrameDimension);
-            gc.drawImage(mSlotHImg, columns[27] + mGridDimension / 2, rows[11], mGridDimension, mFrameDimension);
-            gc.drawImage(mSlotVImg, columns[29], rows[11] + mGridDimension / 2, mFrameDimension, mGridDimension);
-            gc.drawImage(mOrnamentImg, 160 * mCurrentArtifactFrame, 0, 160, 160, columns[27], rows[13], mFrameDimension, mFrameDimension);
+
+            if (toolbar.getSelection() != null) {
+
+                Rectangle2D highlight;
+
+                switch (toolbar.getSelection()) {
+                    case SELECTION_DOOR:
+                        highlight = toolbar.getDoorArea();
+                        break;
+                    case SELECTION_SLOT:
+                        highlight = toolbar.getSlotArea();
+                        break;
+                    case SELECTION_ARTIFACT:
+                        highlight = toolbar.getArtifactArea();
+                        break;
+                    case SELECTION_KEY:
+                        highlight = toolbar.getKeyArea();
+                        break;
+                    case SELECTION_TELEPORT:
+                        highlight = toolbar.getTeleportArea();
+                        break;
+                    case SELECTION_EXIT:
+                        highlight = toolbar.getExitArea();
+                        break;
+                    case SELECTION_ARROW:
+                        highlight = toolbar.getArrowArea();
+                        break;
+                    case SELECTION_ORNAMENT:
+                        highlight = toolbar.getOrnamentArea();
+                        break;
+                    case SELECTION_CLEAR:
+                        highlight = toolbar.getClearArea();
+                        break;
+                    default:
+                        highlight = null;
+                }
+
+                if (highlight != null) {
+                    gc.setFill(Color.color(1, 0.8, 0, 0.3));
+                    gc.fillRect(highlight.getMinX(), highlight.getMinY(), highlight.getWidth(), highlight.getHeight());
+                }
+            }
+
+            area = toolbar.getDoorArea();
+            switch (toolbar.getDoorOrientation()) {
+                case ORIENTATION_HORIZONTAL:
+                    gc.drawImage(mDoorHImg, area.getMinX(), area.getMinY(), area.getWidth(), area.getHeight());
+                    break;
+                case ORIENTATION_VERTICAL:
+                    gc.drawImage(mDoorVImg, area.getMinX(), area.getMinY(), area.getWidth(), area.getHeight());
+                    break;
+                default:
+                    break;
+            }
+
+            area = toolbar.getSlotArea();
+            switch (toolbar.getSlotOrientation()) {
+                case ORIENTATION_HORIZONTAL:
+                    gc.drawImage(mSlotHToolbarImg, area.getMinX(), area.getMinY(), area.getWidth(), area.getHeight());
+                    break;
+                case ORIENTATION_VERTICAL:
+                    gc.drawImage(mSlotVToolbarImg, area.getMinX(), area.getMinY(), area.getWidth(), area.getHeight());
+                    break;
+                default:
+                    break;
+            }
+
+            area = toolbar.getArtifactArea();
+            gc.drawImage(mArtifactImg, 160 * mCurrentArtifactFrame, 0, 160, 160, area.getMinX(), area.getMinY(), area.getWidth(), area.getHeight());
+
+            area = toolbar.getKeyArea();
+            gc.drawImage(mKeyImg, area.getMinX(), area.getMinY(), area.getWidth(), area.getHeight());
+
+            area = toolbar.getTeleportArea();
+            gc.drawImage(mTeleportImg, 160 * mCurrentArtifactFrame, 0, 160, 160, area.getMinX(), area.getMinY(), area.getWidth(), area.getHeight());
+
+            area = toolbar.getExitArea();
+            gc.drawImage(mExitClosedImg, area.getMinX(), area.getMinY(), area.getWidth(), area.getHeight());
+
+            area = toolbar.getArrowArea();
+            switch (toolbar.getArrowDirection()) {
+                case DIR_LEFT:
+                    gc.drawImage(mArrowLeftImg, area.getMinX(), area.getMinY(), area.getWidth(), area.getHeight());
+                    break;
+                case DIR_RIGHT:
+                    gc.drawImage(mArrowRightImg, area.getMinX(), area.getMinY(), area.getWidth(), area.getHeight());
+                    break;
+                case DIR_UP:
+                    gc.drawImage(mArrowUpImg, area.getMinX(), area.getMinY(), area.getWidth(), area.getHeight());
+                    break;
+                case DIR_DOWN:
+                    gc.drawImage(mArrowDownImg, area.getMinX(), area.getMinY(), area.getWidth(), area.getHeight());
+                    break;
+                default:
+                    break;
+            }
+
+            area = toolbar.getOrnamentArea();
+            gc.drawImage(mOrnamentImg, 160 * mCurrentArtifactFrame, 0, 160, 160, area.getMinX(), area.getMinY(), area.getWidth(), area.getHeight());
+
+            area = toolbar.getClearArea();
+            gc.drawImage(mToolbarEraseImg, area.getMinX(), area.getMinY(), area.getWidth(), area.getHeight());
         }
     }
 

@@ -8,6 +8,7 @@ import javafx.geometry.Rectangle2D;
 import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.image.PixelReader;
+import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Priority;
@@ -30,9 +31,11 @@ import game.Sprites.Ladder;
 import game.Sprites.Exit;
 import game.Sprites.Ornament;
 import game.Sprites.Pad;
+import game.Sprites.Toolbar;
 
 import java.io.*;
 import java.nio.file.Files;
+
 import static java.nio.file.StandardCopyOption.*;
 
 import java.nio.file.Path;
@@ -137,7 +140,17 @@ abstract class Utils extends Application {
     static final int TURNING_BACK = 3;
 
     static final int ORIENTATION_HORIZONTAL = 0;
-    private static final int ORIENTATION_VERTICAL = 1;
+    static final int ORIENTATION_VERTICAL = 1;
+
+    static final int SELECTION_DOOR = 0;
+    static final int SELECTION_SLOT = 1;
+    static final int SELECTION_ARTIFACT = 2;
+    static final int SELECTION_KEY = 3;
+    static final int SELECTION_TELEPORT = 4;
+    static final int SELECTION_EXIT = 5;
+    static final int SELECTION_ARROW = 6;
+    static final int SELECTION_ORNAMENT = 7;
+    static final int SELECTION_CLEAR = 8;
 
     Preferences prefs;
 
@@ -148,6 +161,7 @@ abstract class Utils extends Application {
     Ladder ladder;
     Exit exit;
     Pad pad;
+    Toolbar toolbar;
 
     private Alert mErrorAlert;
 
@@ -247,76 +261,114 @@ abstract class Utils extends Application {
 
         Point2D pointClicked = new Point2D(event.getSceneX(), event.getSceneY());
 
-        if (mButtonMuteMusic.contains(pointClicked)) {
-            mMuteMusic = !mMuteMusic;
-            if(mCurrentLevel == 0) {
-                if (trackMainPlayer != null) {
-                    if (trackMainPlayer.getStatus().equals(MediaPlayer.Status.PLAYING)) {
-                        trackMainPlayer.stop();
+        if (event.getButton() == MouseButton.PRIMARY) {
+
+            if (mButtonMuteMusic.contains(pointClicked)) {
+
+                if (!mEditor || mTesting) {
+
+                    mMuteMusic = !mMuteMusic;
+                    if (mCurrentLevel == 0) {
+                        if (trackMainPlayer != null) {
+                            if (trackMainPlayer.getStatus().equals(MediaPlayer.Status.PLAYING)) {
+                                trackMainPlayer.stop();
+                            } else {
+                                trackMainPlayer.play();
+                            }
+                        }
                     } else {
-                        trackMainPlayer.play();
-                    }
-                }
-            } else {
-                if (trackLevelPlayer != null) {
-                    if (trackLevelPlayer.getStatus().equals(MediaPlayer.Status.PLAYING)) {
-                        trackLevelPlayer.stop();
-                    } else {
-                        trackLevelPlayer.play();
-                    }
-                }
-            }
-            prefs.putBoolean("mmusic", mMuteMusic);
-        }
-        if (mButtonMuteSound.contains(pointClicked)) {
-            mMuteSound = !mMuteSound;
-            prefs.putBoolean("msound", mMuteSound);
-        }
-        if(mButtonAbout.contains(pointClicked) && mCurrentLevel == 0){
-            displayAboutAlert();
-        }
-
-        if (mCurrentLevel != 0) {
-
-            /*
-             * Check whether menu or board clicked
-             */
-            if (pointClicked.getX() > columns[26]) {
-
-                if(!mEditor || mTesting) {
-                    /*
-                     * In-game Menu clicked. Check which part.
-                     */
-                    if (pointClicked.getY() < rows[11]) {
-
-                        /*
-                         * Pad clicked
-                         */
-                        if (pad.getButtonLeft().contains(pointClicked)) {
-                            pad.setSelection(DIR_LEFT);
-                            eist.isMoving = true;
-                        } else if (pad.getButtonRight().contains(pointClicked)) {
-                            pad.setSelection(DIR_RIGHT);
-                            eist.isMoving = true;
-                        } else if (pad.getButtonUp().contains(pointClicked)) {
-                            pad.setSelection(DIR_UP);
-                            eist.isMoving = true;
-                        } else if (pad.getButtonDown().contains(pointClicked)) {
-                            pad.setSelection(DIR_DOWN);
-                            eist.isMoving = true;
-                        } else if (pad.getButtonClear().contains(pointClicked)) {
-                            pad.setSelection(DIR_CLEAR);
-                            eist.isMoving = true;
+                        if (trackLevelPlayer != null) {
+                            if (trackLevelPlayer.getStatus().equals(MediaPlayer.Status.PLAYING)) {
+                                trackLevelPlayer.stop();
+                            } else {
+                                trackLevelPlayer.play();
+                            }
                         }
                     }
+                    prefs.putBoolean("mmusic", mMuteMusic);
+                }
+            }
+            if (!mEditor || mTesting) {
+                if (mButtonMuteSound.contains(pointClicked)) {
+                    mMuteSound = !mMuteSound;
+                    prefs.putBoolean("msound", mMuteSound);
+                }
+            }
+            if (mButtonAbout.contains(pointClicked) && mCurrentLevel == 0) {
+                displayAboutAlert();
+            }
+
+            if (mCurrentLevel != 0) {
+
+                /*
+                 * Check whether menu or board clicked
+                 */
+                if (pointClicked.getX() > columns[26]) {
+
+                    if (!mEditor || mTesting) {
+                        /*
+                         * In-game Menu clicked. Check which part.
+                         */
+                        if (pointClicked.getY() < rows[11]) {
+
+                            /*
+                             * Pad clicked
+                             */
+                            if (pad.getButtonLeft().contains(pointClicked)) {
+                                pad.setSelection(DIR_LEFT);
+                                eist.isMoving = true;
+                            } else if (pad.getButtonRight().contains(pointClicked)) {
+                                pad.setSelection(DIR_RIGHT);
+                                eist.isMoving = true;
+                            } else if (pad.getButtonUp().contains(pointClicked)) {
+                                pad.setSelection(DIR_UP);
+                                eist.isMoving = true;
+                            } else if (pad.getButtonDown().contains(pointClicked)) {
+                                pad.setSelection(DIR_DOWN);
+                                eist.isMoving = true;
+                            } else if (pad.getButtonClear().contains(pointClicked)) {
+                                pad.setSelection(DIR_CLEAR);
+                                eist.isMoving = true;
+                            }
+                        }
+
+                    } else {
+
+                        if (toolbar.getDoorArea().contains(pointClicked)) {
+                            toolbar.setSelection(SELECTION_DOOR);
+                        } else if (toolbar.getSlotArea().contains(pointClicked)) {
+                            toolbar.setSelection(SELECTION_SLOT);
+                        } else if (toolbar.getArtifactArea().contains(pointClicked)) {
+                            toolbar.setSelection(SELECTION_ARTIFACT);
+                        } else if (toolbar.getKeyArea().contains(pointClicked)) {
+                            toolbar.setSelection(SELECTION_KEY);
+                        } else if (toolbar.getTeleportArea().contains(pointClicked)) {
+                            toolbar.setSelection(SELECTION_TELEPORT);
+                        } else if (toolbar.getExitArea().contains(pointClicked)) {
+                            toolbar.setSelection(SELECTION_EXIT);
+                        } else if (toolbar.getArrowArea().contains(pointClicked)) {
+                            toolbar.setSelection(SELECTION_ARROW);
+                        } else if (toolbar.getOrnamentArea().contains(pointClicked)) {
+                            toolbar.setSelection(SELECTION_ORNAMENT);
+                        } else if (toolbar.getClearArea().contains(pointClicked)) {
+                            toolbar.setSelection(SELECTION_CLEAR);
+                        } else {
+                            toolbar.setSelection(null);
+                    }
                 }
 
             } else {
 
-                /*
-                 * Board clicked
-                 */
-                eist.isMoving = true;
+                    /*
+                     * Board clicked
+                     */
+                if (!mEditor) {
+                    eist.isMoving = true;
+                } else {
+                    if (mTesting) {
+                        eist.isMoving = true;
+                    }
+                }
 
                 for (Slot slot : mSlots) {
 
@@ -369,7 +421,7 @@ abstract class Utils extends Application {
 
             if (mButtonMenu.contains(pointClicked)) {
 
-                if(!mEditor) {
+                if (!mEditor) {
                     mSelectedLevel = mCurrentLevel;
                     mCurrentLevel = 0;
                     loadLevel(mCurrentLevel);
@@ -400,7 +452,45 @@ abstract class Utils extends Application {
                 displaySizeDialog();
             }
         }
-    }
+    } else if (event.getButton() == MouseButton.SECONDARY) {
+
+            if(mEditor && !mTesting){
+
+                if(toolbar.getDoorArea().contains(pointClicked)){
+                    if(toolbar.getDoorOrientation() == ORIENTATION_HORIZONTAL){
+                        toolbar.setDoorOrientation(ORIENTATION_VERTICAL);
+                    } else {
+                        toolbar.setDoorOrientation(ORIENTATION_HORIZONTAL);
+                    }
+                }
+                if(toolbar.getSlotArea().contains(pointClicked)){
+                    if(toolbar.getSlotOrientation() == ORIENTATION_HORIZONTAL){
+                        toolbar.setSlotOrientation(ORIENTATION_VERTICAL);
+                    } else {
+                        toolbar.setSlotOrientation(ORIENTATION_HORIZONTAL);
+                    }
+                }
+                if(toolbar.getArrowArea().contains(pointClicked)){
+                    
+                    switch(toolbar.getArrowDirection()){
+                        case DIR_RIGHT:
+                            toolbar.setArrowDirection(DIR_DOWN);
+                            break;
+                        case DIR_DOWN:
+                            toolbar.setArrowDirection(DIR_LEFT);
+                            break;
+                        case DIR_LEFT:
+                            toolbar.setArrowDirection(DIR_UP);
+                            break;
+                        case DIR_UP:
+                            toolbar.setArrowDirection(DIR_RIGHT);
+                            break;
+                    }
+                }
+            }
+        }
+
+}
 
     /**
      * Some graphics will look the same way on all levels. Let's load it here.
@@ -424,7 +514,10 @@ abstract class Utils extends Application {
     Image mArrowUpImg;
 
     Image mSlotHImg;
+    Image mSlotHToolbarImg;
     Image mSlotVImg;
+    Image mSlotVToolbarImg;
+    Image mToolbarEraseImg;
 
     Image mSelRightImg;
     Image mSelDownImg;
@@ -523,7 +616,10 @@ abstract class Utils extends Application {
         mArrowUpImg = new Image(ClassLoader.getSystemResource("images/sprites/arrow_up.png").toExternalForm());
 
         mSlotHImg = new Image(ClassLoader.getSystemResource("images/sprites/slot_h.png").toExternalForm());
+        mSlotHToolbarImg = new Image(ClassLoader.getSystemResource("images/sprites/slot_h_toolbar.png").toExternalForm());
         mSlotVImg = new Image(ClassLoader.getSystemResource("images/sprites/slot_v.png").toExternalForm());
+        mSlotVToolbarImg = new Image(ClassLoader.getSystemResource("images/sprites/slot_v_toolbar.png").toExternalForm());
+        mToolbarEraseImg = new Image(ClassLoader.getSystemResource("images/sprites/toolbar_erase.png").toExternalForm());
 
         mTeleportImg = new Image("images/sprites/teleport.png");
 
@@ -579,7 +675,7 @@ abstract class Utils extends Application {
 
         System.out.println("\nLOADING LEVEL " + level + "\n");
 
-        mEditor =  false;
+        mEditor = false;
 
         mCurrentFallingFrame = null;
         eist.isMoving = false;
@@ -588,7 +684,7 @@ abstract class Utils extends Application {
 
         mAchievedLevel = prefs.getInt("achieved", 0);
 
-        if(mGameFinished){
+        if (mGameFinished) {
             mIntro01 = mIntroFinished;
             fxLevelUp.play();
         }
@@ -759,7 +855,7 @@ abstract class Utils extends Application {
 
                     System.out.println("\nEssential level file(s) missing. Loading default level.\n");
                     StringBuilder missingFilesList = new StringBuilder();
-                    for(String string : userLevelLoadingReport){
+                    for (String string : userLevelLoadingReport) {
                         missingFilesList.append(string);
                         missingFilesList.append("\n");
                     }
@@ -1344,13 +1440,13 @@ abstract class Utils extends Application {
 
         InputStream inputStream;
 
-        if(!mLoadUserLevel && !mEditor) {
+        if (!mLoadUserLevel && !mEditor) {
             inputStream = Utils.class.getClassLoader().getResourceAsStream(urlString);
         } else {
             try {
                 // This should be done better, still I don't know how...
                 inputStream = new FileInputStream(urlString.substring(5));
-            }catch(FileNotFoundException e){
+            } catch (FileNotFoundException e) {
                 inputStream = null;
             }
         }
@@ -1373,8 +1469,8 @@ abstract class Utils extends Application {
             } catch (IOException e) {
                 displayExceptionAlert("Error reading InputStream", e);
             }
-            if(output != null && output.equals("")){
-                output =  null;
+            if (output != null && output.equals("")) {
+                output = null;
             }
             return output;
         }
@@ -1519,13 +1615,14 @@ abstract class Utils extends Application {
 
     /**
      * Calculates stereo balance for AudioClip to play the sound FX
+     *
      * @param eistX - current Eists X coordinate will be compared to horizontal center of the game board
      * @return double in range -1.0 to 1.0
      */
     double calculateBalance(double eistX) {
-        if(eistX < mCenterX) {
+        if (eistX < mCenterX) {
             return -(mCenterX - eistX) / mCenterX;
-        } else if(eistX > mCenterX) {
+        } else if (eistX > mCenterX) {
             return (eistX - mCenterX) / mCenterX;
         } else {
             return 0.0;
@@ -1576,7 +1673,7 @@ abstract class Utils extends Application {
         displayExceptionAlert(null, e);
     }
 
-    private void displayMissingUserFiles(String content){
+    private void displayMissingUserFiles(String content) {
 
         Alert alert = new Alert(Alert.AlertType.ERROR);
         alert.setResizable(true);
@@ -1655,7 +1752,7 @@ abstract class Utils extends Application {
 
         ChoiceDialog<String> dialog;
 
-        if(mDimensionDivider == 1) {
+        if (mDimensionDivider == 1) {
             dialog = new ChoiceDialog<>("Full screen", choices);
         } else if (mDimensionDivider == 1.5) {
             dialog = new ChoiceDialog<>("Medium", choices);
@@ -1694,7 +1791,7 @@ abstract class Utils extends Application {
             File sFile = new File(ClassLoader.getSystemResource("levels/03").toExternalForm().substring(5));
             File[] sourceFiles = sFile.listFiles();
 
-            if(sourceFiles != null) {
+            if (sourceFiles != null) {
                 for (File file : sourceFiles) {
 
                     System.out.println("FOUND: " + file.toString());
@@ -1702,7 +1799,7 @@ abstract class Utils extends Application {
                     Path destination = Paths.get(System.getProperty("user.home") + "/.EistReturns/levels/editor-data", source.getFileName().toString());
                     try {
                         Files.copy(source, destination, REPLACE_EXISTING);
-                    }catch (IOException e){
+                    } catch (IOException e) {
                         System.out.println("Couldn't copy file " + source.getFileName() + ": " + e);
                     }
                 }
