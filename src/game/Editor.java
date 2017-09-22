@@ -102,11 +102,12 @@ public class Editor extends Utils {
         toolbar.setArrowArea(new Rectangle2D(columns[27], rows[7], mFrameDimension, mFrameDimension));
         toolbar.setOrnamentArea(new Rectangle2D(columns[29], rows[7], mFrameDimension, mFrameDimension));
         toolbar.setClearArea(new Rectangle2D(columns[28], rows[9], mFrameDimension, mFrameDimension));
+        toolbar.setMessageCorner(new Point2D(columns[27], rows[12]));
 
         toolbar.setDoorOrientation(ORIENTATION_HORIZONTAL);
         toolbar.setSlotOrientation(ORIENTATION_HORIZONTAL);
         toolbar.setArrowDirection(DIR_LEFT);
-        toolbar.setSelection(null);
+        toolbar.setSelection(SELECTION_DOOR);
 
         loadCommonGraphics();
 
@@ -525,6 +526,12 @@ public class Editor extends Utils {
          * Draw exit
          */
         if (mArtifacts.size() > 0) {
+            if(toolbar.getSelection() != null) {
+                if (mEditor && !mTesting && toolbar.getSelection() == SELECTION_EXIT) {
+                    gc.setFill(Color.color(1, 0.8, 0, 0.3));
+                    gc.fillRect(exit.getPosX(), exit.getPosY(), mFrameDimension, mFrameDimension);
+                }
+            }
             gc.drawImage(mExitClosedImg, exit.getPosX(), exit.getPosY(), mFrameDimension, mFrameDimension);
 
         } else {
@@ -776,6 +783,12 @@ public class Editor extends Utils {
                 if (highlight != null) {
                     gc.setFill(Color.color(1, 0.8, 0, 0.3));
                     gc.fillRect(highlight.getMinX(), highlight.getMinY(), highlight.getWidth(), highlight.getHeight());
+                }
+
+                if(!message.equals("")) {
+                    gc.setFill(Color.WHITE);
+                    gc.setFont(turnsFont);
+                    gc.fillText(message, toolbar.getMessageCorner().getX(), toolbar.getMessageCorner().getY());
                 }
             }
 

@@ -3,6 +3,8 @@ package game;
 import javafx.geometry.Point2D;
 import javafx.geometry.Rectangle2D;
 
+import java.awt.*;
+
 abstract class Sprites extends Utils {
 
     /**
@@ -438,6 +440,7 @@ abstract class Sprites extends Utils {
         private Rectangle2D arrowArea;
         private Rectangle2D ornamentArea;
         private Rectangle2D clearArea;
+        private Point2D messageCorner;
 
         void setDoorOrientation(Integer value) {
             doorOrientation = value;
@@ -474,6 +477,7 @@ abstract class Sprites extends Utils {
         void setTeleportArea(Rectangle2D rectangle2D) {
             teleportArea = rectangle2D;
         }
+
         void setExitArea(Rectangle2D rectangle2D) {
             exitArea = rectangle2D;
         }
@@ -488,6 +492,10 @@ abstract class Sprites extends Utils {
 
         void setClearArea(Rectangle2D rectangle2D) {
             clearArea = rectangle2D;
+        }
+
+        void setMessageCorner(Point2D point2D) {
+            messageCorner = point2D;
         }
 
         Integer getArrowDirection() {
@@ -540,6 +548,10 @@ abstract class Sprites extends Utils {
 
         Rectangle2D getClearArea() {
             return  clearArea;
+        }
+
+        Point2D getMessageCorner() {
+            return messageCorner;
         }
     }
 }

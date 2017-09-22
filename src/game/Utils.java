@@ -152,6 +152,8 @@ abstract class Utils extends Application {
     static final int SELECTION_ORNAMENT = 7;
     static final int SELECTION_CLEAR = 8;
 
+    String message = "";
+
     Preferences prefs;
 
     /**
@@ -334,145 +336,212 @@ abstract class Utils extends Application {
 
                     } else {
 
+                        message = "";
+
                         if (toolbar.getDoorArea().contains(pointClicked)) {
                             toolbar.setSelection(SELECTION_DOOR);
+                            message = "Right click rotates";
                         } else if (toolbar.getSlotArea().contains(pointClicked)) {
                             toolbar.setSelection(SELECTION_SLOT);
+                            message = "Right click rotates";
                         } else if (toolbar.getArtifactArea().contains(pointClicked)) {
                             toolbar.setSelection(SELECTION_ARTIFACT);
                         } else if (toolbar.getKeyArea().contains(pointClicked)) {
                             toolbar.setSelection(SELECTION_KEY);
                         } else if (toolbar.getTeleportArea().contains(pointClicked)) {
-                            toolbar.setSelection(SELECTION_TELEPORT);
+                            if(mTeleports.size() < 2) {
+                                toolbar.setSelection(SELECTION_TELEPORT);
+                            } else {
+                                //toolbar.setSelection(null);
+                                message = "2 teleports allowed";
+                            }
                         } else if (toolbar.getExitArea().contains(pointClicked)) {
                             toolbar.setSelection(SELECTION_EXIT);
+                            message = "Select new location";
                         } else if (toolbar.getArrowArea().contains(pointClicked)) {
                             toolbar.setSelection(SELECTION_ARROW);
+                            message = "Right click rotates";
                         } else if (toolbar.getOrnamentArea().contains(pointClicked)) {
                             toolbar.setSelection(SELECTION_ORNAMENT);
                         } else if (toolbar.getClearArea().contains(pointClicked)) {
                             toolbar.setSelection(SELECTION_CLEAR);
                         } else {
                             toolbar.setSelection(null);
+                        }
                     }
-                }
 
-            } else {
-
-                    /*
-                     * Board clicked
-                     */
-                if (!mEditor) {
-                    eist.isMoving = true;
                 } else {
-                    if (mTesting) {
+
+                /*
+                 * Board clicked
+                 */
+                    if (!mEditor) {
                         eist.isMoving = true;
+                    } else {
+                        if (mTesting) {
+                            eist.isMoving = true;
+                        }
                     }
-                }
 
-                for (Slot slot : mSlots) {
+                    for (Slot slot : mSlots) {
 
-                    if (slot.getArea().contains(pointClicked)) {
+                        if (slot.getArea().contains(pointClicked)) {
 
-                        int clickedSlotIdx = mSlots.indexOf(slot);
+                            int clickedSlotIdx = mSlots.indexOf(slot);
 
-                        if (ladder.getSlotIdx() == null) {
-
-                            if (!mMuteSound) {
-                                fxLadder.setBalance(calculateBalance(mSlots.get(clickedSlotIdx).getPosX()));
-                                fxLadder.play();
-                            }
-                            ladder.setSlotIdx(clickedSlotIdx);
-
-                        } else {
-
-                            if (clickedSlotIdx == ladder.getSlotIdx()) {
+                            if (ladder.getSlotIdx() == null) {
 
                                 if (!mMuteSound) {
                                     fxLadder.setBalance(calculateBalance(mSlots.get(clickedSlotIdx).getPosX()));
                                     fxLadder.play();
                                 }
-                                ladder.setSlotIdx(null);
+                                ladder.setSlotIdx(clickedSlotIdx);
+
+                            } else {
+
+                                if (clickedSlotIdx == ladder.getSlotIdx()) {
+
+                                    if (!mMuteSound) {
+                                        fxLadder.setBalance(calculateBalance(mSlots.get(clickedSlotIdx).getPosX()));
+                                        fxLadder.play();
+                                    }
+                                    ladder.setSlotIdx(null);
+                                }
+                            }
+
+                        }
+                    }
+
+                    /*
+                     * In-game: place or remove arrows if selected
+                     */
+                    if (pad.getSelection() != null && pixelReader.getArgb((int) pointClicked.getX(), (int) pointClicked.getY()) != -16777216) {
+
+                        Rectangle2D pressedSquare = nearestSquare(pointClicked.getX(), pointClicked.getY());
+
+                        if (pressedSquare != null) {
+
+                            if (pad.getSelection() != DIR_CLEAR) {
+
+                                if (arrowAllowed(new Point2D(pressedSquare.getMinX() + mGridDimension, pressedSquare.getMinY() + mGridDimension))) {
+                                    placeArrow(pressedSquare.getMinX(), pressedSquare.getMinY());
+                                }
+
+                            } else {
+
+                                removeArrow(pressedSquare);
                             }
                         }
+                    }
 
+                    /*
+                     * In editor: place / remove selected item
+                     */
+                    if (toolbar.getSelection() != null) {
+                        /*
+                        If path clicked
+                         */
+                        if (pixelReader.getArgb((int) pointClicked.getX(), (int) pointClicked.getY()) != -16777216) {
+
+                            Rectangle2D pressedSquare = nearestSquare(pointClicked.getX(), pointClicked.getY());
+                            Point2D checkPoint = null;
+
+                            if (pressedSquare != null) {
+                                checkPoint = new Point2D(pressedSquare.getMinX() + mGridDimension, pressedSquare.getMinY() + mGridDimension);
+
+                                if (arrowAllowed(checkPoint)) {
+
+                                    switch (toolbar.getSelection()) {
+                                        case SELECTION_DOOR:
+                                            placeDoor(pressedSquare.getMinX(), pressedSquare.getMinY());
+                                            break;
+                                        case SELECTION_SLOT:
+                                            //todo add adding slots
+                                            break;
+                                        case SELECTION_ARTIFACT:
+                                            placeArtifact(pressedSquare.getMinX(), pressedSquare.getMinY());
+                                            break;
+                                        case SELECTION_KEY:
+                                            placeKey(pressedSquare.getMinX(), pressedSquare.getMinY());
+                                            break;
+                                        case SELECTION_TELEPORT:
+                                            placeTeleport(pressedSquare.getMinX(), pressedSquare.getMinY());
+                                            break;
+                                        case SELECTION_ARROW:
+                                            placeArrowEditor(pressedSquare.getMinX(), pressedSquare.getMinY());
+                                            break;
+                                        case SELECTION_EXIT:
+                                            placeExit(pressedSquare.getMinX(), pressedSquare.getMinY());
+                                            break;
+                                        default:
+                                            break;
+                                    }
+                                }
+                            }
+                        }
+                    }
+
+                }
+
+                if (mButtonMenu.contains(pointClicked)) {
+
+                    if (!mEditor) {
+                        mSelectedLevel = mCurrentLevel;
+                        mCurrentLevel = 0;
+                        loadLevel(mCurrentLevel);
+                    } else {
+                        mTesting = !mTesting;
                     }
                 }
 
-                if (pad.getSelection() != null && pixelReader.getArgb((int) pointClicked.getX(), (int) pointClicked.getY()) != -16777216) {
-
-                    Rectangle2D pressedSquare = nearestSquare(pointClicked.getX(), pointClicked.getY());
-
-                    if (pressedSquare != null) {
-
-                        if (pad.getSelection() != DIR_CLEAR) {
-
-                            if (arrowAllowed(new Point2D(pressedSquare.getMinX() + mGridDimension, pressedSquare.getMinY() + mGridDimension))) {
-                                placeArrow(pressedSquare.getMinX(), pressedSquare.getMinY());
-                            }
-
-                        } else {
-
-                            removeArrow(pressedSquare);
-                        }
-                    }
-                }
-            }
-
-            if (mButtonMenu.contains(pointClicked)) {
-
-                if (!mEditor) {
-                    mSelectedLevel = mCurrentLevel;
-                    mCurrentLevel = 0;
-                    loadLevel(mCurrentLevel);
-                } else {
-                    mTesting = !mTesting;
-                }
-            }
-
-        } else {
+            } else {
             /*
              * Handle intro menu clicks
              */
-            if (mButtonLevelUp.contains(pointClicked)) {
-                if (mSelectedLevel < mAchievedLevel && mSelectedLevel < MAX_LEVEL) {
-                    mSelectedLevel++;
-                    prefs.putInt("level", mSelectedLevel);
-                }
-            } else if (mButtonLevelDown.contains(pointClicked)) {
-                if (mSelectedLevel > 1) {
-                    mSelectedLevel--;
-                    prefs.putInt("level", mSelectedLevel);
-                }
-            } else if (mButtonPlay.contains(pointClicked)) {
-                mCurrentLevel = mSelectedLevel;
-                loadLevel(mCurrentLevel);
-            } else if (mButtonMenu.contains(pointClicked)) {
+                if (mButtonLevelUp.contains(pointClicked)) {
+                    if (mSelectedLevel < mAchievedLevel && mSelectedLevel < MAX_LEVEL) {
+                        mSelectedLevel++;
+                        prefs.putInt("level", mSelectedLevel);
+                    }
+                } else if (mButtonLevelDown.contains(pointClicked)) {
+                    if (mSelectedLevel > 1) {
+                        mSelectedLevel--;
+                        prefs.putInt("level", mSelectedLevel);
+                    }
+                } else if (mButtonPlay.contains(pointClicked)) {
+                    mCurrentLevel = mSelectedLevel;
+                    loadLevel(mCurrentLevel);
+                } else if (mButtonMenu.contains(pointClicked)) {
 
-                displaySizeDialog();
+                    displaySizeDialog();
+                }
             }
-        }
-    } else if (event.getButton() == MouseButton.SECONDARY) {
+        } else if (event.getButton() == MouseButton.SECONDARY) {
 
-            if(mEditor && !mTesting){
+            if (mEditor && !mTesting) {
 
-                if(toolbar.getDoorArea().contains(pointClicked)){
-                    if(toolbar.getDoorOrientation() == ORIENTATION_HORIZONTAL){
+                message = "";
+
+                if (toolbar.getDoorArea().contains(pointClicked)) {
+                    toolbar.setSelection(SELECTION_DOOR);
+                    if (toolbar.getDoorOrientation() == ORIENTATION_HORIZONTAL) {
                         toolbar.setDoorOrientation(ORIENTATION_VERTICAL);
                     } else {
                         toolbar.setDoorOrientation(ORIENTATION_HORIZONTAL);
                     }
                 }
-                if(toolbar.getSlotArea().contains(pointClicked)){
-                    if(toolbar.getSlotOrientation() == ORIENTATION_HORIZONTAL){
+                if (toolbar.getSlotArea().contains(pointClicked)) {
+                    toolbar.setSelection(SELECTION_SLOT);
+                    if (toolbar.getSlotOrientation() == ORIENTATION_HORIZONTAL) {
                         toolbar.setSlotOrientation(ORIENTATION_VERTICAL);
                     } else {
                         toolbar.setSlotOrientation(ORIENTATION_HORIZONTAL);
                     }
                 }
-                if(toolbar.getArrowArea().contains(pointClicked)){
-                    
-                    switch(toolbar.getArrowDirection()){
+                if (toolbar.getArrowArea().contains(pointClicked)) {
+                    toolbar.setSelection(SELECTION_ARROW);
+
+                    switch (toolbar.getArrowDirection()) {
                         case DIR_RIGHT:
                             toolbar.setArrowDirection(DIR_DOWN);
                             break;
@@ -489,8 +558,7 @@ abstract class Utils extends Application {
                 }
             }
         }
-
-}
+    }
 
     /**
      * Some graphics will look the same way on all levels. Let's load it here.
@@ -1548,13 +1616,12 @@ abstract class Utils extends Application {
                 adjustedSquare = null;
             }
 
-
             return (adjustedSquare);
 
         } catch (Exception e) {
 
             System.out.println("Couldn't get square: " + e);
-            return (null);
+            return null;
         }
     }
 
@@ -1563,11 +1630,70 @@ abstract class Utils extends Application {
         Arrow arrow = new Arrow();
         arrow.setPosX(x);
         arrow.setPosY(y);
-
         arrow.setArea(innerRect(x, y));
         arrow.setDirection(pad.getSelection());
-
         mArrows.add(arrow);
+    }
+
+    private void placeDoor(double x, double y) {
+
+        Door door = new Door();
+        door.setPosX(x);
+        door.setPosY(y);
+        door.setArea(innerRect(x, y));
+        door.setOrientation(toolbar.getDoorOrientation());
+        mDoors.add(door);
+    }
+
+    /*
+     * Placing ladder spots will demand different method to check if the spot is allowed here.
+     * Skipping now...
+     */
+
+    private void placeArtifact(double x, double y) {
+
+        Artifact artifact = new Artifact();
+        artifact.setPosX(x);
+        artifact.setPosY(y);
+        artifact.setArea(innerRect(x, y));
+        mArtifacts.add(artifact);
+    }
+
+    private void placeKey(double x, double y) {
+
+        Key key = new Key();
+        key.setPosX(x);
+        key.setPosY(y);
+        key.setArea(innerRect(x, y));
+        mKeys.add(key);
+    }
+
+    private void placeTeleport(double x, double y) {
+
+        if(mTeleports.size() < 2) {
+            Teleport teleport = new Teleport();
+            teleport.setPosX(x);
+            teleport.setPosY(y);
+            teleport.setArea(innerRect(x, y));
+            mTeleports.add(teleport);
+        }
+    }
+
+    private void placeArrowEditor(double x, double y) {
+
+        Arrow arrow = new Arrow();
+        arrow.setPosX(x);
+        arrow.setPosY(y);
+        arrow.setArea(innerRect(x, y));
+        arrow.setDirection(toolbar.getArrowDirection());
+        mArrows.add(arrow);
+    }
+
+    private void placeExit(double x, double y) {
+
+        exit.setPosX(x);
+        exit.setPosY(y);
+        exit.setArea(new Rectangle2D(exit.getPosX(), exit.getPosY(), mFrameDimension, mFrameDimension));
     }
 
     private boolean arrowAllowed(Point2D squareCenter) {
