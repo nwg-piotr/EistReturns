@@ -108,6 +108,7 @@ public class Editor extends Utils {
         toolbar.setSlotOrientation(ORIENTATION_HORIZONTAL);
         toolbar.setArrowDirection(DIR_LEFT);
         toolbar.setSelection(SELECTION_DOOR);
+        message = "Right click rotates";
 
         loadCommonGraphics();
 
@@ -317,9 +318,14 @@ public class Editor extends Utils {
         /*
          * Draw artifacts
          */
+
         if (mArtifactImg != null && mArtifacts.size() > 0) {
 
             for (Artifact artifact : mArtifacts) {
+
+                gc.setFill(Color.GRAY);
+                testRect = artifact.getArea();
+                gc.fillRect(testRect.getMinX(), testRect.getMinY(), testRect.getWidth(), testRect.getHeight());
 
                 gc.drawImage(mArtifactImg, 160 * mCurrentArtifactFrame, 0, 160, 160, artifact.getPosX(), artifact.getPosY(), mFrameDimension, mFrameDimension);
 

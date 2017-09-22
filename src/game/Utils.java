@@ -153,6 +153,7 @@ abstract class Utils extends Application {
     static final int SELECTION_CLEAR = 8;
 
     String message = "";
+    Rectangle2D testRect = null;
 
     Preferences prefs;
 
@@ -352,7 +353,6 @@ abstract class Utils extends Application {
                             if(mTeleports.size() < 2) {
                                 toolbar.setSelection(SELECTION_TELEPORT);
                             } else {
-                                //toolbar.setSelection(null);
                                 message = "2 teleports allowed";
                             }
                         } else if (toolbar.getExitArea().contains(pointClicked)) {
@@ -472,6 +472,9 @@ abstract class Utils extends Application {
                                             break;
                                         case SELECTION_EXIT:
                                             placeExit(pressedSquare.getMinX(), pressedSquare.getMinY());
+                                            break;
+                                        case SELECTION_CLEAR:
+                                            deleteIfFound(pointClicked);
                                             break;
                                         default:
                                             break;
@@ -1694,6 +1697,25 @@ abstract class Utils extends Application {
         exit.setPosX(x);
         exit.setPosY(y);
         exit.setArea(new Rectangle2D(exit.getPosX(), exit.getPosY(), mFrameDimension, mFrameDimension));
+    }
+
+    private void deleteIfFound(Point2D checkPoint) {
+
+        for(Door door : mDoors){
+            if (door.getArea().contains(checkPoint)){
+                mDoors.remove(door);
+                break;
+            }
+        }
+
+        // todo slot deletion to be added here
+
+        for(Artifact artifact : mArtifacts){
+            if (artifact.getArea().contains(checkPoint)){
+                mArtifacts.remove(artifact);
+                break;
+            }
+        }
     }
 
     private boolean arrowAllowed(Point2D squareCenter) {
