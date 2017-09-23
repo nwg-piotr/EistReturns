@@ -24,7 +24,6 @@ abstract class Sprites extends Utils {
         private Integer direction;
         private Integer turning; // TURNING_NOT / _RIGHT / _LEFT / _BACK
         private Integer keys;
-        private int lifes;
         private Rectangle2D area;
         private Point2D center;
         private Point2D sensor;
@@ -58,6 +57,9 @@ abstract class Sprites extends Utils {
             center = point2D;
         }
 
+        void setArea(Rectangle2D rectangle2D) {
+            area = rectangle2D;
+        }
 
         void setEndPoint(Point2D point2D) {
             end_point = point2D;
@@ -81,6 +83,10 @@ abstract class Sprites extends Utils {
 
         Point2D getEndPoint() {
             return end_point;
+        }
+
+        Rectangle2D getArea() {
+            return  area;
         }
     }
 
@@ -439,6 +445,7 @@ abstract class Sprites extends Utils {
         private Rectangle2D exitArea;
         private Rectangle2D arrowArea;
         private Rectangle2D ornamentArea;
+        private Rectangle2D eistArea;
         private Rectangle2D clearArea;
         private Point2D messageCorner;
 
@@ -488,6 +495,10 @@ abstract class Sprites extends Utils {
 
         void setOrnamentArea(Rectangle2D rectangle2D) {
             ornamentArea = rectangle2D;
+        }
+
+        void setEistArea(Rectangle2D rectangle2D) {
+            eistArea = rectangle2D;
         }
 
         void setClearArea(Rectangle2D rectangle2D) {
@@ -540,6 +551,10 @@ abstract class Sprites extends Utils {
 
         Rectangle2D getArrowArea() {
             return  arrowArea;
+        }
+
+        Rectangle2D getEistArea() {
+            return  eistArea;
         }
 
         Rectangle2D getOrnamentArea() {

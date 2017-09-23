@@ -151,9 +151,10 @@ abstract class Utils extends Application {
     static final int SELECTION_ARROW = 6;
     static final int SELECTION_ORNAMENT = 7;
     static final int SELECTION_CLEAR = 8;
+    static final int SELECTION_EIST = 9;
 
     String message = "";
-    Rectangle2D testRect = null;
+    Rectangle2D detectRect;
 
     Preferences prefs;
 
@@ -341,30 +342,38 @@ abstract class Utils extends Application {
 
                         if (toolbar.getDoorArea().contains(pointClicked)) {
                             toolbar.setSelection(SELECTION_DOOR);
-                            message = "Right click rotates";
+                            message = "Click path to add\nRight click rotates";
                         } else if (toolbar.getSlotArea().contains(pointClicked)) {
                             toolbar.setSelection(SELECTION_SLOT);
-                            message = "Right click rotates";
+                            message = "Click black to add\nRight click rotates";
                         } else if (toolbar.getArtifactArea().contains(pointClicked)) {
                             toolbar.setSelection(SELECTION_ARTIFACT);
+                            message = "Click path to add";
                         } else if (toolbar.getKeyArea().contains(pointClicked)) {
                             toolbar.setSelection(SELECTION_KEY);
+                            message = "Click path to add";
                         } else if (toolbar.getTeleportArea().contains(pointClicked)) {
                             if(mTeleports.size() < 2) {
                                 toolbar.setSelection(SELECTION_TELEPORT);
+                                message = "Click path to add";
                             } else {
                                 message = "2 teleports allowed";
                             }
                         } else if (toolbar.getExitArea().contains(pointClicked)) {
                             toolbar.setSelection(SELECTION_EXIT);
-                            message = "Select new location";
+                            message = "Click path to move";
                         } else if (toolbar.getArrowArea().contains(pointClicked)) {
                             toolbar.setSelection(SELECTION_ARROW);
-                            message = "Right click rotates";
+                            message = "Click path to add\nRight click rotates";
                         } else if (toolbar.getOrnamentArea().contains(pointClicked)) {
                             toolbar.setSelection(SELECTION_ORNAMENT);
+                            message = "Click anywhere to add";
                         } else if (toolbar.getClearArea().contains(pointClicked)) {
                             toolbar.setSelection(SELECTION_CLEAR);
+                            message = "Click object to delete";
+                        } else if (toolbar.getEistArea().contains(pointClicked)) {
+                            toolbar.setSelection(SELECTION_EIST);
+                            message = "Click path to move\nRight click rotates";
                         } else {
                             toolbar.setSelection(null);
                         }
@@ -417,7 +426,7 @@ abstract class Utils extends Application {
                      */
                     if (pad.getSelection() != null && pixelReader.getArgb((int) pointClicked.getX(), (int) pointClicked.getY()) != -16777216) {
 
-                        Rectangle2D pressedSquare = nearestSquare(pointClicked.getX(), pointClicked.getY());
+                        Rectangle2D pressedSquare = nearestAdjustedSquare(pointClicked.getX(), pointClicked.getY());
 
                         if (pressedSquare != null) {
 
@@ -443,44 +452,62 @@ abstract class Utils extends Application {
                          */
                         if (pixelReader.getArgb((int) pointClicked.getX(), (int) pointClicked.getY()) != -16777216) {
 
-                            Rectangle2D pressedSquare = nearestSquare(pointClicked.getX(), pointClicked.getY());
+                            Rectangle2D pressedSquare = nearestAdjustedSquare(pointClicked.getX(), pointClicked.getY());
                             Point2D checkPoint = null;
 
                             if (pressedSquare != null) {
                                 checkPoint = new Point2D(pressedSquare.getMinX() + mGridDimension, pressedSquare.getMinY() + mGridDimension);
 
-                                if (arrowAllowed(checkPoint)) {
-
-                                    switch (toolbar.getSelection()) {
-                                        case SELECTION_DOOR:
+                                switch (toolbar.getSelection()) {
+                                    case SELECTION_DOOR:
+                                        if (arrowAllowed(checkPoint)) {
                                             placeDoor(pressedSquare.getMinX(), pressedSquare.getMinY());
-                                            break;
-                                        case SELECTION_SLOT:
-                                            //todo add adding slots
-                                            break;
-                                        case SELECTION_ARTIFACT:
+                                        }
+                                        break;
+                                    case SELECTION_SLOT:
+                                        //todo add adding slots
+                                        break;
+                                    case SELECTION_ARTIFACT:
+                                        if (arrowAllowed(checkPoint)) {
                                             placeArtifact(pressedSquare.getMinX(), pressedSquare.getMinY());
-                                            break;
-                                        case SELECTION_KEY:
+                                        }
+                                        break;
+                                    case SELECTION_KEY:
+                                        if (arrowAllowed(checkPoint)) {
                                             placeKey(pressedSquare.getMinX(), pressedSquare.getMinY());
-                                            break;
-                                        case SELECTION_TELEPORT:
+                                        }
+                                        break;
+                                    case SELECTION_TELEPORT:
+                                        if (arrowAllowed(checkPoint)) {
                                             placeTeleport(pressedSquare.getMinX(), pressedSquare.getMinY());
-                                            break;
-                                        case SELECTION_ARROW:
+                                        }
+                                        break;
+                                    case SELECTION_ARROW:
+                                        if (arrowAllowed(checkPoint)) {
                                             placeArrowEditor(pressedSquare.getMinX(), pressedSquare.getMinY());
-                                            break;
-                                        case SELECTION_EXIT:
+                                        }
+                                        break;
+                                    case SELECTION_EXIT:
+                                        if (arrowAllowed(checkPoint)) {
                                             placeExit(pressedSquare.getMinX(), pressedSquare.getMinY());
-                                            break;
-                                        case SELECTION_CLEAR:
-                                            deleteIfFound(pointClicked);
-                                            break;
-                                        default:
-                                            break;
-                                    }
+                                        }
+                                        break;
+                                    case SELECTION_EIST:
+                                        if (arrowAllowed(checkPoint)) {
+                                            placeEist(pressedSquare.getMinX(), pressedSquare.getMinY());
+                                        }
+                                        break;
+                                    default:
+                                        break;
                                 }
                             }
+                        }
+                        if (toolbar.getSelection() == SELECTION_ORNAMENT) {
+                            Rectangle2D rectangle2D = nearestSquare(pointClicked.getX(), pointClicked.getY());
+                            placeOrnament(rectangle2D.getMinX(), rectangle2D.getMinY());
+                        }
+                        if (toolbar.getSelection() == SELECTION_CLEAR) {
+                            deleteIfFound(pointClicked);
                         }
                     }
 
@@ -527,6 +554,7 @@ abstract class Utils extends Application {
 
                 if (toolbar.getDoorArea().contains(pointClicked)) {
                     toolbar.setSelection(SELECTION_DOOR);
+                    message = "Click path to add\nRight click rotates";
                     if (toolbar.getDoorOrientation() == ORIENTATION_HORIZONTAL) {
                         toolbar.setDoorOrientation(ORIENTATION_VERTICAL);
                     } else {
@@ -535,6 +563,7 @@ abstract class Utils extends Application {
                 }
                 if (toolbar.getSlotArea().contains(pointClicked)) {
                     toolbar.setSelection(SELECTION_SLOT);
+                    message = "Click black to add\nRight click rotates";
                     if (toolbar.getSlotOrientation() == ORIENTATION_HORIZONTAL) {
                         toolbar.setSlotOrientation(ORIENTATION_VERTICAL);
                     } else {
@@ -543,7 +572,7 @@ abstract class Utils extends Application {
                 }
                 if (toolbar.getArrowArea().contains(pointClicked)) {
                     toolbar.setSelection(SELECTION_ARROW);
-
+                    message = "Click path to add\nRight click rotates";
                     switch (toolbar.getArrowDirection()) {
                         case DIR_RIGHT:
                             toolbar.setArrowDirection(DIR_DOWN);
@@ -558,6 +587,52 @@ abstract class Utils extends Application {
                             toolbar.setArrowDirection(DIR_RIGHT);
                             break;
                     }
+                }
+                if (toolbar.getEistArea().contains(pointClicked)){
+                    toolbar.setSelection(SELECTION_EIST);
+                    message = "Click path to move\nRight click rotates";
+                    switch (eist.getDirection()){
+                        case DIR_RIGHT:
+                            eist.setDirection(DIR_DOWN);
+                            break;
+                        case DIR_DOWN:
+                            eist.setDirection(DIR_LEFT);
+                            break;
+                        case DIR_LEFT:
+                            eist.setDirection(DIR_UP);
+                            break;
+                        case DIR_UP:
+                            eist.setDirection(DIR_RIGHT);
+                            break;
+                    }
+                }
+                if (toolbar.getArtifactArea().contains(pointClicked)) {
+                    toolbar.setSelection(SELECTION_ARTIFACT);
+                    message = "Click path to add";
+                }
+                if (toolbar.getKeyArea().contains(pointClicked)) {
+                    toolbar.setSelection(SELECTION_KEY);
+                    message = "Click path to add";
+                }
+                if (toolbar.getTeleportArea().contains(pointClicked)) {
+                    if (mTeleports.size() < 2) {
+                        toolbar.setSelection(SELECTION_TELEPORT);
+                        message = "Click path to add";
+                    } else {
+                        message = "2 teleports allowed";
+                    }
+                }
+                if (toolbar.getExitArea().contains(pointClicked)) {
+                    toolbar.setSelection(SELECTION_EXIT);
+                    message = "Click path to move";
+                }
+                if (toolbar.getOrnamentArea().contains(pointClicked)) {
+                    toolbar.setSelection(SELECTION_ORNAMENT);
+                    message = "Click anywhere to add";
+                }
+                if (toolbar.getClearArea().contains(pointClicked)) {
+                    toolbar.setSelection(SELECTION_CLEAR);
+                    message = "Click object to delete";
                 }
             }
         }
@@ -1551,6 +1626,17 @@ abstract class Utils extends Application {
         return Math.random() < 0.5;
     }
 
+    private Rectangle2D nearestSquare(double touch_x, double touch_y) {
+
+        double nearest_left = ((int) (touch_x / mGridDimension)) * mGridDimension;
+        double nearest_top = ((int) (touch_y / mGridDimension)) * mGridDimension;
+
+        nearest_left = nearest_left - mGridDimension;
+        nearest_top = nearest_top - mGridDimension;
+
+        return new Rectangle2D(nearest_left, nearest_top, mFrameDimension, mFrameDimension);
+    }
+
     /**
      * On the basis of clicked point coordinates, we need to calculate the place to put the arrow in.
      * Disallowed locations: off the board and on the margin of the board.
@@ -1559,7 +1645,7 @@ abstract class Utils extends Application {
      * @param touch_y Clicked point Y
      * @return Adjusted rectangle coordinates.
      */
-    private Rectangle2D nearestSquare(double touch_x, double touch_y) {
+    private Rectangle2D nearestAdjustedSquare(double touch_x, double touch_y) {
 
         double nearest_left = ((int) (touch_x / mGridDimension)) * mGridDimension;
         double nearest_top = ((int) (touch_y / mGridDimension)) * mGridDimension;
@@ -1692,6 +1778,14 @@ abstract class Utils extends Application {
         mArrows.add(arrow);
     }
 
+    private void placeOrnament(double x, double y) {
+
+        Ornament ornament = new Ornament();
+        ornament.setPosX(x);
+        ornament.setPosY(y);
+        mOrnaments.add(ornament);
+    }
+
     private void placeExit(double x, double y) {
 
         exit.setPosX(x);
@@ -1699,10 +1793,18 @@ abstract class Utils extends Application {
         exit.setArea(new Rectangle2D(exit.getPosX(), exit.getPosY(), mFrameDimension, mFrameDimension));
     }
 
+    private void placeEist(double x, double y) {
+
+        eist.x = x;
+        eist.y = y;
+        eist.setArea(new Rectangle2D(exit.getPosX(), exit.getPosY(), mFrameDimension, mFrameDimension));
+    }
+
     private void deleteIfFound(Point2D checkPoint) {
 
         for(Door door : mDoors){
-            if (door.getArea().contains(checkPoint)){
+            detectRect = new Rectangle2D(door.getPosX(), door.getPosY(), mFrameDimension, mFrameDimension);
+            if (detectRect.contains(checkPoint)){
                 mDoors.remove(door);
                 break;
             }
@@ -1711,8 +1813,41 @@ abstract class Utils extends Application {
         // todo slot deletion to be added here
 
         for(Artifact artifact : mArtifacts){
-            if (artifact.getArea().contains(checkPoint)){
+            detectRect = new Rectangle2D(artifact.getPosX(), artifact.getPosY(), mFrameDimension, mFrameDimension);
+            if (detectRect.contains(checkPoint)){
                 mArtifacts.remove(artifact);
+                break;
+            }
+        }
+
+        for(Key key : mKeys){
+            detectRect = new Rectangle2D(key.getPosX(), key.getPosY(), mFrameDimension, mFrameDimension);
+            if (detectRect.contains(checkPoint)){
+                mKeys.remove(key);
+                break;
+            }
+        }
+
+        for(Teleport teleport : mTeleports){
+            detectRect = new Rectangle2D(teleport.getPosX(), teleport.getPosY(), mFrameDimension, mFrameDimension);
+            if (detectRect.contains(checkPoint)){
+                mTeleports.remove(teleport);
+                break;
+            }
+        }
+
+        for(Arrow arrow : mArrows){
+            detectRect = new Rectangle2D(arrow.getPosX(), arrow.getPosY(), mFrameDimension, mFrameDimension);
+            if (detectRect.contains(checkPoint)){
+                mArrows.remove(arrow);
+                break;
+            }
+        }
+
+        for(Ornament ornament : mOrnaments){
+            detectRect = new Rectangle2D(ornament.getPosX(), ornament.getPosY(), mFrameDimension, mFrameDimension);
+            if (detectRect.contains(checkPoint)){
+                mOrnaments.remove(ornament);
                 break;
             }
         }

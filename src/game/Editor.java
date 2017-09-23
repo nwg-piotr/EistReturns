@@ -41,6 +41,7 @@ public class Editor extends Utils {
     private Font infoFont;
     private Font levelFont;
     private Font turnsFont;
+    private Font messageFont;
 
     private boolean mShowFps = false;
 
@@ -82,6 +83,7 @@ public class Editor extends Utils {
         infoFont = Font.font("SansSerif", FontWeight.NORMAL, 60 / mDimensionDivider * rem);
         levelFont = Font.font("SansSerif", FontWeight.NORMAL, 48 / mDimensionDivider * rem);
         turnsFont = Font.font("SansSerif", FontWeight.NORMAL, 30 / mDimensionDivider * rem);
+        messageFont = Font.font("SansSerif", FontWeight.NORMAL, 22 / mDimensionDivider * rem);
         gc.setFont(infoFont);
 
         eist = new Player();
@@ -98,10 +100,11 @@ public class Editor extends Utils {
         toolbar.setArtifactArea(new Rectangle2D(columns[27], rows[3], mFrameDimension, mFrameDimension));
         toolbar.setKeyArea(new Rectangle2D(columns[29], rows[3], mFrameDimension, mFrameDimension));
         toolbar.setTeleportArea(new Rectangle2D(columns[27], rows[5], mFrameDimension, mFrameDimension));
-        toolbar.setExitArea(new Rectangle2D(columns[29], rows[5], mFrameDimension, mFrameDimension));
-        toolbar.setArrowArea(new Rectangle2D(columns[27], rows[7], mFrameDimension, mFrameDimension));
-        toolbar.setOrnamentArea(new Rectangle2D(columns[29], rows[7], mFrameDimension, mFrameDimension));
-        toolbar.setClearArea(new Rectangle2D(columns[28], rows[9], mFrameDimension, mFrameDimension));
+        toolbar.setOrnamentArea(new Rectangle2D(columns[29], rows[5], mFrameDimension, mFrameDimension));
+        toolbar.setExitArea(new Rectangle2D(columns[27], rows[7], mFrameDimension, mFrameDimension));
+        toolbar.setArrowArea(new Rectangle2D(columns[29], rows[7], mFrameDimension, mFrameDimension));
+        toolbar.setEistArea(new Rectangle2D(columns[27], rows[9], mFrameDimension, mFrameDimension));
+        toolbar.setClearArea(new Rectangle2D(columns[29], rows[9], mFrameDimension, mFrameDimension));
         toolbar.setMessageCorner(new Point2D(columns[27], rows[12]));
 
         toolbar.setDoorOrientation(ORIENTATION_HORIZONTAL);
@@ -322,10 +325,6 @@ public class Editor extends Utils {
         if (mArtifactImg != null && mArtifacts.size() > 0) {
 
             for (Artifact artifact : mArtifacts) {
-
-                gc.setFill(Color.GRAY);
-                testRect = artifact.getArea();
-                gc.fillRect(testRect.getMinX(), testRect.getMinY(), testRect.getWidth(), testRect.getHeight());
 
                 gc.drawImage(mArtifactImg, 160 * mCurrentArtifactFrame, 0, 160, 160, artifact.getPosX(), artifact.getPosY(), mFrameDimension, mFrameDimension);
 
@@ -584,6 +583,13 @@ public class Editor extends Utils {
          */
         if (mCurrentFallingFrame == null) {
 
+            if(toolbar.getSelection() != null) {
+                if (mEditor && !mTesting && toolbar.getSelection() == SELECTION_EIST) {
+                    gc.setFill(Color.color(1, 0.8, 0, 0.3));
+                    gc.fillRect(eist.x, eist.y, mFrameDimension, mFrameDimension);
+                }
+            }
+
             if (eist.rotation != 0) {
                 gc.save();
                 Rotate r = new Rotate(eist.rotation, eist.x + mGridDimension, eist.y + mGridDimension);
@@ -782,6 +788,9 @@ public class Editor extends Utils {
                     case SELECTION_CLEAR:
                         highlight = toolbar.getClearArea();
                         break;
+                    case SELECTION_EIST:
+                        highlight = toolbar.getEistArea();
+                        break;
                     default:
                         highlight = null;
                 }
@@ -793,7 +802,7 @@ public class Editor extends Utils {
 
                 if(!message.equals("")) {
                     gc.setFill(Color.WHITE);
-                    gc.setFont(turnsFont);
+                    gc.setFont(messageFont);
                     gc.fillText(message, toolbar.getMessageCorner().getX(), toolbar.getMessageCorner().getY());
                 }
             }
@@ -854,6 +863,24 @@ public class Editor extends Utils {
 
             area = toolbar.getOrnamentArea();
             gc.drawImage(mOrnamentImg, 160 * mCurrentArtifactFrame, 0, 160, 160, area.getMinX(), area.getMinY(), area.getWidth(), area.getHeight());
+
+            area = toolbar.getEistArea();
+            switch (eist.getDirection()) {
+                case DIR_RIGHT:
+                    gc.drawImage(mEistRightImg, 120 * mCurrentEistFrame, 0, 120, 120, area.getMinX(), area.getMinY(), area.getWidth(), area.getHeight());
+                    break;
+                case DIR_DOWN:
+                    gc.drawImage(mEistDownImg, 120 * mCurrentEistFrame, 0, 120, 120, area.getMinX(), area.getMinY(), area.getWidth(), area.getHeight());
+                    break;
+                case DIR_LEFT:
+                    gc.drawImage(mEistLeftImg, 120 * mCurrentEistFrame, 0, 120, 120, area.getMinX(), area.getMinY(), area.getWidth(), area.getHeight());
+                    break;
+                case DIR_UP:
+                    gc.drawImage(mEistUpImg, 120 * mCurrentEistFrame, 0, 120, 120, area.getMinX(), area.getMinY(), area.getWidth(), area.getHeight());
+                    break;
+                default:
+                    break;
+            }
 
             area = toolbar.getClearArea();
             gc.drawImage(mToolbarEraseImg, area.getMinX(), area.getMinY(), area.getWidth(), area.getHeight());
