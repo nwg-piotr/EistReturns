@@ -381,9 +381,9 @@ abstract class Utils extends Application {
 
                 } else {
 
-                /*
-                 * Board clicked
-                 */
+                    /*
+                     * Board clicked
+                     */
                     if (!mEditor) {
                         eist.isMoving = true;
                     } else {
@@ -464,9 +464,6 @@ abstract class Utils extends Application {
                                             placeDoor(pressedSquare.getMinX(), pressedSquare.getMinY());
                                         }
                                         break;
-                                    case SELECTION_SLOT:
-                                        //todo add adding slots
-                                        break;
                                     case SELECTION_ARTIFACT:
                                         if (arrowAllowed(checkPoint)) {
                                             placeArtifact(pressedSquare.getMinX(), pressedSquare.getMinY());
@@ -505,6 +502,11 @@ abstract class Utils extends Application {
                         if (toolbar.getSelection() == SELECTION_ORNAMENT) {
                             Rectangle2D rectangle2D = nearestSquare(pointClicked.getX(), pointClicked.getY());
                             placeOrnament(rectangle2D.getMinX(), rectangle2D.getMinY());
+                        }
+                        if(toolbar.getSelection() == SELECTION_SLOT &&
+                                pixelReader.getArgb((int) pointClicked.getX(), (int) pointClicked.getY()) == -16777216){
+                            Rectangle2D area = nearestSlot(pointClicked.getX(), pointClicked.getY(), toolbar.getSlotOrientation());
+                            placeSlot(area, toolbar.getSlotOrientation());
                         }
                         if (toolbar.getSelection() == SELECTION_CLEAR) {
                             deleteIfFound(pointClicked);
@@ -1637,6 +1639,18 @@ abstract class Utils extends Application {
         return new Rectangle2D(nearest_left, nearest_top, mFrameDimension, mFrameDimension);
     }
 
+    private Rectangle2D nearestSlot(double touch_x, double touch_y, int orientation) {
+
+        double nearest_left = ((int) (touch_x / mGridDimension)) * mGridDimension;
+        double nearest_top = ((int) (touch_y / mGridDimension)) * mGridDimension;
+
+        if(orientation == ORIENTATION_VERTICAL) {
+            return new Rectangle2D(nearest_left, nearest_top, mFrameDimension, mGridDimension);
+        } else {
+            return new Rectangle2D(nearest_left, nearest_top, mGridDimension, mFrameDimension);
+        }
+    }
+
     /**
      * On the basis of clicked point coordinates, we need to calculate the place to put the arrow in.
      * Disallowed locations: off the board and on the margin of the board.
@@ -1786,6 +1800,16 @@ abstract class Utils extends Application {
         mOrnaments.add(ornament);
     }
 
+    private void placeSlot(Rectangle2D area, int orientation) {
+
+        Slot slot = new Slot();
+        slot.setPosX(area.getMinX());
+        slot.setPosY(area.getMinY());
+        slot.setArea(area);
+        slot.setOrientation(orientation);
+        mSlots.add(slot);
+    }
+
     private void placeExit(double x, double y) {
 
         exit.setPosX(x);
@@ -1848,6 +1872,19 @@ abstract class Utils extends Application {
             detectRect = new Rectangle2D(ornament.getPosX(), ornament.getPosY(), mFrameDimension, mFrameDimension);
             if (detectRect.contains(checkPoint)){
                 mOrnaments.remove(ornament);
+                break;
+            }
+        }
+
+        for (Slot slot : mSlots){
+            if(slot.getArea().contains(checkPoint)){
+                mSlots.remove(slot);
+
+                if(mSlots.size() > 0){
+                    ladder.setSlotIdx(0);
+                } else {
+                    ladder.setSlotIdx(null);
+                }
                 break;
             }
         }

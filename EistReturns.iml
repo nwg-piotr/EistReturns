@@ -6,15 +6,16 @@
       <sourceFolder url="file://$MODULE_DIR$/src" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/resources" type="java-resource" />
     </content>
-    <orderEntry type="inheritedJdk" />
+    <orderEntry type="jdk" jdkName="1.8 (1)" jdkType="JavaSDK" />
     <orderEntry type="sourceFolder" forTests="false" />
     <orderEntry type="module-library">
       <library>
         <CLASSES />
         <JAVADOC />
         <SOURCES>
-          <root url="file://$MODULE_DIR$/src/res" />
+          <root url="file:///usr/lib/jvm/java-8-jdk" />
         </SOURCES>
+        <jarDirectory url="file:///usr/lib/jvm/java-8-jdk" recursive="false" type="SOURCES" />
       </library>
     </orderEntry>
   </component>
