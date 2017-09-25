@@ -22,6 +22,8 @@ import javafx.scene.transform.Rotate;
 import javafx.stage.Stage;
 import javafx.stage.WindowEvent;
 
+import javax.management.Notification;
+
 public class Editor extends Utils {
 
     private GraphicsContext gc;
@@ -51,6 +53,8 @@ public class Editor extends Utils {
 
     @Override
     public void start(Stage stage) throws Exception {
+
+        mEditorStage = stage;
 
         setEditorFiles();
         setBoard();
@@ -95,17 +99,22 @@ public class Editor extends Utils {
         /*
          * Init toolbar areas and initially selected values.
          */
-        toolbar.setDoorArea(new Rectangle2D(columns[27], rows[1], mFrameDimension, mFrameDimension));
-        toolbar.setSlotArea(new Rectangle2D(columns[29], rows[1], mFrameDimension, mFrameDimension));
-        toolbar.setArtifactArea(new Rectangle2D(columns[27], rows[3], mFrameDimension, mFrameDimension));
-        toolbar.setKeyArea(new Rectangle2D(columns[29], rows[3], mFrameDimension, mFrameDimension));
-        toolbar.setTeleportArea(new Rectangle2D(columns[27], rows[5], mFrameDimension, mFrameDimension));
-        toolbar.setOrnamentArea(new Rectangle2D(columns[29], rows[5], mFrameDimension, mFrameDimension));
-        toolbar.setExitArea(new Rectangle2D(columns[27], rows[7], mFrameDimension, mFrameDimension));
-        toolbar.setArrowArea(new Rectangle2D(columns[29], rows[7], mFrameDimension, mFrameDimension));
-        toolbar.setEistArea(new Rectangle2D(columns[27], rows[9], mFrameDimension, mFrameDimension));
-        toolbar.setClearArea(new Rectangle2D(columns[29], rows[9], mFrameDimension, mFrameDimension));
-        toolbar.setMessageCorner(new Point2D(columns[27], rows[12]));
+        toolbar.setOpenArea(new Rectangle2D(columns[27], rows[1], mGridDimension, mGridDimension));
+        toolbar.setSaveArea(new Rectangle2D(columns[28], rows[1], mGridDimension, mGridDimension));
+        toolbar.setSaveAsArea(new Rectangle2D(columns[29], rows[1], mGridDimension, mGridDimension));
+        toolbar.setSettingsArea(new Rectangle2D(columns[30], rows[1], mGridDimension, mGridDimension));
+
+        toolbar.setDoorArea(new Rectangle2D(columns[27], rows[3], mFrameDimension, mFrameDimension));
+        toolbar.setSlotArea(new Rectangle2D(columns[29], rows[3], mFrameDimension, mFrameDimension));
+        toolbar.setArtifactArea(new Rectangle2D(columns[27], rows[5], mFrameDimension, mFrameDimension));
+        toolbar.setKeyArea(new Rectangle2D(columns[29], rows[5], mFrameDimension, mFrameDimension));
+        toolbar.setTeleportArea(new Rectangle2D(columns[27], rows[7], mFrameDimension, mFrameDimension));
+        toolbar.setOrnamentArea(new Rectangle2D(columns[29], rows[7], mFrameDimension, mFrameDimension));
+        toolbar.setExitArea(new Rectangle2D(columns[27], rows[9], mFrameDimension, mFrameDimension));
+        toolbar.setArrowArea(new Rectangle2D(columns[29], rows[9], mFrameDimension, mFrameDimension));
+        toolbar.setEistArea(new Rectangle2D(columns[27], rows[11], mFrameDimension, mFrameDimension));
+        toolbar.setClearArea(new Rectangle2D(columns[29], rows[11], mFrameDimension, mFrameDimension));
+        toolbar.setMessageCorner(new Point2D(columns[27], rows[14]));
 
         toolbar.setDoorOrientation(ORIENTATION_HORIZONTAL);
         toolbar.setSlotOrientation(ORIENTATION_HORIZONTAL);
@@ -117,6 +126,7 @@ public class Editor extends Utils {
 
         mCurrentLevel = Integer.MAX_VALUE;
         mMuteMusic = true;
+
         loadEditor();
 
         mScene.setOnMouseClicked(this::handleMouseEvent);
@@ -750,11 +760,14 @@ public class Editor extends Utils {
             if (mShowFps) {
                 gc.fillText("FPS: " + String.valueOf((int) mFps), columns[27], rows[17]);
             }
+
         } else {
 
             Rectangle2D area;
             gc.setFill(Color.BLACK);
             gc.fillRect(columns[27], rows[0], mGridDimension * 5, mFrameDimension * 8);
+
+            gc.drawImage(mToolbarMenuImg, toolbar.getOpenArea().getMinX(), toolbar.getOpenArea().getMinY(), mGridDimension * 4, mGridDimension);
 
             if (toolbar.getSelection() != null) {
 

@@ -32,6 +32,7 @@ import game.Sprites.Exit;
 import game.Sprites.Ornament;
 import game.Sprites.Pad;
 import game.Sprites.Toolbar;
+import javafx.stage.Stage;
 
 import java.io.*;
 import java.nio.file.Files;
@@ -111,6 +112,8 @@ abstract class Utils extends Application {
     File mEditorFolder;
 
     boolean mLoadUserLevel;
+
+    Stage mEditorStage;
 
     /**
      * The Frame is a rectangular part of the game board of width of 2 columns and height of 2 rows.
@@ -339,6 +342,10 @@ abstract class Utils extends Application {
                     } else {
 
                         message = "";
+
+                        if(toolbar.getOpenArea().contains(pointClicked)){
+                            displayLevelChoiceDialog();
+                        }
 
                         if (toolbar.getDoorArea().contains(pointClicked)) {
                             toolbar.setSelection(SELECTION_DOOR);
@@ -680,6 +687,8 @@ abstract class Utils extends Application {
     Image mDoorHImg;
     Image mDoorVImg;
 
+    Image mToolbarMenuImg;
+
     Image mLadderImg;
     Image mLadderHImg;
     Image mLadderVImg;
@@ -768,6 +777,7 @@ abstract class Utils extends Application {
         mSlotVImg = new Image(ClassLoader.getSystemResource("images/sprites/slot_v.png").toExternalForm());
         mSlotVToolbarImg = new Image(ClassLoader.getSystemResource("images/sprites/slot_v_toolbar.png").toExternalForm());
         mToolbarEraseImg = new Image(ClassLoader.getSystemResource("images/sprites/toolbar_erase.png").toExternalForm());
+        mToolbarMenuImg = new Image(ClassLoader.getSystemResource("images/sprites/toolbar_menu.png").toExternalForm());
 
         mTeleportImg = new Image("images/sprites/teleport.png");
 
@@ -2103,27 +2113,55 @@ abstract class Utils extends Application {
         }
     }
 
-    void setEditorFiles() {
+    void displayLevelChoiceDialog(){
+        List<String> levels = new ArrayList<>();
+        for(int i = 1; i < MAX_LEVEL +1; i++) {
+            levels.add(String.valueOf(i));
+        }
+        ChoiceDialog<String> dialog = new ChoiceDialog<>("1", levels);
+        dialog.setTitle("Importing");
+        dialog.setHeaderText("Select level to import");
+        dialog.setContentText("Level:");
+
+        Optional<String> result = dialog.showAndWait();
+        if (result.isPresent()){
+            setEditorFiles(Integer.valueOf(result.get()));
+            loadEditor();
+        }
+
+    }
+
+    void setEditorFiles(Integer level) {
+
+        String lvlNumberToString = "03";
+        if(level != null) {
+            lvlNumberToString = (level < 10) ? "0" + String.valueOf(level) : String.valueOf(level);
+            mEditorStage.setTitle("Imported level: " + lvlNumberToString);
+        }
         mEditorFolder = new File(System.getProperty("user.home") + "/.EistReturns/levels/editor-data");
         if (mEditorFolder.mkdir()) {
             System.out.println("Editor folder created");
+        }
+        File sFile = new File(ClassLoader.getSystemResource("levels/" + lvlNumberToString).toExternalForm().substring(5));
+        File[] sourceFiles = sFile.listFiles();
 
-            File sFile = new File(ClassLoader.getSystemResource("levels/03").toExternalForm().substring(5));
-            File[] sourceFiles = sFile.listFiles();
+        if (sourceFiles != null) {
+            for (File file : sourceFiles) {
 
-            if (sourceFiles != null) {
-                for (File file : sourceFiles) {
-
-                    System.out.println("FOUND: " + file.toString());
-                    Path source = Paths.get(file.toString());
-                    Path destination = Paths.get(System.getProperty("user.home") + "/.EistReturns/levels/editor-data", source.getFileName().toString());
-                    try {
-                        Files.copy(source, destination, REPLACE_EXISTING);
-                    } catch (IOException e) {
-                        System.out.println("Couldn't copy file " + source.getFileName() + ": " + e);
-                    }
+                System.out.println("FOUND: " + file.toString());
+                Path source = Paths.get(file.toString());
+                Path destination = Paths.get(System.getProperty("user.home") + "/.EistReturns/levels/editor-data", source.getFileName().toString());
+                try {
+                    Files.copy(source, destination, REPLACE_EXISTING);
+                } catch (IOException e) {
+                    System.out.println("Couldn't copy file " + source.getFileName() + ": " + e);
                 }
             }
         }
+    }
+
+    void setEditorFiles() {
+
+        setEditorFiles(null);
     }
 }

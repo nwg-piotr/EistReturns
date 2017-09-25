@@ -437,6 +437,11 @@ abstract class Sprites extends Utils {
         private Integer arrowDirection;
         private Integer selection;
 
+        private Rectangle2D openArea;
+        private Rectangle2D saveArea;
+        private Rectangle2D saveAsArea;
+        private Rectangle2D settingsArea;
+
         private Rectangle2D doorArea;
         private Rectangle2D slotArea;
         private Rectangle2D artifactArea;
@@ -463,6 +468,19 @@ abstract class Sprites extends Utils {
 
         void setSelection(Integer value) {
             selection = value;
+        }
+
+        void setOpenArea(Rectangle2D rectangle2D) {
+            openArea = rectangle2D;
+        }
+        void setSaveArea(Rectangle2D rectangle2D) {
+            saveArea = rectangle2D;
+        }
+        void setSaveAsArea(Rectangle2D rectangle2D) {
+            saveAsArea = rectangle2D;
+        }
+        void setSettingsArea(Rectangle2D rectangle2D) {
+            settingsArea = rectangle2D;
         }
 
         void setDoorArea(Rectangle2D rectangle2D) {
@@ -527,6 +545,19 @@ abstract class Sprites extends Utils {
 
         Rectangle2D getDoorArea() {
             return doorArea;
+        }
+
+        Rectangle2D getOpenArea() {
+            return openArea;
+        }
+        Rectangle2D getSaveArea() {
+            return saveArea;
+        }
+        Rectangle2D getSaveAsArea() {
+            return saveAsArea;
+        }
+        Rectangle2D getSettingsArea() {
+            return settingsArea;
         }
 
         Rectangle2D getSlotArea() {
