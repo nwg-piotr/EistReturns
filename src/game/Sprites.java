@@ -26,7 +26,6 @@ abstract class Sprites extends Utils {
         private Integer keys;
         private Rectangle2D area;
         private Point2D center;
-        private Point2D sensor;
         private Point2D end_point; // Coordinates at which Eist should be placed at the end of the current maneuver
 
         void setDirection(int value) {
