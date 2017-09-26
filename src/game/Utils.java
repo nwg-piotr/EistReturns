@@ -35,9 +35,6 @@ import game.Sprites.Toolbar;
 import javafx.stage.Stage;
 
 import java.io.*;
-import java.nio.file.Files;
-
-import static java.nio.file.StandardCopyOption.*;
 
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -453,7 +450,7 @@ abstract class Utils extends Application {
                     /*
                      * In editor: place / remove selected item
                      */
-                    if (toolbar.getSelection() != null) {
+                    if (toolbar != null && toolbar.getSelection() != null) {
                         /*
                         If path clicked
                          */
@@ -2151,10 +2148,22 @@ abstract class Utils extends Application {
                 System.out.println("FOUND: " + file.toString());
                 Path source = Paths.get(file.toString());
                 Path destination = Paths.get(System.getProperty("user.home") + "/.EistReturns/levels/editor-data", source.getFileName().toString());
+
+                /*
+                 * The Files.copy method below produces error in Windows environment.
+                 * Let's replace it, at least temporarily, with the copyFile method using streams.
+                 */
+                /*
                 try {
                     Files.copy(source, destination, REPLACE_EXISTING);
                 } catch (IOException e) {
                     System.out.println("Couldn't copy file " + source.getFileName() + ": " + e);
+                }
+                */
+                try {
+                    copyFile(source.toFile(), destination.toFile());
+                } catch(IOException e) {
+                    System.out.println("Couldn't copy, exception: " + e);
                 }
             }
         }
@@ -2163,5 +2172,15 @@ abstract class Utils extends Application {
     void setEditorFiles() {
 
         setEditorFiles(null);
+    }
+
+    private static void copyFile(File source, File dest) throws IOException {
+        try (InputStream is = new FileInputStream(source); OutputStream os = new FileOutputStream(dest)) {
+            byte[] buffer = new byte[1024];
+            int length;
+            while ((length = is.read(buffer)) > 0) {
+                os.write(buffer, 0, length);
+            }
+        }
     }
 }

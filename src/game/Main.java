@@ -473,6 +473,19 @@ public class Main extends Utils {
         }
 
         /*
+         * Draw slots
+         */
+        if (mSlots != null && mSlots.size() > 0) {
+            for (Slot slot : mSlots) {
+                if (slot.getOrientation() == ORIENTATION_HORIZONTAL) {
+                    gc.drawImage(mSlotHImg, slot.getPosX(), slot.getPosY(), mGridDimension, mFrameDimension);
+                } else {
+                    gc.drawImage(mSlotVImg, slot.getPosX(), slot.getPosY(), mFrameDimension, mGridDimension);
+                }
+            }
+        }
+
+        /*
          * Draw doors
          */
         if (mDoors != null && mDoors.size() > 0) {

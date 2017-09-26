@@ -461,7 +461,7 @@ public class Editor extends Utils {
             }
         }
 
-        if (!mTesting && mSlots != null && mSlots.size() > 0) {
+        if (mSlots != null && mSlots.size() > 0) {
             for (Slot slot : mSlots) {
                 if (slot.getOrientation() == ORIENTATION_HORIZONTAL) {
                     gc.drawImage(mSlotHImg, slot.getPosX(), slot.getPosY(), mGridDimension, mFrameDimension);
