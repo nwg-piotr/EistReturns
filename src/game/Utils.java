@@ -2149,21 +2149,10 @@ abstract class Utils extends Application {
                 Path source = Paths.get(file.toString());
                 Path destination = Paths.get(System.getProperty("user.home") + "/.EistReturns/levels/editor-data", source.getFileName().toString());
 
-                /*
-                 * The Files.copy method below produces error in Windows environment.
-                 * Let's replace it, at least temporarily, with the copyFile method using streams.
-                 */
-                /*
-                try {
-                    Files.copy(source, destination, REPLACE_EXISTING);
-                } catch (IOException e) {
-                    System.out.println("Couldn't copy file " + source.getFileName() + ": " + e);
-                }
-                */
                 try {
                     copyFile(source.toFile(), destination.toFile());
                 } catch(IOException e) {
-                    System.out.println("Couldn't copy, exception: " + e);
+                    System.out.println("Copying error: " + e);
                 }
             }
         }
