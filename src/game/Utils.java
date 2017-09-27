@@ -539,7 +539,13 @@ abstract class Utils extends Application {
                         mCurrentLevel = 0;
                         loadLevel(mCurrentLevel);
                     } else {
-                        mTesting = !mTesting;
+                        if(!mTesting){
+                            saveLevel();
+                            mTesting = true;
+                        } else {
+                            mTesting = false;
+                            loadEditor();
+                        }
                     }
                 }
 
@@ -2344,9 +2350,9 @@ abstract class Utils extends Application {
                 content.append(String.valueOf(arrow.getDirection()));
                 content.append(":");
             }
-            saveListToFile("arrows.dat", content.toString());
+            saveToDatFile("arrows.dat", content.toString());
         } else {
-            saveListToFile("arrows.dat", "");
+            saveToDatFile("arrows.dat", "");
         }
 
         content = new StringBuilder();
@@ -2357,9 +2363,9 @@ abstract class Utils extends Application {
                 content.append(String.valueOf((int)(artifact.getPosY() / mGridDimension)));
                 content.append(":");
             }
-            saveListToFile("amulets.dat", content.toString());
+            saveToDatFile("amulets.dat", content.toString());
         } else {
-            saveListToFile("amulets.dat", "");
+            saveToDatFile("amulets.dat", "");
         }
 
         content = new StringBuilder();
@@ -2372,9 +2378,9 @@ abstract class Utils extends Application {
                 content.append(String.valueOf(door.getOrientation()));
                 content.append(":");
             }
-            saveListToFile("doors.dat", content.toString());
+            saveToDatFile("doors.dat", content.toString());
         } else {
-            saveListToFile("doors", "");
+            saveToDatFile("doors", "");
         }
 
         content = new StringBuilder();
@@ -2385,9 +2391,9 @@ abstract class Utils extends Application {
                 content.append(String.valueOf((int)(key.getPosY() / mGridDimension)));
                 content.append(":");
             }
-            saveListToFile("keys.dat", content.toString());
+            saveToDatFile("keys.dat", content.toString());
         } else {
-            saveListToFile("keys.dat", "");
+            saveToDatFile("keys.dat", "");
         }
 
         content = new StringBuilder();
@@ -2398,9 +2404,9 @@ abstract class Utils extends Application {
                 content.append(String.valueOf((int)(ornament.getPosY() / mGridDimension)));
                 content.append(":");
             }
-            saveListToFile("ornaments.dat", content.toString());
+            saveToDatFile("ornaments.dat", content.toString());
         } else {
-            saveListToFile("ornaments.dat", "");
+            saveToDatFile("ornaments.dat", "");
         }
 
         content = new StringBuilder();
@@ -2413,11 +2419,27 @@ abstract class Utils extends Application {
                 content.append(String.valueOf(slot.getOrientation()));
                 content.append(":");
             }
-            saveListToFile("slots.dat", content.toString());
+            saveToDatFile("slots.dat", content.toString());
         } else {
-            saveListToFile("slots.dat", "");
+            saveToDatFile("slots.dat", "");
         }
 
+        content = new StringBuilder();
+        content.append(String.valueOf((int)(eist.x / mGridDimension)));
+        content.append(",");
+        content.append(String.valueOf((int)(eist.y / mGridDimension)));
+        content.append(",");
+        content.append(String.valueOf(eist.getDirection()));
+        content.append(",");
+        content.append(String.valueOf((int)(exit.getPosX() / mGridDimension)));
+        content.append(",");
+        content.append(String.valueOf((int)(exit.getPosY() / mGridDimension)));
+        content.append(",");
+        content.append(String.valueOf(ladder.getSlotIdx()));
+
+        saveToDatFile("level.dat", content.toString());
+
+        boolean teleportsOK = true;
         content = new StringBuilder();
         if(mTeleports != null && mTeleports.size() == 2){
             for(Teleport teleport : mTeleports){
@@ -2426,16 +2448,21 @@ abstract class Utils extends Application {
                 content.append(String.valueOf((int)(teleport.getPosY() / mGridDimension)));
                 content.append(":");
             }
-            saveListToFile("teleports.dat", content.toString());
+            saveToDatFile("teleports.dat", content.toString());
         } else {
-            saveListToFile("teleports.dat", "");
+            saveToDatFile("teleports.dat", "");
             if(mTeleports != null && mTeleports.size() == 1) {
-                Toast.makeText(mEditorStage, "A pair of teleports not found", 2000, 100, 1000);
+                teleportsOK =  false;
             }
+        }
+        if(teleportsOK){
+            Toast.makeText(mEditorStage, "Level saved");
+        } else {
+            Toast.makeText(mEditorStage, "Level saved (teleports skipped - pair not found)");
         }
     }
 
-    private void saveListToFile(String filename, String content) {
+    private void saveToDatFile(String filename, String content) {
         String pathAndFilename = new File(System.getProperty("user.home") + "/.EistReturns/levels/editor-data/" + filename).toString();
         try {
             PrintStream out = new PrintStream(pathAndFilename);
@@ -2445,21 +2472,23 @@ abstract class Utils extends Application {
         }
     }
 
-    public static final class Toast
-    {
-        private static void makeText(Stage ownerStage, String toastMsg, int toastDelay, int fadeInDelay, int fadeOutDelay)
-        {
+    /*
+     * The class Toast after https://stackoverflow.com/a/38373408/4040598 by @alcoolis
+     */
+    private static final class Toast{
+
+        private static void makeText(Stage ownerStage, String toastMsg, int toastDelay, int fadeInDelay, int fadeOutDelay){
             Stage toastStage=new Stage();
             toastStage.initOwner(ownerStage);
             toastStage.setResizable(false);
             toastStage.initStyle(StageStyle.TRANSPARENT);
 
             Text text = new Text(toastMsg);
-            text.setFont(Font.font("Verdana", 40));
-            text.setFill(Color.RED);
+            text.setFont(Font.font("Verdana", 30));
+            text.setFill(Color.WHITE);
 
             StackPane root = new StackPane(text);
-            root.setStyle("-fx-background-radius: 20; -fx-background-color: rgba(0, 0, 0, 0.2); -fx-padding: 50px;");
+            root.setStyle("-fx-background-radius: 20; -fx-background-color: rgba(0, 0, 0, 0.4); -fx-padding: 20px;");
             root.setOpacity(0);
 
             Scene scene = new Scene(root);
@@ -2470,16 +2499,13 @@ abstract class Utils extends Application {
             Timeline fadeInTimeline = new Timeline();
             KeyFrame fadeInKey1 = new KeyFrame(Duration.millis(fadeInDelay), new KeyValue (toastStage.getScene().getRoot().opacityProperty(), 1));
             fadeInTimeline.getKeyFrames().add(fadeInKey1);
-            fadeInTimeline.setOnFinished((ae) ->
-            {
+            fadeInTimeline.setOnFinished((ae) -> {
                 new Thread(() -> {
-                    try
-                    {
+                    try {
                         Thread.sleep(toastDelay);
                     }
-                    catch (InterruptedException e)
-                    {
-                        // TODO Auto-generated catch block
+                    catch (InterruptedException e) {
+
                         e.printStackTrace();
                     }
                     Timeline fadeOutTimeline = new Timeline();
@@ -2490,6 +2516,10 @@ abstract class Utils extends Application {
                 }).start();
             });
             fadeInTimeline.play();
+        }
+
+        private static void makeText(Stage ownerStage, String toastMsg){
+            makeText(ownerStage, toastMsg, 1000, 100, 1000);
         }
     }
 }
