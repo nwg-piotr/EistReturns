@@ -1,10 +1,14 @@
 package game;
 
+import javafx.animation.KeyFrame;
+import javafx.animation.KeyValue;
+import javafx.animation.Timeline;
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.concurrent.Task;
 import javafx.geometry.Point2D;
 import javafx.geometry.Rectangle2D;
+import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.image.PixelReader;
@@ -12,10 +16,14 @@ import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Priority;
+import javafx.scene.layout.StackPane;
 import javafx.scene.media.AudioClip;
 import javafx.scene.media.Media;
 import javafx.scene.media.MediaException;
 import javafx.scene.media.MediaPlayer;
+import javafx.scene.paint.Color;
+import javafx.scene.text.Font;
+import javafx.scene.text.Text;
 import javafx.stage.Screen;
 
 import java.io.File;
@@ -33,6 +41,8 @@ import game.Sprites.Ornament;
 import game.Sprites.Pad;
 import game.Sprites.Toolbar;
 import javafx.stage.Stage;
+import javafx.stage.StageStyle;
+import javafx.util.Duration;
 
 import java.io.*;
 
@@ -342,6 +352,9 @@ abstract class Utils extends Application {
 
                         if(toolbar.getOpenArea().contains(pointClicked)){
                             displayLevelChoiceDialog();
+                        }
+                        if(toolbar.getSaveArea().contains(pointClicked)){
+                            saveLevel();
                         }
 
                         if (toolbar.getDoorArea().contains(pointClicked)) {
@@ -2317,6 +2330,166 @@ abstract class Utils extends Application {
             while ((length = is.read(buffer)) > 0) {
                 os.write(buffer, 0, length);
             }
+        }
+    }
+
+    private void saveLevel(){
+        StringBuilder content = new StringBuilder();
+        if(mArrows != null && mArrows.size() > 0){
+            for(Arrow arrow : mArrows){
+                content.append(String.valueOf((int)(arrow.getPosX() / mGridDimension)));
+                content.append(",");
+                content.append(String.valueOf((int)(arrow.getPosY() / mGridDimension)));
+                content.append(",");
+                content.append(String.valueOf(arrow.getDirection()));
+                content.append(":");
+            }
+            saveListToFile("arrows.dat", content.toString());
+        } else {
+            saveListToFile("arrows.dat", "");
+        }
+
+        content = new StringBuilder();
+        if(mArtifacts != null && mArtifacts.size() > 0){
+            for(Artifact artifact : mArtifacts){
+                content.append(String.valueOf((int)(artifact.getPosX() / mGridDimension)));
+                content.append(",");
+                content.append(String.valueOf((int)(artifact.getPosY() / mGridDimension)));
+                content.append(":");
+            }
+            saveListToFile("amulets.dat", content.toString());
+        } else {
+            saveListToFile("amulets.dat", "");
+        }
+
+        content = new StringBuilder();
+        if(mDoors != null && mDoors.size() > 0){
+            for(Door door : mDoors){
+                content.append(String.valueOf((int)(door.getPosX() / mGridDimension)));
+                content.append(",");
+                content.append(String.valueOf((int)(door.getPosY() / mGridDimension)));
+                content.append(",");
+                content.append(String.valueOf(door.getOrientation()));
+                content.append(":");
+            }
+            saveListToFile("doors.dat", content.toString());
+        } else {
+            saveListToFile("doors", "");
+        }
+
+        content = new StringBuilder();
+        if(mKeys != null && mKeys.size() > 0){
+            for(Key key : mKeys){
+                content.append(String.valueOf((int)(key.getPosX() / mGridDimension)));
+                content.append(",");
+                content.append(String.valueOf((int)(key.getPosY() / mGridDimension)));
+                content.append(":");
+            }
+            saveListToFile("keys.dat", content.toString());
+        } else {
+            saveListToFile("keys.dat", "");
+        }
+
+        content = new StringBuilder();
+        if(mOrnaments != null && mOrnaments.size() > 0){
+            for(Ornament ornament : mOrnaments){
+                content.append(String.valueOf((int)(ornament.getPosX() / mGridDimension)));
+                content.append(",");
+                content.append(String.valueOf((int)(ornament.getPosY() / mGridDimension)));
+                content.append(":");
+            }
+            saveListToFile("ornaments.dat", content.toString());
+        } else {
+            saveListToFile("ornaments.dat", "");
+        }
+
+        content = new StringBuilder();
+        if(mSlots != null && mSlots.size() > 0){
+            for(Slot slot : mSlots){
+                content.append(String.valueOf((int)(slot.getPosX() / mGridDimension)));
+                content.append(",");
+                content.append(String.valueOf((int)(slot.getPosY() / mGridDimension)));
+                content.append(",");
+                content.append(String.valueOf(slot.getOrientation()));
+                content.append(":");
+            }
+            saveListToFile("slots.dat", content.toString());
+        } else {
+            saveListToFile("slots.dat", "");
+        }
+
+        content = new StringBuilder();
+        if(mTeleports != null && mTeleports.size() == 2){
+            for(Teleport teleport : mTeleports){
+                content.append(String.valueOf((int)(teleport.getPosX() / mGridDimension)));
+                content.append(",");
+                content.append(String.valueOf((int)(teleport.getPosY() / mGridDimension)));
+                content.append(":");
+            }
+            saveListToFile("teleports.dat", content.toString());
+        } else {
+            saveListToFile("teleports.dat", "");
+            if(mTeleports != null && mTeleports.size() == 1) {
+                Toast.makeText(mEditorStage, "A pair of teleports not found", 2000, 100, 1000);
+            }
+        }
+    }
+
+    private void saveListToFile(String filename, String content) {
+        String pathAndFilename = new File(System.getProperty("user.home") + "/.EistReturns/levels/editor-data/" + filename).toString();
+        try {
+            PrintStream out = new PrintStream(pathAndFilename);
+            out.println(content);
+        } catch(IOException e){
+            System.out.println("Failed writing " + filename + ": " + e);
+        }
+    }
+
+    public static final class Toast
+    {
+        private static void makeText(Stage ownerStage, String toastMsg, int toastDelay, int fadeInDelay, int fadeOutDelay)
+        {
+            Stage toastStage=new Stage();
+            toastStage.initOwner(ownerStage);
+            toastStage.setResizable(false);
+            toastStage.initStyle(StageStyle.TRANSPARENT);
+
+            Text text = new Text(toastMsg);
+            text.setFont(Font.font("Verdana", 40));
+            text.setFill(Color.RED);
+
+            StackPane root = new StackPane(text);
+            root.setStyle("-fx-background-radius: 20; -fx-background-color: rgba(0, 0, 0, 0.2); -fx-padding: 50px;");
+            root.setOpacity(0);
+
+            Scene scene = new Scene(root);
+            scene.setFill(Color.TRANSPARENT);
+            toastStage.setScene(scene);
+            toastStage.show();
+
+            Timeline fadeInTimeline = new Timeline();
+            KeyFrame fadeInKey1 = new KeyFrame(Duration.millis(fadeInDelay), new KeyValue (toastStage.getScene().getRoot().opacityProperty(), 1));
+            fadeInTimeline.getKeyFrames().add(fadeInKey1);
+            fadeInTimeline.setOnFinished((ae) ->
+            {
+                new Thread(() -> {
+                    try
+                    {
+                        Thread.sleep(toastDelay);
+                    }
+                    catch (InterruptedException e)
+                    {
+                        // TODO Auto-generated catch block
+                        e.printStackTrace();
+                    }
+                    Timeline fadeOutTimeline = new Timeline();
+                    KeyFrame fadeOutKey1 = new KeyFrame(Duration.millis(fadeOutDelay), new KeyValue(toastStage.getScene().getRoot().opacityProperty(), 0));
+                    fadeOutTimeline.getKeyFrames().add(fadeOutKey1);
+                    fadeOutTimeline.setOnFinished((aeb) -> toastStage.close());
+                    fadeOutTimeline.play();
+                }).start();
+            });
+            fadeInTimeline.play();
         }
     }
 }
