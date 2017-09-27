@@ -215,7 +215,7 @@ abstract class Utils extends Application {
         rem = javafx.scene.text.Font.getDefault().getSize() / 13;
 
         /*
-         * For future use - create the folder which user can upload custom levels data to.
+         * Create the folder which user can upload custom levels data to.
          */
         mUserFolder = new File(System.getProperty("user.home") + "/.EistReturns");
         if (mUserFolder.mkdir()) {
@@ -1563,6 +1563,23 @@ abstract class Utils extends Application {
             exit.setPosY(rows[Integer.valueOf(data[4])]);
             exit.setArea(new Rectangle2D(exit.getPosX(), exit.getPosY(), mFrameDimension, mFrameDimension));
             ladder.setSlotIdx(Integer.valueOf(data[5]));
+
+        } else {
+            // error loading file, set replacement data
+            eist.x = columns[1];
+            eist.y = rows[1];
+            eist.setDirection(2);
+            exit.setPosX(columns[24]);
+            exit.setPosY(rows[15]);
+            exit.setArea(new Rectangle2D(exit.getPosX(), exit.getPosY(), mFrameDimension, mFrameDimension));
+            ladder.setSlotIdx(0);
+
+        }
+        /*
+         * Just in case the slots.dat file not found:
+         */
+        if(mSlots == null || mSlots.size() == 0){
+            ladder.setSlotIdx(null);
         }
 
         if (trackMainPlayer != null && trackMainPlayer.getStatus().equals(MediaPlayer.Status.PLAYING)) {
@@ -1814,7 +1831,11 @@ abstract class Utils extends Application {
         slot.setPosY(area.getMinY());
         slot.setArea(area);
         slot.setOrientation(orientation);
+
         mSlots.add(slot);
+        if(mSlots.size() == 1){
+            ladder.setSlotIdx(0);
+        }
     }
 
     private void placeExit(double x, double y) {
@@ -1840,8 +1861,6 @@ abstract class Utils extends Application {
                 break;
             }
         }
-
-        // todo slot deletion to be added here
 
         for(Artifact artifact : mArtifacts){
             detectRect = new Rectangle2D(artifact.getPosX(), artifact.getPosY(), mFrameDimension, mFrameDimension);
@@ -2128,39 +2147,167 @@ abstract class Utils extends Application {
 
     }
 
-    void setEditorFiles(Integer level) {
+    private void setEditorFiles(Integer level) {
 
-        String lvlNumberToString = "03";
-        if(level != null) {
-            lvlNumberToString = (level < 10) ? "0" + String.valueOf(level) : String.valueOf(level);
-            mEditorStage.setTitle("Imported level: " + lvlNumberToString);
-        }
         mEditorFolder = new File(System.getProperty("user.home") + "/.EistReturns/levels/editor-data");
         if (mEditorFolder.mkdir()) {
-            System.out.println("Editor folder created");
+
+            /*
+             * Editor folder not found. Let's create it and import sample level 03 data
+             */
+            System.out.println("Editor folder created, importing sample data...");
+
+            importEditorFiles(3);
+
+            Alert alert = new Alert(Alert.AlertType.INFORMATION);
+            alert.setTitle("Sample data created");
+            alert.setHeaderText(null);
+            alert.setContentText("First run - sample Level 3 data imported");
+
+            alert.showAndWait();
         }
-        File sFile = new File(ClassLoader.getSystemResource("levels/" + lvlNumberToString).toExternalForm().substring(5));
-        File[] sourceFiles = sFile.listFiles();
 
-        if (sourceFiles != null) {
-            for (File file : sourceFiles) {
+        if(level != null){
 
-                System.out.println("FOUND: " + file.toString());
-                Path source = Paths.get(file.toString());
-                Path destination = Paths.get(System.getProperty("user.home") + "/.EistReturns/levels/editor-data", source.getFileName().toString());
+            /*
+             * Importing predefined level on demand
+             */
+            importEditorFiles(level);
 
-                try {
-                    copyFile(source.toFile(), destination.toFile());
-                } catch(IOException e) {
-                    System.out.println("Copying error: " + e);
-                }
+        } else {
+
+            /*
+             * Opening last editor state. Let's check if user didn't remove required files.
+             * If so, substitute them with ones taken from the sample Level 03.
+             */
+            String missingFiles = "";
+
+            if(!isFilePresent("board.png")){
+                missingFiles = "\n- board.png";
+            }
+            if(!isFilePresent("door_h.png")){
+                missingFiles += "\n- door_h.png";
+            }
+            if(!isFilePresent("door_v.png")){
+                missingFiles += "\n- door_v.png";
+            }
+            if(!isFilePresent("exit_closed.png")){
+                missingFiles += "\n- exit_closed.png";
+            }
+            if(!isFilePresent("exit_open.png")){
+                missingFiles += "\n- exit_open.png";
+            }
+            if(!isFilePresent("key.png")){
+                missingFiles += "\n- key.png";
+            }
+            if(!isFilePresent("ladder_h.png")){
+                missingFiles += "\n- ladder_h.png";
+            }
+            if(!isFilePresent("ladder_v.png")){
+                missingFiles += "\n- ladder_v.png";
+            }
+            if(!isFilePresent("ornament.png")){
+                missingFiles += "\n- ornament.png";
+            }
+            if(!isFilePresent("ornament.png")){
+                missingFiles += "\n- ornament.png";
+            }
+            if(!isFilePresent("amulets.dat")){
+                missingFiles += "\n- amulets.dat";
+            }
+            if(!isFilePresent("arrows.dat")){
+                missingFiles += "\n- arrows.dat";
+            }
+            if(!isFilePresent("doors.dat")){
+                missingFiles += "\n- doors.dat";
+            }
+            if(!isFilePresent("keys.dat")){
+                missingFiles += "\n- keys.dat";
+            }
+            if(!isFilePresent("level.dat")){
+                missingFiles += "\n- level.dat";
+            }
+            if(!isFilePresent("slots.dat")){
+                missingFiles += "\n- slots.dat";
+            }
+            if(!isFilePresent("teleports.dat")){
+                missingFiles += "\n- teleports.dat";
+            }
+
+            if(!missingFiles.isEmpty()){
+                missingFiles = "Missing file(s) substituted:" + missingFiles;
+            }
+
+
+
+            if(!missingFiles.isEmpty()){
+
+                Alert alert = new Alert(Alert.AlertType.INFORMATION);
+                alert.setTitle("Data not found");
+                alert.setHeaderText(null);
+                alert.setContentText(missingFiles);
+
+                alert.showAndWait();
             }
         }
+
     }
 
     void setEditorFiles() {
 
         setEditorFiles(null);
+    }
+
+    private boolean isFilePresent(String name){
+
+        File checkMe = new File(System.getProperty("user.home") + "/.EistReturns/levels/editor-data/" + name);
+        if(!checkMe.exists()){
+
+            File replacement = new File(ClassLoader.getSystemResource("levels/03/" + name).toExternalForm().substring(5));
+            try {
+                copyFile(replacement, checkMe);
+            }catch (IOException e){
+                System.out.println("Error copying board.png:" + e);
+            }
+        return false;
+
+        } else {
+            return true;
+        }
+    }
+
+    private void importEditorFiles(Integer level){
+
+        String lvlNumberToString;
+        if(level != null) {
+
+            lvlNumberToString = (level < 10) ? "0" + String.valueOf(level) : String.valueOf(level);
+            mEditorStage.setTitle("Imported level: " + lvlNumberToString);
+
+        } else {
+
+            lvlNumberToString = "03";
+            mEditorStage.setTitle("Imported sample level: " + lvlNumberToString);
+        }
+
+        File sourceFolder = new File(ClassLoader.getSystemResource("levels/" + lvlNumberToString).toExternalForm().substring(5));
+        File[] sourceFiles = sourceFolder.listFiles();
+
+        if (sourceFiles != null) {
+            for (File file : sourceFiles) {
+
+                Path source = Paths.get(file.toString());
+                Path destination = Paths.get(System.getProperty("user.home") + "/.EistReturns/levels/editor-data", source.getFileName().toString());
+
+                try {
+                    copyFile(source.toFile(), destination.toFile());
+                    System.out.println("Copying: " + file.toString());
+                } catch(IOException e) {
+                    System.out.println("Copying error: " + e);
+                }
+            }
+        }
+
     }
 
     private static void copyFile(File source, File dest) throws IOException {

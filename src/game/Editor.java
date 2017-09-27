@@ -23,6 +23,7 @@ import javafx.stage.Stage;
 import javafx.stage.WindowEvent;
 
 import javax.management.Notification;
+import java.io.File;
 
 public class Editor extends Utils {
 
@@ -55,6 +56,18 @@ public class Editor extends Utils {
     public void start(Stage stage) throws Exception {
 
         mEditorStage = stage;
+
+        /*
+         * Create the folder which user can upload custom levels data to.
+         */
+        mUserFolder = new File(System.getProperty("user.home") + "/.EistReturns");
+        if (mUserFolder.mkdir()) {
+            System.out.println("\nEistReturns folder created");
+        }
+        mUserLevelsFolder = new File(System.getProperty("user.home") + "/.EistReturns/levels");
+        if (mUserLevelsFolder.mkdir()) {
+            System.out.println("Levels folder created");
+        }
 
         setEditorFiles();
         setBoard();
@@ -461,6 +474,9 @@ public class Editor extends Utils {
             }
         }
 
+        /*
+         * Draw slots
+         */
         if (mSlots != null && mSlots.size() > 0) {
             for (Slot slot : mSlots) {
                 if (slot.getOrientation() == ORIENTATION_HORIZONTAL) {
@@ -522,19 +538,22 @@ public class Editor extends Utils {
         /*
          * Draw ladder
          */
-        Integer currentSlotIdx = ladder.getSlotIdx();
-        if (currentSlotIdx != null) {
-            Slot activeSlot = mSlots.get(currentSlotIdx);
-            if (mSlots.get(currentSlotIdx).getOrientation() == 0) {
-                mLadderImg = mLadderHImg;
-                gc.drawImage(mLadderImg, activeSlot.getPosX(), activeSlot.getPosY(), mGridDimension, mFrameDimension);
+        if(mSlots != null && mSlots.size() > 0) {
+
+            Integer currentSlotIdx = ladder.getSlotIdx();
+            if (currentSlotIdx != null) {
+                Slot activeSlot = mSlots.get(currentSlotIdx);
+                if (mSlots.get(currentSlotIdx).getOrientation() == 0) {
+                    mLadderImg = mLadderHImg;
+                    gc.drawImage(mLadderImg, activeSlot.getPosX(), activeSlot.getPosY(), mGridDimension, mFrameDimension);
+                } else {
+                    mLadderImg = mLadderVImg;
+                    gc.drawImage(mLadderImg, activeSlot.getPosX(), activeSlot.getPosY(), mFrameDimension, mGridDimension);
+                }
             } else {
-                mLadderImg = mLadderVImg;
-                gc.drawImage(mLadderImg, activeSlot.getPosX(), activeSlot.getPosY(), mFrameDimension, mGridDimension);
+                mLadderImg = mLadderHImg;
+                gc.drawImage(mLadderImg, columns[29], rows[3], mGridDimension, mFrameDimension);
             }
-        } else {
-            mLadderImg = mLadderHImg;
-            gc.drawImage(mLadderImg, columns[29], rows[3], mGridDimension, mFrameDimension);
         }
 
         /*
@@ -964,8 +983,7 @@ public class Editor extends Utils {
         }
 
         /*
-         * Rotate Eist on arrows (also on doors in the future).
-         * At the end of the maneuver - place him exactly on the endPoint.
+         * Rotate Eist on arrows and doors
          */
         int turning = eist.getTurning();
         if (turning != 0) {
