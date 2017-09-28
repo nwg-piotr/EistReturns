@@ -164,6 +164,7 @@ abstract class Utils extends Application {
     static final int SELECTION_EIST = 9;
 
     String message = "";
+    String mMenuHint = "";
     Rectangle2D detectRect;
 
     Preferences prefs;
@@ -275,6 +276,7 @@ abstract class Utils extends Application {
 
         Point2D pointClicked = new Point2D(event.getSceneX(), event.getSceneY());
 
+
         if (event.getButton() == MouseButton.PRIMARY) {
 
             if (mButtonMuteMusic.contains(pointClicked)) {
@@ -349,13 +351,6 @@ abstract class Utils extends Application {
                     } else {
 
                         message = "";
-
-                        if(toolbar.getOpenArea().contains(pointClicked)){
-                            displayLevelChoiceDialog();
-                        }
-                        if(toolbar.getSaveArea().contains(pointClicked)){
-                            saveLevel();
-                        }
 
                         if (toolbar.getDoorArea().contains(pointClicked)) {
                             toolbar.setSelection(SELECTION_DOOR);
@@ -540,7 +535,7 @@ abstract class Utils extends Application {
                         loadLevel(mCurrentLevel);
                     } else {
                         if(!mTesting){
-                            saveLevel();
+                            saveEditor();
                             mTesting = true;
                         } else {
                             mTesting = false;
@@ -793,6 +788,7 @@ abstract class Utils extends Application {
         mSlotVImg = new Image(ClassLoader.getSystemResource("images/sprites/slot_v.png").toExternalForm());
         mSlotVToolbarImg = new Image(ClassLoader.getSystemResource("images/sprites/slot_v_toolbar.png").toExternalForm());
         mToolbarEraseImg = new Image(ClassLoader.getSystemResource("images/sprites/toolbar_erase.png").toExternalForm());
+
         mToolbarMenuImg = new Image(ClassLoader.getSystemResource("images/sprites/toolbar_menu.png").toExternalForm());
 
         mTeleportImg = new Image("images/sprites/teleport.png");
@@ -2148,7 +2144,7 @@ abstract class Utils extends Application {
         }
     }
 
-    void displayLevelChoiceDialog(){
+    void displayImportLevelChoiceDialog(){
         List<String> levels = new ArrayList<>();
         for(int i = 1; i < MAX_LEVEL +1; i++) {
             levels.add(String.valueOf(i));
@@ -2160,10 +2156,26 @@ abstract class Utils extends Application {
 
         Optional<String> result = dialog.showAndWait();
         if (result.isPresent()){
-            setEditorFiles(Integer.valueOf(result.get()));
+            int level = Integer.valueOf(result.get());
+            prefs.putInt("editorLvl", level);
+            setEditorFiles(level);
             loadEditor();
         }
+    }
 
+    void displaySaveLevelAsChoiceDialog(){
+        List<String> levels = new ArrayList<>();
+        for(int i = 1; i < MAX_LEVEL +1; i++) {
+            levels.add(String.valueOf(i));
+        }
+        String level = String.valueOf(prefs.getInt("editorLvl", 1));
+        ChoiceDialog<String> dialog = new ChoiceDialog<>(level, levels);
+        dialog.setTitle("Save level as");
+        dialog.setHeaderText("Select level to override");
+        dialog.setContentText("Level:");
+
+        Optional<String> result = dialog.showAndWait();
+        result.ifPresent(s -> copyEditorToLevel(Integer.valueOf(s)));
     }
 
     private void setEditorFiles(Integer level) {
@@ -2326,7 +2338,33 @@ abstract class Utils extends Application {
                 }
             }
         }
+    }
 
+    private void copyEditorToLevel(int level){
+
+        String lvlNumberToString = (level < 10) ? "0" + String.valueOf(level) : String.valueOf(level);
+        Path destFolder = Paths.get(System.getProperty("user.home") + "/.EistReturns/levels/" + lvlNumberToString);
+
+        if(destFolder.toFile().mkdir()){
+            System.out.println("Created " + destFolder);
+        }
+        File sourceFolder = new File(System.getProperty("user.home") + "/.EistReturns/levels/editor-data");
+        File[] sourceFiles = sourceFolder.listFiles();
+
+        if (sourceFiles != null) {
+            for (File file : sourceFiles) {
+
+                Path source = Paths.get(file.toString());
+                Path destFile = Paths.get(destFolder.toString() + "/" + source.getFileName().toString());
+
+                try {
+                    copyFile(source.toFile(), destFile.toFile());
+                    System.out.println("Copying: " + file.toString());
+                } catch(IOException e) {
+                    System.out.println("Copying error: " + e);
+                }
+            }
+        }
     }
 
     private static void copyFile(File source, File dest) throws IOException {
@@ -2339,7 +2377,7 @@ abstract class Utils extends Application {
         }
     }
 
-    private void saveLevel(){
+    void saveEditor(){
         StringBuilder content = new StringBuilder();
         if(mArrows != null && mArrows.size() > 0){
             for(Arrow arrow : mArrows){

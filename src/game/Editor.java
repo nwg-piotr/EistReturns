@@ -5,6 +5,7 @@ import javafx.animation.AnimationTimer;
 import javafx.application.Platform;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
+import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.geometry.Point2D;
 import javafx.geometry.Rectangle2D;
@@ -12,8 +13,13 @@ import javafx.scene.Group;
 import javafx.scene.Scene;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
+import javafx.scene.effect.DropShadow;
 import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import javafx.scene.input.KeyEvent;
+import javafx.scene.input.MouseEvent;
+import javafx.scene.layout.HBox;
+import javafx.scene.layout.VBox;
 import javafx.scene.media.MediaPlayer;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
@@ -22,7 +28,9 @@ import javafx.scene.transform.Rotate;
 import javafx.stage.Stage;
 import javafx.stage.WindowEvent;
 
-import javax.management.Notification;
+import javafx.scene.control.Button;
+
+import java.awt.*;
 import java.io.File;
 
 public class Editor extends Utils {
@@ -136,6 +144,67 @@ public class Editor extends Utils {
         message = "Right click rotates";
 
         loadCommonGraphics();
+
+        HBox hbox = new HBox();
+        hbox.setLayoutX(toolbar.getOpenArea().getMinX());
+        hbox.setLayoutY(toolbar.getOpenArea().getMinY());
+
+        Button importButton = new Button();
+        importButton.setOpacity(0);
+        importButton.setMinHeight(mGridDimension);
+        importButton.setMinWidth(mGridDimension);
+
+        importButton.addEventHandler(MouseEvent.MOUSE_ENTERED,
+                e -> {
+                    mMenuHint = "Import built-in level";
+                });
+
+        importButton.addEventHandler(MouseEvent.MOUSE_EXITED,
+                e -> {
+                    mMenuHint = "";
+                });
+        importButton.setOnAction(e -> displayImportLevelChoiceDialog());
+
+        Button saveButton = new Button();
+        saveButton.setOpacity(0);
+        saveButton.setMinHeight(mGridDimension);
+        saveButton.setMinWidth(mGridDimension);
+
+        saveButton.addEventHandler(MouseEvent.MOUSE_ENTERED,
+                e -> {
+                    mMenuHint = "Save editor state";
+                });
+
+        saveButton.addEventHandler(MouseEvent.MOUSE_EXITED,
+                e -> {
+                    mMenuHint = "";
+                });
+        saveButton.setOnAction(e -> saveEditor());
+
+        Button saveAsButton = new Button();
+        saveAsButton.setOpacity(0);
+        saveAsButton.setMinHeight(mGridDimension);
+        saveAsButton.setMinWidth(mGridDimension);
+
+        saveAsButton.addEventHandler(MouseEvent.MOUSE_ENTERED,
+                e -> {
+                    mMenuHint = "Save as user level";
+                });
+
+        saveAsButton.addEventHandler(MouseEvent.MOUSE_EXITED,
+                e -> {
+                    mMenuHint = "";
+                });
+        saveAsButton.setOnAction(e -> {
+            saveEditor();
+            displaySaveLevelAsChoiceDialog();
+        });
+
+        hbox.getChildren().add(importButton);
+        hbox.getChildren().add(saveButton);
+        hbox.getChildren().add(saveAsButton);
+        hbox.setSpacing(0);
+        ((Group) mScene.getRoot()).getChildren().add(hbox);
 
         mCurrentLevel = Integer.MAX_VALUE;
         mMuteMusic = true;
@@ -538,7 +607,7 @@ public class Editor extends Utils {
         /*
          * Draw ladder
          */
-        if(mSlots != null && mSlots.size() > 0) {
+        if (mSlots != null && mSlots.size() > 0) {
 
             Integer currentSlotIdx = ladder.getSlotIdx();
             if (currentSlotIdx != null) {
@@ -560,7 +629,7 @@ public class Editor extends Utils {
          * Draw exit
          */
         if (mArtifacts.size() > 0) {
-            if(toolbar.getSelection() != null) {
+            if (toolbar.getSelection() != null) {
                 if (mEditor && !mTesting && toolbar.getSelection() == SELECTION_EXIT) {
                     gc.setFill(Color.color(1, 0.8, 0, 0.3));
                     gc.fillRect(exit.getPosX(), exit.getPosY(), mFrameDimension, mFrameDimension);
@@ -612,7 +681,7 @@ public class Editor extends Utils {
          */
         if (mCurrentFallingFrame == null) {
 
-            if(toolbar.getSelection() != null) {
+            if (toolbar.getSelection() != null) {
                 if (mEditor && !mTesting && toolbar.getSelection() == SELECTION_EIST) {
                     gc.setFill(Color.color(1, 0.8, 0, 0.3));
                     gc.fillRect(eist.x, eist.y, mFrameDimension, mFrameDimension);
@@ -832,10 +901,15 @@ public class Editor extends Utils {
                     gc.fillRect(highlight.getMinX(), highlight.getMinY(), highlight.getWidth(), highlight.getHeight());
                 }
 
-                if(!message.equals("")) {
+                if (!message.equals("")) {
                     gc.setFill(Color.WHITE);
                     gc.setFont(messageFont);
                     gc.fillText(message, toolbar.getMessageCorner().getX(), toolbar.getMessageCorner().getY());
+                }
+                if (!mMenuHint.equals("")) {
+                    gc.setFill(Color.WHITE);
+                    gc.setFont(messageFont);
+                    gc.fillText(mMenuHint, columns[27], mHalfGridDimension);
                 }
             }
 
