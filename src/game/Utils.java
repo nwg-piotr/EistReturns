@@ -6,7 +6,6 @@ import javafx.animation.Timeline;
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.concurrent.Task;
-import javafx.event.EventHandler;
 import javafx.geometry.Point2D;
 import javafx.geometry.Rectangle2D;
 import javafx.scene.Group;
@@ -60,7 +59,7 @@ abstract class Utils extends Application {
 
     double mSceneWidth;
     double mSceneHeight;
-    double mCenterX;
+    private double mCenterX;
     double walkingSpeedPerSecond;
 
     double mSplashWidth;
@@ -119,9 +118,9 @@ abstract class Utils extends Application {
 
     File mUserFolder;
     File mUserLevelsFolder;
-    File mEditorFolder;
+    private File mEditorFolder;
 
-    boolean mLoadUserLevel;
+    private boolean mLoadUserLevel;
 
     private Button mImportButton;
     private Button mSaveButton;
@@ -448,7 +447,7 @@ abstract class Utils extends Application {
                         if (pixelReader.getArgb((int) pointClicked.getX(), (int) pointClicked.getY()) != -16777216) {
 
                             Rectangle2D pressedSquare = nearestAdjustedSquare(pointClicked.getX(), pointClicked.getY());
-                            Point2D checkPoint = null;
+                            Point2D checkPoint;
 
                             if (pressedSquare != null) {
                                 checkPoint = new Point2D(pressedSquare.getMinX() + mGridDimension, pressedSquare.getMinY() + mGridDimension);
@@ -612,7 +611,7 @@ abstract class Utils extends Application {
     Image mIntro02;
     Image mIntro03;
     Image mIntro04;
-    Image mIntroFinished;
+    private Image mIntroFinished;
 
     Image mMutedMusicImg;
     Image mMutedSoundImg;
@@ -2051,7 +2050,7 @@ abstract class Utils extends Application {
         }
     }
 
-    void displayImportLevelChoiceDialog(){
+    private void displayImportLevelChoiceDialog(){
         List<String> levels = new ArrayList<>();
         for(int i = 1; i < MAX_LEVEL +1; i++) {
             levels.add(String.valueOf(i));
