@@ -5,7 +5,6 @@ import javafx.animation.AnimationTimer;
 import javafx.application.Platform;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
-import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.geometry.Point2D;
 import javafx.geometry.Rectangle2D;
@@ -13,13 +12,8 @@ import javafx.scene.Group;
 import javafx.scene.Scene;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
-import javafx.scene.effect.DropShadow;
 import javafx.scene.image.Image;
-import javafx.scene.image.ImageView;
 import javafx.scene.input.KeyEvent;
-import javafx.scene.input.MouseEvent;
-import javafx.scene.layout.HBox;
-import javafx.scene.layout.VBox;
 import javafx.scene.media.MediaPlayer;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
@@ -28,10 +22,8 @@ import javafx.scene.transform.Rotate;
 import javafx.stage.Stage;
 import javafx.stage.WindowEvent;
 
-import javafx.scene.control.Button;
-
-import java.awt.*;
 import java.io.File;
+import java.util.prefs.Preferences;
 
 public class Editor extends Utils {
 
@@ -88,8 +80,8 @@ public class Editor extends Utils {
         }
 
         Group root = new Group();
-        Scene mScene = new Scene(root, mSceneWidth, mSceneHeight);
-        stage.setScene(mScene);
+        mEditorScene = new Scene(root, mSceneWidth, mSceneHeight);
+        stage.setScene(mEditorScene);
 
         stage.setOnCloseRequest(new EventHandler<WindowEvent>() {
             @Override
@@ -140,80 +132,18 @@ public class Editor extends Utils {
         toolbar.setDoorOrientation(ORIENTATION_HORIZONTAL);
         toolbar.setSlotOrientation(ORIENTATION_HORIZONTAL);
         toolbar.setArrowDirection(DIR_LEFT);
-        toolbar.setSelection(SELECTION_DOOR);
-        message = "Right click rotates";
+        mMenuHint = "Right click rotates";
 
         loadCommonGraphics();
-
-        HBox hbox = new HBox();
-        hbox.setLayoutX(toolbar.getOpenArea().getMinX());
-        hbox.setLayoutY(toolbar.getOpenArea().getMinY());
-
-        Button importButton = new Button();
-        importButton.setOpacity(0);
-        importButton.setMinHeight(mGridDimension);
-        importButton.setMinWidth(mGridDimension);
-
-        importButton.addEventHandler(MouseEvent.MOUSE_ENTERED,
-                e -> {
-                    mMenuHint = "Import built-in level";
-                });
-
-        importButton.addEventHandler(MouseEvent.MOUSE_EXITED,
-                e -> {
-                    mMenuHint = "";
-                });
-        importButton.setOnAction(e -> displayImportLevelChoiceDialog());
-
-        Button saveButton = new Button();
-        saveButton.setOpacity(0);
-        saveButton.setMinHeight(mGridDimension);
-        saveButton.setMinWidth(mGridDimension);
-
-        saveButton.addEventHandler(MouseEvent.MOUSE_ENTERED,
-                e -> {
-                    mMenuHint = "Save editor state";
-                });
-
-        saveButton.addEventHandler(MouseEvent.MOUSE_EXITED,
-                e -> {
-                    mMenuHint = "";
-                });
-        saveButton.setOnAction(e -> saveEditor());
-
-        Button saveAsButton = new Button();
-        saveAsButton.setOpacity(0);
-        saveAsButton.setMinHeight(mGridDimension);
-        saveAsButton.setMinWidth(mGridDimension);
-
-        saveAsButton.addEventHandler(MouseEvent.MOUSE_ENTERED,
-                e -> {
-                    mMenuHint = "Save as user level";
-                });
-
-        saveAsButton.addEventHandler(MouseEvent.MOUSE_EXITED,
-                e -> {
-                    mMenuHint = "";
-                });
-        saveAsButton.setOnAction(e -> {
-            saveEditor();
-            displaySaveLevelAsChoiceDialog();
-        });
-
-        hbox.getChildren().add(importButton);
-        hbox.getChildren().add(saveButton);
-        hbox.getChildren().add(saveAsButton);
-        hbox.setSpacing(0);
-        ((Group) mScene.getRoot()).getChildren().add(hbox);
 
         mCurrentLevel = Integer.MAX_VALUE;
         mMuteMusic = true;
 
         loadEditor();
 
-        mScene.setOnMouseClicked(this::handleMouseEvent);
+        mEditorScene.setOnMouseClicked(this::handleMouseEvent);
 
-        mScene.setOnKeyPressed(new EventHandler<KeyEvent>() {
+        mEditorScene.setOnKeyPressed(new EventHandler<KeyEvent>() {
             @Override
             public void handle(KeyEvent event) {
                 switch (event.getCode()) {
@@ -462,7 +392,7 @@ public class Editor extends Utils {
 
                 gc.drawImage(mTeleportImg, 160 * mCurrentArtifactFrame, 0, 160, 160, teleport.getPosX(), teleport.getPosY(), mFrameDimension, mFrameDimension);
 
-                if (teleport.getArea().contains(eist.getCenter())) {
+                if (mTeleports.size() == 2 && teleport.getArea().contains(eist.getCenter())) {
 
                     if (mCurrentLevel > 0 && !mMuteSound) {
                         fxTeleport.setBalance(calculateBalance(eist.x));
@@ -901,15 +831,10 @@ public class Editor extends Utils {
                     gc.fillRect(highlight.getMinX(), highlight.getMinY(), highlight.getWidth(), highlight.getHeight());
                 }
 
-                if (!message.equals("")) {
-                    gc.setFill(Color.WHITE);
-                    gc.setFont(messageFont);
-                    gc.fillText(message, toolbar.getMessageCorner().getX(), toolbar.getMessageCorner().getY());
-                }
                 if (!mMenuHint.equals("")) {
                     gc.setFill(Color.WHITE);
                     gc.setFont(messageFont);
-                    gc.fillText(mMenuHint, columns[27], mHalfGridDimension);
+                    gc.fillText(mMenuHint, toolbar.getMessageCorner().getX(), toolbar.getMessageCorner().getY());
                 }
             }
 

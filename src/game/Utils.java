@@ -6,8 +6,10 @@ import javafx.animation.Timeline;
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.concurrent.Task;
+import javafx.event.EventHandler;
 import javafx.geometry.Point2D;
 import javafx.geometry.Rectangle2D;
+import javafx.scene.Group;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.image.Image;
@@ -15,6 +17,7 @@ import javafx.scene.image.PixelReader;
 import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.GridPane;
+import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.StackPane;
 import javafx.scene.media.AudioClip;
@@ -120,7 +123,23 @@ abstract class Utils extends Application {
 
     boolean mLoadUserLevel;
 
+    private Button mImportButton;
+    private Button mSaveButton;
+    private Button mSaveAsButton;
+    private Button mToolsButton;
+    private Button mDoorButton;
+    private Button mSlotButton;
+    private Button mArtifactButton;
+    private Button mKeyButton;
+    private Button mTeleportButton;
+    private Button mOrnamentButton;
+    private Button mExitButton;
+    private Button mArrowButton;
+    private Button mEistButton;
+    private Button mClearButton;
+
     Stage mEditorStage;
+    Scene mEditorScene;
 
     /**
      * The Frame is a rectangular part of the game board of width of 2 columns and height of 2 rows.
@@ -163,7 +182,6 @@ abstract class Utils extends Application {
     static final int SELECTION_CLEAR = 8;
     static final int SELECTION_EIST = 9;
 
-    String message = "";
     String mMenuHint = "";
     Rectangle2D detectRect;
 
@@ -350,45 +368,10 @@ abstract class Utils extends Application {
 
                     } else {
 
-                        message = "";
-
-                        if (toolbar.getDoorArea().contains(pointClicked)) {
-                            toolbar.setSelection(SELECTION_DOOR);
-                            message = "Click path to add\nRight click rotates";
-                        } else if (toolbar.getSlotArea().contains(pointClicked)) {
-                            toolbar.setSelection(SELECTION_SLOT);
-                            message = "Click black to add\nRight click rotates";
-                        } else if (toolbar.getArtifactArea().contains(pointClicked)) {
-                            toolbar.setSelection(SELECTION_ARTIFACT);
-                            message = "Click path to add";
-                        } else if (toolbar.getKeyArea().contains(pointClicked)) {
-                            toolbar.setSelection(SELECTION_KEY);
-                            message = "Click path to add";
-                        } else if (toolbar.getTeleportArea().contains(pointClicked)) {
-                            if(mTeleports.size() < 2) {
-                                toolbar.setSelection(SELECTION_TELEPORT);
-                                message = "Click path to add";
-                            } else {
-                                message = "2 teleports allowed";
-                            }
-                        } else if (toolbar.getExitArea().contains(pointClicked)) {
-                            toolbar.setSelection(SELECTION_EXIT);
-                            message = "Click path to move";
-                        } else if (toolbar.getArrowArea().contains(pointClicked)) {
-                            toolbar.setSelection(SELECTION_ARROW);
-                            message = "Click path to add\nRight click rotates";
-                        } else if (toolbar.getOrnamentArea().contains(pointClicked)) {
-                            toolbar.setSelection(SELECTION_ORNAMENT);
-                            message = "Click anywhere to add";
-                        } else if (toolbar.getClearArea().contains(pointClicked)) {
-                            toolbar.setSelection(SELECTION_CLEAR);
-                            message = "Click object to delete";
-                        } else if (toolbar.getEistArea().contains(pointClicked)) {
-                            toolbar.setSelection(SELECTION_EIST);
-                            message = "Click path to move\nRight click rotates";
-                        } else {
-                            toolbar.setSelection(null);
+                        if(toolbar.getSelection() != null) {
+                            prefs.putInt("sel", toolbar.getSelection());
                         }
+                        toolbar.setSelection(null);
                     }
 
                 } else {
@@ -533,21 +516,28 @@ abstract class Utils extends Application {
                         mSelectedLevel = mCurrentLevel;
                         mCurrentLevel = 0;
                         loadLevel(mCurrentLevel);
+
                     } else {
+
                         if(!mTesting){
                             saveEditor();
+                            disableButtons(true);
+                            if(toolbar.getSelection() != null) {
+                                prefs.putInt("sel", toolbar.getSelection());
+                            }
                             mTesting = true;
                         } else {
                             mTesting = false;
+                            disableButtons(false);
                             loadEditor();
                         }
                     }
                 }
 
             } else {
-            /*
-             * Handle intro menu clicks
-             */
+                /*
+                 * Handle intro menu clicks
+                 */
                 if (mButtonLevelUp.contains(pointClicked)) {
                     if (mSelectedLevel < mAchievedLevel && mSelectedLevel < MAX_LEVEL) {
                         mSelectedLevel++;
@@ -564,95 +554,6 @@ abstract class Utils extends Application {
                 } else if (mButtonMenu.contains(pointClicked)) {
 
                     displaySizeDialog();
-                }
-            }
-        } else if (event.getButton() == MouseButton.SECONDARY) {
-
-            if (mEditor && !mTesting) {
-
-                message = "";
-
-                if (toolbar.getDoorArea().contains(pointClicked)) {
-                    toolbar.setSelection(SELECTION_DOOR);
-                    message = "Click path to add\nRight click rotates";
-                    if (toolbar.getDoorOrientation() == ORIENTATION_HORIZONTAL) {
-                        toolbar.setDoorOrientation(ORIENTATION_VERTICAL);
-                    } else {
-                        toolbar.setDoorOrientation(ORIENTATION_HORIZONTAL);
-                    }
-                }
-                if (toolbar.getSlotArea().contains(pointClicked)) {
-                    toolbar.setSelection(SELECTION_SLOT);
-                    message = "Click black to add\nRight click rotates";
-                    if (toolbar.getSlotOrientation() == ORIENTATION_HORIZONTAL) {
-                        toolbar.setSlotOrientation(ORIENTATION_VERTICAL);
-                    } else {
-                        toolbar.setSlotOrientation(ORIENTATION_HORIZONTAL);
-                    }
-                }
-                if (toolbar.getArrowArea().contains(pointClicked)) {
-                    toolbar.setSelection(SELECTION_ARROW);
-                    message = "Click path to add\nRight click rotates";
-                    switch (toolbar.getArrowDirection()) {
-                        case DIR_RIGHT:
-                            toolbar.setArrowDirection(DIR_DOWN);
-                            break;
-                        case DIR_DOWN:
-                            toolbar.setArrowDirection(DIR_LEFT);
-                            break;
-                        case DIR_LEFT:
-                            toolbar.setArrowDirection(DIR_UP);
-                            break;
-                        case DIR_UP:
-                            toolbar.setArrowDirection(DIR_RIGHT);
-                            break;
-                    }
-                }
-                if (toolbar.getEistArea().contains(pointClicked)){
-                    toolbar.setSelection(SELECTION_EIST);
-                    message = "Click path to move\nRight click rotates";
-                    switch (eist.getDirection()){
-                        case DIR_RIGHT:
-                            eist.setDirection(DIR_DOWN);
-                            break;
-                        case DIR_DOWN:
-                            eist.setDirection(DIR_LEFT);
-                            break;
-                        case DIR_LEFT:
-                            eist.setDirection(DIR_UP);
-                            break;
-                        case DIR_UP:
-                            eist.setDirection(DIR_RIGHT);
-                            break;
-                    }
-                }
-                if (toolbar.getArtifactArea().contains(pointClicked)) {
-                    toolbar.setSelection(SELECTION_ARTIFACT);
-                    message = "Click path to add";
-                }
-                if (toolbar.getKeyArea().contains(pointClicked)) {
-                    toolbar.setSelection(SELECTION_KEY);
-                    message = "Click path to add";
-                }
-                if (toolbar.getTeleportArea().contains(pointClicked)) {
-                    if (mTeleports.size() < 2) {
-                        toolbar.setSelection(SELECTION_TELEPORT);
-                        message = "Click path to add";
-                    } else {
-                        message = "2 teleports allowed";
-                    }
-                }
-                if (toolbar.getExitArea().contains(pointClicked)) {
-                    toolbar.setSelection(SELECTION_EXIT);
-                    message = "Click path to move";
-                }
-                if (toolbar.getOrnamentArea().contains(pointClicked)) {
-                    toolbar.setSelection(SELECTION_ORNAMENT);
-                    message = "Click anywhere to add";
-                }
-                if (toolbar.getClearArea().contains(pointClicked)) {
-                    toolbar.setSelection(SELECTION_CLEAR);
-                    message = "Click object to delete";
                 }
             }
         }
@@ -1337,6 +1238,9 @@ abstract class Utils extends Application {
      */
     void loadEditor() {
 
+        setUpButtons();
+        toolbar.setSelection(prefs.getInt("sel", SELECTION_KEY));
+
         System.out.println("\nLOADING EDITOR\n");
         mEditor = true;
         mTesting = false;
@@ -1617,6 +1521,8 @@ abstract class Utils extends Application {
             }
         });
         new Thread(sleeper).start();
+
+        disableButtons(false);
     }
 
     private String datToString(String urlString) {
@@ -1958,6 +1864,7 @@ abstract class Utils extends Application {
                 return false;
             }
         }
+
         if (exit.getArea().contains(squareCenter)) {
             return false;
         }
@@ -2163,7 +2070,7 @@ abstract class Utils extends Application {
         }
     }
 
-    void displaySaveLevelAsChoiceDialog(){
+    private void displaySaveLevelAsChoiceDialog(){
         List<String> levels = new ArrayList<>();
         for(int i = 1; i < MAX_LEVEL +1; i++) {
             levels.add(String.valueOf(i));
@@ -2377,7 +2284,7 @@ abstract class Utils extends Application {
         }
     }
 
-    void saveEditor(){
+    private void saveEditor(){
         StringBuilder content = new StringBuilder();
         if(mArrows != null && mArrows.size() > 0){
             for(Arrow arrow : mArrows){
@@ -2494,9 +2401,9 @@ abstract class Utils extends Application {
             }
         }
         if(teleportsOK){
-            Toast.makeText(mEditorStage, "Level saved");
+            Toast.makeText(mEditorStage, "Editor saved");
         } else {
-            Toast.makeText(mEditorStage, "Level saved (teleports skipped - pair not found)");
+            Toast.makeText(mEditorStage, "Editor saved (teleports skipped - pair not found)");
         }
     }
 
@@ -2537,27 +2444,359 @@ abstract class Utils extends Application {
             Timeline fadeInTimeline = new Timeline();
             KeyFrame fadeInKey1 = new KeyFrame(Duration.millis(fadeInDelay), new KeyValue (toastStage.getScene().getRoot().opacityProperty(), 1));
             fadeInTimeline.getKeyFrames().add(fadeInKey1);
-            fadeInTimeline.setOnFinished((ae) -> {
-                new Thread(() -> {
-                    try {
-                        Thread.sleep(toastDelay);
-                    }
-                    catch (InterruptedException e) {
+            fadeInTimeline.setOnFinished((ae) -> new Thread(() -> {
+                try {
+                    Thread.sleep(toastDelay);
+                }
+                catch (InterruptedException e) {
 
-                        e.printStackTrace();
-                    }
-                    Timeline fadeOutTimeline = new Timeline();
-                    KeyFrame fadeOutKey1 = new KeyFrame(Duration.millis(fadeOutDelay), new KeyValue(toastStage.getScene().getRoot().opacityProperty(), 0));
-                    fadeOutTimeline.getKeyFrames().add(fadeOutKey1);
-                    fadeOutTimeline.setOnFinished((aeb) -> toastStage.close());
-                    fadeOutTimeline.play();
-                }).start();
-            });
+                    e.printStackTrace();
+                }
+                Timeline fadeOutTimeline = new Timeline();
+                KeyFrame fadeOutKey1 = new KeyFrame(Duration.millis(fadeOutDelay), new KeyValue(toastStage.getScene().getRoot().opacityProperty(), 0));
+                fadeOutTimeline.getKeyFrames().add(fadeOutKey1);
+                fadeOutTimeline.setOnFinished((aeb) -> toastStage.close());
+                fadeOutTimeline.play();
+            }).start());
             fadeInTimeline.play();
         }
 
         private static void makeText(Stage ownerStage, String toastMsg){
             makeText(ownerStage, toastMsg, 1000, 100, 1000);
         }
+    }
+
+    private void setUpButtons(){
+
+        HBox hBoxRow0 = new HBox();
+        hBoxRow0.setLayoutX(toolbar.getOpenArea().getMinX());
+        hBoxRow0.setLayoutY(toolbar.getOpenArea().getMinY());
+
+        HBox hBoxRow1 = new HBox();
+        hBoxRow1.setLayoutX(toolbar.getDoorArea().getMinX());
+        hBoxRow1.setLayoutY(toolbar.getDoorArea().getMinY());
+
+        HBox hBoxRow2 = new HBox();
+        hBoxRow2.setLayoutX(toolbar.getArtifactArea().getMinX());
+        hBoxRow2.setLayoutY(toolbar.getArtifactArea().getMinY());
+
+        HBox hBoxRow3 = new HBox();
+        hBoxRow3.setLayoutX(toolbar.getTeleportArea().getMinX());
+        hBoxRow3.setLayoutY(toolbar.getTeleportArea().getMinY());
+
+        HBox hBoxRow4 = new HBox();
+        hBoxRow4.setLayoutX(toolbar.getExitArea().getMinX());
+        hBoxRow4.setLayoutY(toolbar.getExitArea().getMinY());
+
+        HBox hBoxRow5 = new HBox();
+        hBoxRow5.setLayoutX(toolbar.getEistArea().getMinX());
+        hBoxRow5.setLayoutY(toolbar.getEistArea().getMinY());
+
+        mImportButton = new Button();
+        mImportButton.setOpacity(0);
+        mImportButton.setMinHeight(mGridDimension);
+        mImportButton.setMinWidth(mGridDimension);
+
+        mImportButton.addEventHandler(MouseEvent.MOUSE_ENTERED,
+                e -> mMenuHint = "Import built-in level");
+
+        mImportButton.addEventHandler(MouseEvent.MOUSE_EXITED,
+                e -> mMenuHint = "");
+        mImportButton.setOnAction(e -> displayImportLevelChoiceDialog());
+
+        mSaveButton = new Button();
+        mSaveButton.setOpacity(0);
+        mSaveButton.setMinHeight(mGridDimension);
+        mSaveButton.setMinWidth(mGridDimension);
+
+        mSaveButton.addEventHandler(MouseEvent.MOUSE_ENTERED,
+                e -> mMenuHint = "Save editor state");
+
+        mSaveButton.addEventHandler(MouseEvent.MOUSE_EXITED,
+                e -> mMenuHint = "");
+        mSaveButton.setOnAction(e -> saveEditor());
+
+        mSaveAsButton = new Button();
+        mSaveAsButton.setOpacity(0);
+        mSaveAsButton.setMinHeight(mGridDimension);
+        mSaveAsButton.setMinWidth(mGridDimension);
+
+        mSaveAsButton.addEventHandler(MouseEvent.MOUSE_ENTERED,
+                e -> mMenuHint = "Save as user level");
+
+        mSaveAsButton.addEventHandler(MouseEvent.MOUSE_EXITED,
+                e -> mMenuHint = "");
+        mSaveAsButton.setOnAction(e -> {
+            saveEditor();
+            displaySaveLevelAsChoiceDialog();
+        });
+
+        mDoorButton = new Button();
+        mDoorButton.setOpacity(0);
+        mDoorButton.setMinHeight(mGridDimension);
+        mDoorButton.setMinWidth(mGridDimension);
+
+        mDoorButton.addEventHandler(MouseEvent.MOUSE_ENTERED,
+                e -> mMenuHint = "Import built-in level");
+
+        mDoorButton.addEventHandler(MouseEvent.MOUSE_EXITED,
+                e -> mMenuHint = "");
+        mDoorButton.setOnAction(e -> displayImportLevelChoiceDialog());
+
+        hBoxRow0.getChildren().add(mImportButton);
+        hBoxRow0.getChildren().add(mSaveButton);
+        hBoxRow0.getChildren().add(mSaveAsButton);
+        hBoxRow0.setSpacing(0);
+
+        mDoorButton = new Button();
+        mDoorButton.setOpacity(0);
+        mDoorButton.setMinHeight(mFrameDimension);
+        mDoorButton.setMinWidth(mFrameDimension);
+
+        mDoorButton.addEventHandler(MouseEvent.MOUSE_ENTERED,
+                e -> mMenuHint = "Click path to add door\nRight click rotates");
+
+        mDoorButton.addEventHandler(MouseEvent.MOUSE_EXITED,
+                e -> mMenuHint = "");
+
+        mDoorButton.setOnMouseClicked(event -> {
+            MouseButton button = event.getButton();
+            if(button==MouseButton.PRIMARY){
+                toolbar.setSelection(SELECTION_DOOR);
+            } else if(button==MouseButton.SECONDARY){
+                toolbar.setSelection(SELECTION_DOOR);
+                if (toolbar.getDoorOrientation() == ORIENTATION_HORIZONTAL) {
+                    toolbar.setDoorOrientation(ORIENTATION_VERTICAL);
+                } else {
+                    toolbar.setDoorOrientation(ORIENTATION_HORIZONTAL);
+                }
+            }
+        });
+
+        mSlotButton = new Button();
+        mSlotButton.setOpacity(0);
+        mSlotButton.setMinHeight(mFrameDimension);
+        mSlotButton.setMinWidth(mFrameDimension);
+
+        mSlotButton.addEventHandler(MouseEvent.MOUSE_ENTERED,
+                e -> mMenuHint = "Click path to add slot\nRight click rotates");
+
+        mSlotButton.addEventHandler(MouseEvent.MOUSE_EXITED,
+                e -> mMenuHint = "");
+
+        mSlotButton.setOnMouseClicked(event -> {
+            MouseButton button = event.getButton();
+            if(button == MouseButton.PRIMARY){
+                toolbar.setSelection(SELECTION_SLOT);
+            } else if(button == MouseButton.SECONDARY){
+                toolbar.setSelection(SELECTION_SLOT);
+                if (toolbar.getSlotOrientation() == ORIENTATION_HORIZONTAL) {
+                    toolbar.setSlotOrientation(ORIENTATION_VERTICAL);
+                } else {
+                    toolbar.setSlotOrientation(ORIENTATION_HORIZONTAL);
+                }
+            }
+        });
+
+        hBoxRow1.getChildren().add(mDoorButton);
+        hBoxRow1.getChildren().add(mSlotButton);
+        hBoxRow1.setSpacing(0);
+
+        mArtifactButton = new Button();
+        mArtifactButton.setOpacity(0);
+        mArtifactButton.setMinHeight(mFrameDimension);
+        mArtifactButton.setMinWidth(mFrameDimension);
+
+        mArtifactButton.addEventHandler(MouseEvent.MOUSE_ENTERED,
+                e -> mMenuHint = "Click path to add artifact");
+
+        mArtifactButton.addEventHandler(MouseEvent.MOUSE_EXITED,
+                e -> mMenuHint = "");
+
+        mArtifactButton.setOnMouseClicked(event -> toolbar.setSelection(SELECTION_ARTIFACT));
+
+        mKeyButton = new Button();
+        mKeyButton.setOpacity(0);
+        mKeyButton.setMinHeight(mFrameDimension);
+        mKeyButton.setMinWidth(mFrameDimension);
+
+        mKeyButton.addEventHandler(MouseEvent.MOUSE_ENTERED,
+                e -> mMenuHint = "Click path to add key");
+
+        mKeyButton.addEventHandler(MouseEvent.MOUSE_EXITED,
+                e -> mMenuHint = "");
+
+        mKeyButton.setOnMouseClicked(event -> toolbar.setSelection(SELECTION_KEY));
+
+        hBoxRow2.getChildren().add(mArtifactButton);
+        hBoxRow2.getChildren().add(mKeyButton);
+        hBoxRow2.setSpacing(0);
+
+        mTeleportButton = new Button();
+        mTeleportButton.setOpacity(0);
+        mTeleportButton.setMinHeight(mFrameDimension);
+        mTeleportButton.setMinWidth(mFrameDimension);
+
+        mTeleportButton.addEventHandler(MouseEvent.MOUSE_ENTERED,
+                e -> {
+                    if (mTeleports.size() < 2) {
+                        mMenuHint = "Click path to add teleport";
+                    } else {
+                        mMenuHint = "2 teleports allowed";
+                    }
+                });
+
+        mTeleportButton.addEventHandler(MouseEvent.MOUSE_EXITED,
+                e -> mMenuHint = "");
+
+        mTeleportButton.setOnMouseClicked(event -> {
+            if (mTeleports.size() < 2) {
+                toolbar.setSelection(SELECTION_TELEPORT);
+            }
+        });
+
+        mOrnamentButton = new Button();
+        mOrnamentButton.setOpacity(0);
+        mOrnamentButton.setMinHeight(mFrameDimension);
+        mOrnamentButton.setMinWidth(mFrameDimension);
+
+        mOrnamentButton.addEventHandler(MouseEvent.MOUSE_ENTERED,
+                e -> mMenuHint = "Click path to add ornament");
+
+        mOrnamentButton.addEventHandler(MouseEvent.MOUSE_EXITED,
+                e -> mMenuHint = "");
+
+        mOrnamentButton.setOnMouseClicked(event -> toolbar.setSelection(SELECTION_ORNAMENT));
+
+        hBoxRow3.getChildren().add(mTeleportButton);
+        hBoxRow3.getChildren().add(mOrnamentButton);
+        hBoxRow3.setSpacing(0);
+
+        mExitButton = new Button();
+        mExitButton.setOpacity(0);
+        mExitButton.setMinHeight(mFrameDimension);
+        mExitButton.setMinWidth(mFrameDimension);
+
+        mExitButton.addEventHandler(MouseEvent.MOUSE_ENTERED,
+                e -> mMenuHint = "Click path to move exit");
+
+        mExitButton.addEventHandler(MouseEvent.MOUSE_EXITED,
+                e -> mMenuHint = "");
+
+        mExitButton.setOnMouseClicked(event -> toolbar.setSelection(SELECTION_EXIT));
+
+        mArrowButton = new Button();
+        mArrowButton.setOpacity(0);
+        mArrowButton.setMinHeight(mFrameDimension);
+        mArrowButton.setMinWidth(mFrameDimension);
+
+        mArrowButton.addEventHandler(MouseEvent.MOUSE_ENTERED,
+                e -> mMenuHint = "Click path to add arrow\nRight click rotates");
+
+        mArrowButton.addEventHandler(MouseEvent.MOUSE_EXITED,
+                e -> mMenuHint = "");
+
+        mArrowButton.setOnMouseClicked(event -> {
+            MouseButton button = event.getButton();
+            if(button == MouseButton.PRIMARY) {
+                toolbar.setSelection(SELECTION_ARROW);
+            } else if(button == MouseButton.SECONDARY) {
+                toolbar.setSelection(SELECTION_ARROW);
+                switch (toolbar.getArrowDirection()) {
+                    case DIR_RIGHT:
+                        toolbar.setArrowDirection(DIR_DOWN);
+                        break;
+                    case DIR_DOWN:
+                        toolbar.setArrowDirection(DIR_LEFT);
+                        break;
+                    case DIR_LEFT:
+                        toolbar.setArrowDirection(DIR_UP);
+                        break;
+                    case DIR_UP:
+                        toolbar.setArrowDirection(DIR_RIGHT);
+                        break;
+                }
+            }
+        });
+
+        hBoxRow4.getChildren().add(mExitButton);
+        hBoxRow4.getChildren().add(mArrowButton);
+        hBoxRow4.setSpacing(0);
+
+        mEistButton = new Button();
+        mEistButton.setOpacity(0);
+        mEistButton.setMinHeight(mFrameDimension);
+        mEistButton.setMinWidth(mFrameDimension);
+
+        mEistButton.addEventHandler(MouseEvent.MOUSE_ENTERED,
+                e -> mMenuHint = "Click path to move Eist\nRight click rotates");
+
+        mEistButton.addEventHandler(MouseEvent.MOUSE_EXITED,
+                e -> mMenuHint = "");
+
+        mEistButton.setOnMouseClicked(event -> {
+            MouseButton button = event.getButton();
+            if(button == MouseButton.PRIMARY) {
+                toolbar.setSelection(SELECTION_EIST);
+            } else if(button == MouseButton.SECONDARY) {
+                toolbar.setSelection(SELECTION_EIST);
+                switch (eist.getDirection()){
+                    case DIR_RIGHT:
+                        eist.setDirection(DIR_DOWN);
+                        break;
+                    case DIR_DOWN:
+                        eist.setDirection(DIR_LEFT);
+                        break;
+                    case DIR_LEFT:
+                        eist.setDirection(DIR_UP);
+                        break;
+                    case DIR_UP:
+                        eist.setDirection(DIR_RIGHT);
+                        break;
+                }
+            }
+        });
+
+        mClearButton = new Button();
+        mClearButton.setOpacity(0);
+        mClearButton.setMinHeight(mFrameDimension);
+        mClearButton.setMinWidth(mFrameDimension);
+
+        mClearButton.addEventHandler(MouseEvent.MOUSE_ENTERED,
+                e -> mMenuHint = "Click object to delete");
+
+        mClearButton.addEventHandler(MouseEvent.MOUSE_EXITED,
+                e -> mMenuHint = "");
+
+        mClearButton.setOnMouseClicked(event -> toolbar.setSelection(SELECTION_CLEAR));
+
+        hBoxRow5.getChildren().add(mEistButton);
+        hBoxRow5.getChildren().add(mClearButton);
+        hBoxRow5.setSpacing(0);
+
+        ((Group) mEditorScene.getRoot()).getChildren().add(hBoxRow0);
+        ((Group) mEditorScene.getRoot()).getChildren().add(hBoxRow1);
+        ((Group) mEditorScene.getRoot()).getChildren().add(hBoxRow2);
+        ((Group) mEditorScene.getRoot()).getChildren().add(hBoxRow3);
+        ((Group) mEditorScene.getRoot()).getChildren().add(hBoxRow4);
+        ((Group) mEditorScene.getRoot()).getChildren().add(hBoxRow5);
+
+        disableButtons(false);
+    }
+
+    private void disableButtons(boolean disable){
+        mImportButton.setDisable(disable);
+        mSaveButton.setDisable(disable);
+        mSaveAsButton.setDisable(disable);
+        mDoorButton.setDisable(disable);
+        mSlotButton.setDisable(disable);
+        mArtifactButton.setDisable(disable);
+        mKeyButton.setDisable(disable);
+        mTeleportButton.setDisable(disable);
+        mOrnamentButton.setDisable(disable);
+        mExitButton.setDisable(disable);
+        mArrowButton.setDisable(disable);
+        mEistButton.setDisable(disable);
+        mClearButton.setDisable(disable);
     }
 }
