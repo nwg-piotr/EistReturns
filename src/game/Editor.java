@@ -561,7 +561,7 @@ public class Editor extends Utils {
         if (mArtifacts.size() > 0) {
             if (toolbar.getSelection() != null) {
                 if (mEditor && !mTesting && toolbar.getSelection() == SELECTION_EXIT) {
-                    gc.setFill(Color.color(1, 0.8, 0, 0.3));
+                    gc.setFill(Color.color(0, 1, 1, 0.3));
                     gc.fillRect(exit.getPosX(), exit.getPosY(), mFrameDimension, mFrameDimension);
                 }
             }
@@ -613,7 +613,7 @@ public class Editor extends Utils {
 
             if (toolbar.getSelection() != null) {
                 if (mEditor && !mTesting && toolbar.getSelection() == SELECTION_EIST) {
-                    gc.setFill(Color.color(1, 0.8, 0, 0.3));
+                    gc.setFill(Color.color(0, 1, 1, 0.3));
                     gc.fillRect(eist.x, eist.y, mFrameDimension, mFrameDimension);
                 }
             }
@@ -827,7 +827,7 @@ public class Editor extends Utils {
                 }
 
                 if (highlight != null) {
-                    gc.setFill(Color.color(1, 0.8, 0, 0.3));
+                    gc.setFill(Color.color(0, 1, 1, 0.3));
                     gc.fillRect(highlight.getMinX(), highlight.getMinY(), highlight.getWidth(), highlight.getHeight());
                 }
 

@@ -369,7 +369,7 @@ abstract class Utils extends Application {
                         if(toolbar.getSelection() != null) {
                             prefs.putInt("sel", toolbar.getSelection());
                         }
-                        toolbar.setSelection(null);
+                        //toolbar.setSelection(null);
                     }
 
                 } else {
@@ -2074,8 +2074,8 @@ abstract class Utils extends Application {
         if(userLevels().size() > 0){
 
             ChoiceDialog<String> dialog = new ChoiceDialog<>(levels.get(0), levels);
-            dialog.setTitle("Import user-defined level");
-            dialog.setHeaderText("Select level to import");
+            dialog.setTitle("Open user-defined level");
+            dialog.setHeaderText("User level to open");
             dialog.setContentText("Level:");
 
             Optional<String> result = dialog.showAndWait();
