@@ -50,9 +50,7 @@ import java.io.*;
 
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.prefs.Preferences;
 
 abstract class Utils extends Application {
@@ -123,6 +121,7 @@ abstract class Utils extends Application {
     private boolean mLoadUserLevel;
 
     private Button mImportButton;
+    private Button mOpenButton;
     private Button mSaveButton;
     private Button mSaveAsButton;
     private Button mToolsButton;
@@ -2056,7 +2055,7 @@ abstract class Utils extends Application {
             levels.add(String.valueOf(i));
         }
         ChoiceDialog<String> dialog = new ChoiceDialog<>("1", levels);
-        dialog.setTitle("Importing");
+        dialog.setTitle("Import built-in level");
         dialog.setHeaderText("Select level to import");
         dialog.setContentText("Level:");
 
@@ -2069,6 +2068,27 @@ abstract class Utils extends Application {
         }
     }
 
+    private void displayOpenUserLevelDialog(){
+
+        List<String> levels = userLevels();
+        if(userLevels().size() > 0){
+
+            ChoiceDialog<String> dialog = new ChoiceDialog<>(levels.get(0), levels);
+            dialog.setTitle("Import user-defined level");
+            dialog.setHeaderText("Select level to import");
+            dialog.setContentText("Level:");
+
+            Optional<String> result = dialog.showAndWait();
+            if (result.isPresent()){
+                int level = Integer.valueOf(result.get());
+                prefs.putInt("editorLvl", level);
+                setEditorFilesFromUserLevel(result.get());
+                loadEditor();
+            }
+        }
+
+    }
+
     private void displaySaveLevelAsChoiceDialog(){
         List<String> levels = new ArrayList<>();
         for(int i = 1; i < MAX_LEVEL +1; i++) {
@@ -2076,12 +2096,12 @@ abstract class Utils extends Application {
         }
         String level = String.valueOf(prefs.getInt("editorLvl", 1));
         ChoiceDialog<String> dialog = new ChoiceDialog<>(level, levels);
-        dialog.setTitle("Save level as");
-        dialog.setHeaderText("Select level to override");
+        dialog.setTitle("Save as user level");
+        dialog.setHeaderText("Built-in level to override");
         dialog.setContentText("Level:");
 
         Optional<String> result = dialog.showAndWait();
-        result.ifPresent(s -> copyEditorToLevel(Integer.valueOf(s)));
+        result.ifPresent(s -> copyEditorToUserLevel(Integer.valueOf(s)));
     }
 
     private void setEditorFiles(Integer level) {
@@ -2094,7 +2114,7 @@ abstract class Utils extends Application {
              */
             System.out.println("Editor folder created, importing sample data...");
 
-            importEditorFiles(3);
+            importBuiltInLevel(3);
 
             Alert alert = new Alert(Alert.AlertType.INFORMATION);
             alert.setTitle("Sample data created");
@@ -2109,7 +2129,7 @@ abstract class Utils extends Application {
             /*
              * Importing predefined level on demand
              */
-            importEditorFiles(level);
+            importBuiltInLevel(level);
 
         } else {
 
@@ -2175,8 +2195,6 @@ abstract class Utils extends Application {
                 missingFiles = "Missing file(s) substituted:" + missingFiles;
             }
 
-
-
             if(!missingFiles.isEmpty()){
 
                 Alert alert = new Alert(Alert.AlertType.INFORMATION);
@@ -2193,6 +2211,16 @@ abstract class Utils extends Application {
     void setEditorFiles() {
 
         setEditorFiles(null);
+    }
+
+    private void setEditorFilesFromUserLevel(String folderName) {
+
+        mEditorFolder = new File(System.getProperty("user.home") + "/.EistReturns/levels/editor-data");
+        if (mEditorFolder.mkdir()) {
+
+            System.out.println("Created missing editor folder");
+        }
+        importUserLevelToEditor(folderName);
     }
 
     private boolean isFilePresent(String name){
@@ -2213,7 +2241,7 @@ abstract class Utils extends Application {
         }
     }
 
-    private void importEditorFiles(Integer level){
+    private void importBuiltInLevel(Integer level){
 
         String lvlNumberToString;
         if(level != null) {
@@ -2246,7 +2274,29 @@ abstract class Utils extends Application {
         }
     }
 
-    private void copyEditorToLevel(int level){
+    private void importUserLevelToEditor(String levelName){
+
+        File sourceFolder = new File(System.getProperty("user.home") + "/.EistReturns/levels/" + levelName);
+        File[] sourceFiles = sourceFolder.listFiles();
+
+        if (sourceFiles != null) {
+            for (File file : sourceFiles) {
+
+                Path source = Paths.get(file.toString());
+                Path destination = Paths.get(System.getProperty("user.home") + "/.EistReturns/levels/editor-data", source.getFileName().toString());
+
+                try {
+                    copyFile(source.toFile(), destination.toFile());
+                    System.out.println("Copying: " + file.toString());
+                } catch(IOException e) {
+                    System.out.println("Copying error: " + e);
+                }
+            }
+            mEditorStage.setTitle("Imported user level: " + levelName);
+        }
+    }
+
+    private void copyEditorToUserLevel(int level){
 
         String lvlNumberToString = (level < 10) ? "0" + String.valueOf(level) : String.valueOf(level);
         Path destFolder = Paths.get(System.getProperty("user.home") + "/.EistReturns/levels/" + lvlNumberToString);
@@ -2271,6 +2321,35 @@ abstract class Utils extends Application {
                 }
             }
         }
+    }
+
+    private List<String> userLevels(){
+        File sourceFolder = new File(System.getProperty("user.home") + "/.EistReturns/levels/");
+        File[] sourceFiles = sourceFolder.listFiles();
+        List<String> folderNames = new ArrayList<>();
+        /*
+         * Skip if the folder name is not a 2-digit number
+         */
+        if (sourceFiles != null) {
+            for (File file : sourceFiles) {
+                String name = file.getName();
+                try{
+                    // just to trigger an exception if the folder name couldn't be converted into int
+                    int number = Integer.valueOf(name);
+
+                    if(name.length() == 2) {
+                        folderNames.add(name);
+                    }
+                } catch (Exception e) {
+                    System.out.println("Skipped folder: " + name);
+                }
+            }
+        }
+        Collections.sort(folderNames);
+        for(String name : folderNames){
+            System.out.println(name);
+        }
+        return folderNames;
     }
 
     private static void copyFile(File source, File dest) throws IOException {
@@ -2503,6 +2582,18 @@ abstract class Utils extends Application {
                 e -> mMenuHint = "");
         mImportButton.setOnAction(e -> displayImportLevelChoiceDialog());
 
+        mOpenButton = new Button();
+        mOpenButton.setOpacity(0);
+        mOpenButton.setMinHeight(mGridDimension);
+        mOpenButton.setMinWidth(mGridDimension);
+
+        mOpenButton.addEventHandler(MouseEvent.MOUSE_ENTERED,
+                e -> mMenuHint = "Open user level");
+
+        mOpenButton.addEventHandler(MouseEvent.MOUSE_EXITED,
+                e -> mMenuHint = "");
+        mOpenButton.setOnAction(e -> displayOpenUserLevelDialog());
+
         mSaveButton = new Button();
         mSaveButton.setOpacity(0);
         mSaveButton.setMinHeight(mGridDimension);
@@ -2530,6 +2621,25 @@ abstract class Utils extends Application {
             displaySaveLevelAsChoiceDialog();
         });
 
+        mToolsButton = new Button();
+        mToolsButton.setOpacity(0);
+        mToolsButton.setMinHeight(mGridDimension);
+        mToolsButton.setMinWidth(mGridDimension);
+
+        mToolsButton.addEventHandler(MouseEvent.MOUSE_ENTERED,
+                e -> mMenuHint = "Tools");
+
+        mToolsButton.addEventHandler(MouseEvent.MOUSE_EXITED,
+                e -> mMenuHint = "");
+        //mToolsButton.setOnAction(e -> displayImportLevelChoiceDialog());
+
+        hBoxRow0.getChildren().add(mImportButton);
+        hBoxRow0.getChildren().add(mSaveButton);
+        hBoxRow0.getChildren().add(mOpenButton);
+        hBoxRow0.getChildren().add(mSaveAsButton);
+        hBoxRow0.getChildren().add(mToolsButton);
+        hBoxRow0.setSpacing(0);
+
         mDoorButton = new Button();
         mDoorButton.setOpacity(0);
         mDoorButton.setMinHeight(mGridDimension);
@@ -2542,10 +2652,6 @@ abstract class Utils extends Application {
                 e -> mMenuHint = "");
         mDoorButton.setOnAction(e -> displayImportLevelChoiceDialog());
 
-        hBoxRow0.getChildren().add(mImportButton);
-        hBoxRow0.getChildren().add(mSaveButton);
-        hBoxRow0.getChildren().add(mSaveAsButton);
-        hBoxRow0.setSpacing(0);
 
         mDoorButton = new Button();
         mDoorButton.setOpacity(0);

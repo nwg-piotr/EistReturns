@@ -785,7 +785,7 @@ public class Editor extends Utils {
             gc.setFill(Color.BLACK);
             gc.fillRect(columns[27], rows[0], mGridDimension * 5, mFrameDimension * 8);
 
-            gc.drawImage(mToolbarMenuImg, toolbar.getOpenArea().getMinX(), toolbar.getOpenArea().getMinY(), mGridDimension * 4, mGridDimension);
+            gc.drawImage(mToolbarMenuImg, toolbar.getOpenArea().getMinX(), toolbar.getOpenArea().getMinY(), mGridDimension * 5, mGridDimension);
 
             if (toolbar.getSelection() != null) {
 
