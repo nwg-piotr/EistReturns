@@ -439,7 +439,7 @@ abstract class Utils extends Application {
                     /*
                      * In editor: place / remove selected item
                      */
-                    if (toolbar != null && toolbar.getSelection() != null) {
+                    if (!mTesting && toolbar != null && toolbar.getSelection() != null) {
                         /*
                         If path clicked
                          */
@@ -2903,5 +2903,9 @@ abstract class Utils extends Application {
         mArrowButton.setDisable(disable);
         mEistButton.setDisable(disable);
         mClearButton.setDisable(disable);
+    }
+
+    String lvlToString(int level){
+        return (level < 10) ? "0" + String.valueOf(level) : String.valueOf(level);
     }
 }

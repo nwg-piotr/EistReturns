@@ -748,7 +748,8 @@ public class Main extends Utils {
 
         gc.setFill(Color.WHITE);
         gc.setFont(infoFont);
-        gc.fillText(String.valueOf(mCurrentLevel), columns[28], rows[12]);
+        gc.fillText(" L " + lvlToString(mCurrentLevel), columns[27], rows[12]);
+        gc.drawImage(mKeyImg, columns[26] + mHalfGridDimension, rows[12] + mHalfGridDimension, mFrameDimension, mFrameDimension);
         gc.fillText(String.valueOf(eist.getKeys()), columns[28], rows[14]);
         gc.setFont(turnsFont);
         gc.fillText("Turns: " + mTurnsCounter, columns[27], rows[15]);
@@ -757,7 +758,7 @@ public class Main extends Utils {
         } else {
             gc.fillText("Best: -", columns[27], rows[16]);
         }
-        if(mShowFps) {
+        if (mShowFps) {
             gc.fillText("FPS: " + String.valueOf((int) mFps), columns[27], rows[17]);
         }
     }
