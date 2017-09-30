@@ -2936,7 +2936,7 @@ abstract class Utils extends Application {
         hint.setFill(Color.WHITE);
 
         StackPane root = new StackPane(text);
-        root.setStyle("-fx-background-color: rgba(0, 0, 0, 0.7); -fx-padding: 20px;");
+        root.setStyle("-fx-background-color: rgba(0, 100, 100, 0.7); -fx-padding: 20px;");
         root.setAlignment(Pos.TOP_CENTER);
 
         Scene scene = new Scene(root);
