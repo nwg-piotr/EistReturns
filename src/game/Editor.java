@@ -41,11 +41,6 @@ public class Editor extends Utils {
 
     private double mFps = 0;
 
-    private Font infoFont;
-    private Font levelFont;
-    private Font turnsFont;
-    private Font messageFont;
-
     private boolean mShowFps = false;
 
     private AnimationTimer animationTimer;

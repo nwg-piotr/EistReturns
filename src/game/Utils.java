@@ -7,6 +7,7 @@ import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.concurrent.Task;
 import javafx.geometry.Point2D;
+import javafx.geometry.Pos;
 import javafx.geometry.Rectangle2D;
 import javafx.scene.Group;
 import javafx.scene.Scene;
@@ -15,10 +16,7 @@ import javafx.scene.image.Image;
 import javafx.scene.image.PixelReader;
 import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
-import javafx.scene.layout.GridPane;
-import javafx.scene.layout.HBox;
-import javafx.scene.layout.Priority;
-import javafx.scene.layout.StackPane;
+import javafx.scene.layout.*;
 import javafx.scene.media.AudioClip;
 import javafx.scene.media.Media;
 import javafx.scene.media.MediaException;
@@ -26,6 +24,7 @@ import javafx.scene.media.MediaPlayer;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 import javafx.scene.text.Text;
+import javafx.stage.Modality;
 import javafx.stage.Screen;
 
 import java.io.File;
@@ -138,6 +137,11 @@ abstract class Utils extends Application {
 
     Stage mEditorStage;
     Scene mEditorScene;
+
+    Font levelFont;
+    Font infoFont;
+    Font messageFont;
+    Font turnsFont;
 
     /**
      * The Frame is a rectangular part of the game board of width of 2 columns and height of 2 rows.
@@ -2627,11 +2631,11 @@ abstract class Utils extends Application {
         mToolsButton.setMinWidth(mGridDimension);
 
         mToolsButton.addEventHandler(MouseEvent.MOUSE_ENTERED,
-                e -> mMenuHint = "Tools");
+                e -> mMenuHint = "Display tools window");
 
         mToolsButton.addEventHandler(MouseEvent.MOUSE_EXITED,
                 e -> mMenuHint = "");
-        //mToolsButton.setOnAction(e -> displayImportLevelChoiceDialog());
+        mToolsButton.setOnAction(e -> displayTools());
 
         hBoxRow0.getChildren().add(mImportButton);
         hBoxRow0.getChildren().add(mSaveButton);
@@ -2903,9 +2907,113 @@ abstract class Utils extends Application {
         mArrowButton.setDisable(disable);
         mEistButton.setDisable(disable);
         mClearButton.setDisable(disable);
+        mOpenButton.setDisable(disable);
+        mToolsButton.setDisable(disable);
     }
 
     String lvlToString(int level){
         return (level < 10) ? "0" + String.valueOf(level) : String.valueOf(level);
+    }
+
+    private void displayTools(){
+
+        Stage stage = new Stage();
+        stage.initOwner(mEditorStage);
+        stage.setResizable(false);
+        stage.initStyle(StageStyle.TRANSPARENT);
+        stage.initModality(Modality.WINDOW_MODAL);
+
+        stage.setTitle("Tools");
+        stage.setWidth(mEditorStage.getWidth() / 3);
+        stage.setHeight(mEditorStage.getHeight() * 0.5);
+
+        Text text = new Text("Select action below");
+        text.setFont(turnsFont);
+        text.setFill(Color.WHITE);
+
+        Text hint = new Text();
+        hint.setFont(messageFont);
+        hint.setFill(Color.WHITE);
+
+        StackPane root = new StackPane(text);
+        root.setStyle("-fx-background-color: rgba(0, 0, 0, 0.7); -fx-padding: 20px;");
+        root.setAlignment(Pos.TOP_CENTER);
+
+        Scene scene = new Scene(root);
+        scene.setFill(Color.TRANSPARENT);
+        stage.setScene(scene);
+
+        VBox buttonsBox = new VBox();
+        buttonsBox.setSpacing(20);
+        buttonsBox.setMinWidth(root.getMinWidth());
+        buttonsBox.setAlignment(Pos.CENTER);
+
+        Button button1 = new Button();
+        button1.setMinWidth(mFrameDimension * 2);
+        button1.setText("Delete user level");
+
+        button1.addEventHandler(MouseEvent.MOUSE_ENTERED,
+                e -> hint.setText("Deletes selected user-defined level"));
+
+        button1.addEventHandler(MouseEvent.MOUSE_EXITED,
+                e -> hint.setText(""));
+        button1.setOnAction(e -> displayImportLevelChoiceDialog());
+
+        Button button2 = new Button();
+        button2.setMinWidth(mFrameDimension * 2);
+        button2.setText("Clear user levels");
+
+        button2.addEventHandler(MouseEvent.MOUSE_ENTERED,
+                e -> hint.setText("Deletes all user-defined levels"));
+
+        button2.addEventHandler(MouseEvent.MOUSE_EXITED,
+                e -> hint.setText(""));
+        button2.setOnAction(e -> displayImportLevelChoiceDialog());
+
+        Button buttonExit = new Button();
+        buttonExit.setMinWidth(mFrameDimension * 2);
+        buttonExit.setText("Exit");
+
+        buttonExit.addEventHandler(MouseEvent.MOUSE_ENTERED,
+                e -> hint.setText("Closes this window"));
+
+        buttonExit.addEventHandler(MouseEvent.MOUSE_EXITED,
+                e -> hint.setText(""));
+        buttonExit.setOnAction(e -> stage.close());
+
+        Button button4 = new Button();
+        button4.setMinWidth(mFrameDimension * 2);
+        button4.setText("Import user levels");
+
+        button4.addEventHandler(MouseEvent.MOUSE_ENTERED,
+                e -> hint.setText("Imports a set of levels from external file"));
+
+        button4.addEventHandler(MouseEvent.MOUSE_EXITED,
+                e -> hint.setText(""));
+        button4.setOnAction(e -> displayImportLevelChoiceDialog());
+
+        Button button5 = new Button();
+        button5.setMinWidth(mFrameDimension * 2);
+        button5.setText("Export user levels");
+
+        button5.addEventHandler(MouseEvent.MOUSE_ENTERED,
+                e -> hint.setText("Exports user levels to a file"));
+
+        button5.addEventHandler(MouseEvent.MOUSE_EXITED,
+                e -> hint.setText(""));
+        button5.setOnAction(e -> displayImportLevelChoiceDialog());
+
+        buttonsBox.getChildren().add(button1);
+        buttonsBox.getChildren().add(button2);
+        buttonsBox.getChildren().add(button4);
+        buttonsBox.getChildren().add(button5);
+        buttonsBox.getChildren().add(buttonExit);
+
+        buttonsBox.getChildren().add(hint);
+
+        root.getChildren().add(buttonsBox);
+
+        stage.show();
+
     }
 }
