@@ -68,6 +68,7 @@ public class Editor extends Utils {
         setBoard();
 
         stage.setTitle("Level editor");
+
         stage.getIcons().add(new Image("/images/common/eist.png"));
         stage.setResizable(false);
         if (mDimensionDivider == 1.0) {
@@ -138,16 +139,13 @@ public class Editor extends Utils {
 
         mEditorScene.setOnMouseClicked(this::handleMouseEvent);
 
-        mEditorScene.setOnKeyPressed(new EventHandler<KeyEvent>() {
-            @Override
-            public void handle(KeyEvent event) {
-                switch (event.getCode()) {
-                    case F:
-                        mShowFps = !mShowFps;
-                        break;
-                    default:
-                        break;
-                }
+        mEditorScene.setOnKeyPressed(event -> {
+            switch (event.getCode()) {
+                case F:
+                    mShowFps = !mShowFps;
+                    break;
+                default:
+                    break;
             }
         });
 

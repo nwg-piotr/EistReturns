@@ -47,6 +47,7 @@ import javafx.util.Duration;
 
 import java.io.*;
 
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.*;
@@ -183,6 +184,9 @@ abstract class Utils extends Application {
     static final int SELECTION_ORNAMENT = 7;
     static final int SELECTION_CLEAR = 8;
     static final int SELECTION_EIST = 9;
+
+    static final int TOAST_DELAY_LONG = 3000;
+    static final int TOAST_DELAY_SHORT = 1000;
 
     String mMenuHint = "";
     Rectangle2D detectRect;
@@ -370,7 +374,7 @@ abstract class Utils extends Application {
 
                     } else {
 
-                        if(toolbar.getSelection() != null) {
+                        if (toolbar.getSelection() != null) {
                             prefs.putInt("sel", toolbar.getSelection());
                         }
                         //toolbar.setSelection(null);
@@ -500,8 +504,8 @@ abstract class Utils extends Application {
                             Rectangle2D rectangle2D = nearestSquare(pointClicked.getX(), pointClicked.getY());
                             placeOrnament(rectangle2D.getMinX(), rectangle2D.getMinY());
                         }
-                        if(toolbar.getSelection() == SELECTION_SLOT &&
-                                pixelReader.getArgb((int) pointClicked.getX(), (int) pointClicked.getY()) == -16777216){
+                        if (toolbar.getSelection() == SELECTION_SLOT &&
+                                pixelReader.getArgb((int) pointClicked.getX(), (int) pointClicked.getY()) == -16777216) {
                             Rectangle2D area = nearestSlot(pointClicked.getX(), pointClicked.getY(), toolbar.getSlotOrientation());
                             placeSlot(area, toolbar.getSlotOrientation());
                         }
@@ -521,10 +525,10 @@ abstract class Utils extends Application {
 
                     } else {
 
-                        if(!mTesting){
+                        if (!mTesting) {
                             saveEditor();
                             disableButtons(true);
-                            if(toolbar.getSelection() != null) {
+                            if (toolbar.getSelection() != null) {
                                 prefs.putInt("sel", toolbar.getSelection());
                             }
                             mTesting = true;
@@ -1499,7 +1503,7 @@ abstract class Utils extends Application {
         /*
          * Just in case the slots.dat file not found:
          */
-        if(mSlots == null || mSlots.size() == 0){
+        if (mSlots == null || mSlots.size() == 0) {
             ladder.setSlotIdx(null);
         }
 
@@ -1591,7 +1595,7 @@ abstract class Utils extends Application {
         double nearest_left = ((int) (touch_x / mGridDimension)) * mGridDimension;
         double nearest_top = ((int) (touch_y / mGridDimension)) * mGridDimension;
 
-        if(orientation == ORIENTATION_VERTICAL) {
+        if (orientation == ORIENTATION_VERTICAL) {
             return new Rectangle2D(nearest_left, nearest_top, mFrameDimension, mGridDimension);
         } else {
             return new Rectangle2D(nearest_left, nearest_top, mGridDimension, mFrameDimension);
@@ -1720,7 +1724,7 @@ abstract class Utils extends Application {
 
     private void placeTeleport(double x, double y) {
 
-        if(mTeleports.size() < 2) {
+        if (mTeleports.size() < 2) {
             Teleport teleport = new Teleport();
             teleport.setPosX(x);
             teleport.setPosY(y);
@@ -1756,7 +1760,7 @@ abstract class Utils extends Application {
         slot.setOrientation(orientation);
 
         mSlots.add(slot);
-        if(mSlots.size() == 1){
+        if (mSlots.size() == 1) {
             ladder.setSlotIdx(0);
         }
     }
@@ -1777,59 +1781,59 @@ abstract class Utils extends Application {
 
     private void deleteIfFound(Point2D checkPoint) {
 
-        for(Door door : mDoors){
+        for (Door door : mDoors) {
             detectRect = new Rectangle2D(door.getPosX(), door.getPosY(), mFrameDimension, mFrameDimension);
-            if (detectRect.contains(checkPoint)){
+            if (detectRect.contains(checkPoint)) {
                 mDoors.remove(door);
                 break;
             }
         }
 
-        for(Artifact artifact : mArtifacts){
+        for (Artifact artifact : mArtifacts) {
             detectRect = new Rectangle2D(artifact.getPosX(), artifact.getPosY(), mFrameDimension, mFrameDimension);
-            if (detectRect.contains(checkPoint)){
+            if (detectRect.contains(checkPoint)) {
                 mArtifacts.remove(artifact);
                 break;
             }
         }
 
-        for(Key key : mKeys){
+        for (Key key : mKeys) {
             detectRect = new Rectangle2D(key.getPosX(), key.getPosY(), mFrameDimension, mFrameDimension);
-            if (detectRect.contains(checkPoint)){
+            if (detectRect.contains(checkPoint)) {
                 mKeys.remove(key);
                 break;
             }
         }
 
-        for(Teleport teleport : mTeleports){
+        for (Teleport teleport : mTeleports) {
             detectRect = new Rectangle2D(teleport.getPosX(), teleport.getPosY(), mFrameDimension, mFrameDimension);
-            if (detectRect.contains(checkPoint)){
+            if (detectRect.contains(checkPoint)) {
                 mTeleports.remove(teleport);
                 break;
             }
         }
 
-        for(Arrow arrow : mArrows){
+        for (Arrow arrow : mArrows) {
             detectRect = new Rectangle2D(arrow.getPosX(), arrow.getPosY(), mFrameDimension, mFrameDimension);
-            if (detectRect.contains(checkPoint)){
+            if (detectRect.contains(checkPoint)) {
                 mArrows.remove(arrow);
                 break;
             }
         }
 
-        for(Ornament ornament : mOrnaments){
+        for (Ornament ornament : mOrnaments) {
             detectRect = new Rectangle2D(ornament.getPosX(), ornament.getPosY(), mFrameDimension, mFrameDimension);
-            if (detectRect.contains(checkPoint)){
+            if (detectRect.contains(checkPoint)) {
                 mOrnaments.remove(ornament);
                 break;
             }
         }
 
-        for (Slot slot : mSlots){
-            if(slot.getArea().contains(checkPoint)){
+        for (Slot slot : mSlots) {
+            if (slot.getArea().contains(checkPoint)) {
                 mSlots.remove(slot);
 
-                if(mSlots.size() > 0){
+                if (mSlots.size() > 0) {
                     ladder.setSlotIdx(0);
                 } else {
                     ladder.setSlotIdx(null);
@@ -2053,9 +2057,9 @@ abstract class Utils extends Application {
         }
     }
 
-    private void displayImportLevelChoiceDialog(){
+    private void displayImportLevelChoiceDialog() {
         List<String> levels = new ArrayList<>();
-        for(int i = 1; i < MAX_LEVEL +1; i++) {
+        for (int i = 1; i < MAX_LEVEL + 1; i++) {
             levels.add(String.valueOf(i));
         }
         ChoiceDialog<String> dialog = new ChoiceDialog<>("1", levels);
@@ -2064,7 +2068,7 @@ abstract class Utils extends Application {
         dialog.setContentText("Level:");
 
         Optional<String> result = dialog.showAndWait();
-        if (result.isPresent()){
+        if (result.isPresent()) {
             int level = Integer.valueOf(result.get());
             prefs.putInt("editorLvl", level);
             setEditorFiles(level);
@@ -2072,10 +2076,10 @@ abstract class Utils extends Application {
         }
     }
 
-    private void displayOpenUserLevelDialog(){
+    private void displayOpenUserLevelDialog() {
 
         List<String> levels = userLevels();
-        if(userLevels().size() > 0){
+        if (userLevels().size() > 0) {
 
             ChoiceDialog<String> dialog = new ChoiceDialog<>(levels.get(0), levels);
             dialog.setTitle("Open user-defined level");
@@ -2083,19 +2087,103 @@ abstract class Utils extends Application {
             dialog.setContentText("Level:");
 
             Optional<String> result = dialog.showAndWait();
-            if (result.isPresent()){
+            if (result.isPresent()) {
                 int level = Integer.valueOf(result.get());
                 prefs.putInt("editorLvl", level);
                 setEditorFilesFromUserLevel(result.get());
                 loadEditor();
             }
+        } else {
+            Toast.makeText(mEditorStage, "No user-defined levels found", TOAST_DELAY_SHORT);
+        }
+    }
+
+    private void displayDeleteUserLevelDialog() {
+
+        List<String> levels = userLevels();
+        if (userLevels().size() > 0) {
+
+            ChoiceDialog<String> dialog = new ChoiceDialog<>(levels.get(0), levels);
+            dialog.setTitle("Delete user-defined level");
+            dialog.setHeaderText("User level to delete");
+            dialog.setContentText("Level:");
+
+            Optional<String> result = dialog.showAndWait();
+
+            if (result.isPresent()) {
+
+                File level = new File(System.getProperty("user.home") + "/.EistReturns/levels/" + result.get());
+                if (deleteFolder(level)) {
+                    Toast.makeText(mEditorStage, "User level " + result.get() + " deleted", TOAST_DELAY_SHORT);
+                } else {
+                    Toast.makeText(mEditorStage, "Failed deleting " + level, TOAST_DELAY_SHORT);
+                }
+
+            }
+        } else {
+            Toast.makeText(mEditorStage, "No user-defined levels found", TOAST_DELAY_SHORT);
+        }
+    }
+
+    private void displayClearAllUserLevelsDialog() {
+
+        List<String> userLevels = userLevels();
+        if (userLevels.size() > 0) {
+
+            Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+            alert.setTitle("Clear user levels");
+
+            StringBuilder names =  new StringBuilder();
+            names.append("To delete: ");
+            for(String levelName : userLevels){
+                names.append(levelName);
+                if(userLevels.indexOf(levelName) < userLevels.size() -1) {
+                    names.append(", ");
+                }
+            }
+
+            alert.setHeaderText("This will delete all user-defined levels:");
+            alert.setContentText(names.toString());
+
+            Optional<ButtonType> result = alert.showAndWait();
+            if (result.isPresent()) {
+                if (result.get() == ButtonType.OK) {
+
+                    for(String levelName : userLevels){
+                        File levelFolder = new File(System.getProperty("user.home") + "/.EistReturns/levels/" + levelName);
+                        System.out.println("Deleting " + levelFolder);
+                        deleteFolder(levelFolder);
+                    }
+                    Toast.makeText(mEditorStage, "User levels cleared", TOAST_DELAY_SHORT);
+
+
+                }
+            }
+        } else {
+            Toast.makeText(mEditorStage, "No user-defined levels found", TOAST_DELAY_SHORT);
         }
 
     }
 
-    private void displaySaveLevelAsChoiceDialog(){
+    private static boolean deleteFolder(File folder) {
+        if (folder.isDirectory()) {
+            String[] children = folder.list();
+            if (children != null) {
+                for (String aChildren : children) {
+                    boolean success = deleteFolder(new File(folder, aChildren));
+
+                    if (!success) {
+                        return false;
+                    }
+                }
+            }
+        }
+        return folder.delete();
+    }
+
+    private void displaySaveLevelAsChoiceDialog() {
         List<String> levels = new ArrayList<>();
-        for(int i = 1; i < MAX_LEVEL +1; i++) {
+        for (int i = 1; i < MAX_LEVEL + 1; i++) {
             levels.add(String.valueOf(i));
         }
         String level = String.valueOf(prefs.getInt("editorLvl", 1));
@@ -2128,7 +2216,7 @@ abstract class Utils extends Application {
             alert.showAndWait();
         }
 
-        if(level != null){
+        if (level != null) {
 
             /*
              * Importing predefined level on demand
@@ -2143,63 +2231,63 @@ abstract class Utils extends Application {
              */
             String missingFiles = "";
 
-            if(!isFilePresent("board.png")){
+            if (!isFilePresent("board.png")) {
                 missingFiles = "\n- board.png";
             }
-            if(!isFilePresent("door_h.png")){
+            if (!isFilePresent("door_h.png")) {
                 missingFiles += "\n- door_h.png";
             }
-            if(!isFilePresent("door_v.png")){
+            if (!isFilePresent("door_v.png")) {
                 missingFiles += "\n- door_v.png";
             }
-            if(!isFilePresent("exit_closed.png")){
+            if (!isFilePresent("exit_closed.png")) {
                 missingFiles += "\n- exit_closed.png";
             }
-            if(!isFilePresent("exit_open.png")){
+            if (!isFilePresent("exit_open.png")) {
                 missingFiles += "\n- exit_open.png";
             }
-            if(!isFilePresent("key.png")){
+            if (!isFilePresent("key.png")) {
                 missingFiles += "\n- key.png";
             }
-            if(!isFilePresent("ladder_h.png")){
+            if (!isFilePresent("ladder_h.png")) {
                 missingFiles += "\n- ladder_h.png";
             }
-            if(!isFilePresent("ladder_v.png")){
+            if (!isFilePresent("ladder_v.png")) {
                 missingFiles += "\n- ladder_v.png";
             }
-            if(!isFilePresent("ornament.png")){
+            if (!isFilePresent("ornament.png")) {
                 missingFiles += "\n- ornament.png";
             }
-            if(!isFilePresent("ornament.png")){
+            if (!isFilePresent("ornament.png")) {
                 missingFiles += "\n- ornament.png";
             }
-            if(!isFilePresent("amulets.dat")){
+            if (!isFilePresent("amulets.dat")) {
                 missingFiles += "\n- amulets.dat";
             }
-            if(!isFilePresent("arrows.dat")){
+            if (!isFilePresent("arrows.dat")) {
                 missingFiles += "\n- arrows.dat";
             }
-            if(!isFilePresent("doors.dat")){
+            if (!isFilePresent("doors.dat")) {
                 missingFiles += "\n- doors.dat";
             }
-            if(!isFilePresent("keys.dat")){
+            if (!isFilePresent("keys.dat")) {
                 missingFiles += "\n- keys.dat";
             }
-            if(!isFilePresent("level.dat")){
+            if (!isFilePresent("level.dat")) {
                 missingFiles += "\n- level.dat";
             }
-            if(!isFilePresent("slots.dat")){
+            if (!isFilePresent("slots.dat")) {
                 missingFiles += "\n- slots.dat";
             }
-            if(!isFilePresent("teleports.dat")){
+            if (!isFilePresent("teleports.dat")) {
                 missingFiles += "\n- teleports.dat";
             }
 
-            if(!missingFiles.isEmpty()){
+            if (!missingFiles.isEmpty()) {
                 missingFiles = "Missing file(s) substituted:" + missingFiles;
             }
 
-            if(!missingFiles.isEmpty()){
+            if (!missingFiles.isEmpty()) {
 
                 Alert alert = new Alert(Alert.AlertType.INFORMATION);
                 alert.setTitle("Data not found");
@@ -2227,31 +2315,31 @@ abstract class Utils extends Application {
         importUserLevelToEditor(folderName);
     }
 
-    private boolean isFilePresent(String name){
+    private boolean isFilePresent(String name) {
 
         File checkMe = new File(System.getProperty("user.home") + "/.EistReturns/levels/editor-data/" + name);
-        if(!checkMe.exists()){
+        if (!checkMe.exists()) {
 
             File replacement = new File(ClassLoader.getSystemResource("levels/03/" + name).toExternalForm().substring(5));
             try {
                 copyFile(replacement, checkMe);
-            }catch (IOException e){
+            } catch (IOException e) {
                 System.out.println("Error copying board.png:" + e);
             }
-        return false;
+            return false;
 
         } else {
             return true;
         }
     }
 
-    private void importBuiltInLevel(Integer level){
+    private void importBuiltInLevel(Integer level) {
 
         String lvlNumberToString;
-        if(level != null) {
+        if (level != null) {
 
-            lvlNumberToString = (level < 10) ? "0" + String.valueOf(level) : String.valueOf(level);
-            mEditorStage.setTitle("Imported level: " + lvlNumberToString);
+            lvlNumberToString = lvlToString(level);
+            mEditorStage.setTitle("Imported level: " + lvlToString(level));
 
         } else {
 
@@ -2271,14 +2359,14 @@ abstract class Utils extends Application {
                 try {
                     copyFile(source.toFile(), destination.toFile());
                     System.out.println("Copying: " + file.toString());
-                } catch(IOException e) {
+                } catch (IOException e) {
                     System.out.println("Copying error: " + e);
                 }
             }
         }
     }
 
-    private void importUserLevelToEditor(String levelName){
+    private void importUserLevelToEditor(String levelName) {
 
         File sourceFolder = new File(System.getProperty("user.home") + "/.EistReturns/levels/" + levelName);
         File[] sourceFiles = sourceFolder.listFiles();
@@ -2292,7 +2380,7 @@ abstract class Utils extends Application {
                 try {
                     copyFile(source.toFile(), destination.toFile());
                     System.out.println("Copying: " + file.toString());
-                } catch(IOException e) {
+                } catch (IOException e) {
                     System.out.println("Copying error: " + e);
                 }
             }
@@ -2300,12 +2388,12 @@ abstract class Utils extends Application {
         }
     }
 
-    private void copyEditorToUserLevel(int level){
+    private void copyEditorToUserLevel(int level) {
 
         String lvlNumberToString = (level < 10) ? "0" + String.valueOf(level) : String.valueOf(level);
         Path destFolder = Paths.get(System.getProperty("user.home") + "/.EistReturns/levels/" + lvlNumberToString);
 
-        if(destFolder.toFile().mkdir()){
+        if (destFolder.toFile().mkdir()) {
             System.out.println("Created " + destFolder);
         }
         File sourceFolder = new File(System.getProperty("user.home") + "/.EistReturns/levels/editor-data");
@@ -2320,14 +2408,14 @@ abstract class Utils extends Application {
                 try {
                     copyFile(source.toFile(), destFile.toFile());
                     System.out.println("Copying: " + file.toString());
-                } catch(IOException e) {
+                } catch (IOException e) {
                     System.out.println("Copying error: " + e);
                 }
             }
         }
     }
 
-    private List<String> userLevels(){
+    private List<String> userLevels() {
         File sourceFolder = new File(System.getProperty("user.home") + "/.EistReturns/levels/");
         File[] sourceFiles = sourceFolder.listFiles();
         List<String> folderNames = new ArrayList<>();
@@ -2337,11 +2425,11 @@ abstract class Utils extends Application {
         if (sourceFiles != null) {
             for (File file : sourceFiles) {
                 String name = file.getName();
-                try{
+                try {
                     // just to trigger an exception if the folder name couldn't be converted into int
                     int number = Integer.valueOf(name);
 
-                    if(name.length() == 2) {
+                    if (name.length() == 2) {
                         folderNames.add(name);
                     }
                 } catch (Exception e) {
@@ -2350,9 +2438,6 @@ abstract class Utils extends Application {
             }
         }
         Collections.sort(folderNames);
-        for(String name : folderNames){
-            System.out.println(name);
-        }
         return folderNames;
     }
 
@@ -2366,13 +2451,13 @@ abstract class Utils extends Application {
         }
     }
 
-    private void saveEditor(){
+    private void saveEditor() {
         StringBuilder content = new StringBuilder();
-        if(mArrows != null && mArrows.size() > 0){
-            for(Arrow arrow : mArrows){
-                content.append(String.valueOf((int)(arrow.getPosX() / mGridDimension)));
+        if (mArrows != null && mArrows.size() > 0) {
+            for (Arrow arrow : mArrows) {
+                content.append(String.valueOf((int) (arrow.getPosX() / mGridDimension)));
                 content.append(",");
-                content.append(String.valueOf((int)(arrow.getPosY() / mGridDimension)));
+                content.append(String.valueOf((int) (arrow.getPosY() / mGridDimension)));
                 content.append(",");
                 content.append(String.valueOf(arrow.getDirection()));
                 content.append(":");
@@ -2383,11 +2468,11 @@ abstract class Utils extends Application {
         }
 
         content = new StringBuilder();
-        if(mArtifacts != null && mArtifacts.size() > 0){
-            for(Artifact artifact : mArtifacts){
-                content.append(String.valueOf((int)(artifact.getPosX() / mGridDimension)));
+        if (mArtifacts != null && mArtifacts.size() > 0) {
+            for (Artifact artifact : mArtifacts) {
+                content.append(String.valueOf((int) (artifact.getPosX() / mGridDimension)));
                 content.append(",");
-                content.append(String.valueOf((int)(artifact.getPosY() / mGridDimension)));
+                content.append(String.valueOf((int) (artifact.getPosY() / mGridDimension)));
                 content.append(":");
             }
             saveToDatFile("amulets.dat", content.toString());
@@ -2396,11 +2481,11 @@ abstract class Utils extends Application {
         }
 
         content = new StringBuilder();
-        if(mDoors != null && mDoors.size() > 0){
-            for(Door door : mDoors){
-                content.append(String.valueOf((int)(door.getPosX() / mGridDimension)));
+        if (mDoors != null && mDoors.size() > 0) {
+            for (Door door : mDoors) {
+                content.append(String.valueOf((int) (door.getPosX() / mGridDimension)));
                 content.append(",");
-                content.append(String.valueOf((int)(door.getPosY() / mGridDimension)));
+                content.append(String.valueOf((int) (door.getPosY() / mGridDimension)));
                 content.append(",");
                 content.append(String.valueOf(door.getOrientation()));
                 content.append(":");
@@ -2411,11 +2496,11 @@ abstract class Utils extends Application {
         }
 
         content = new StringBuilder();
-        if(mKeys != null && mKeys.size() > 0){
-            for(Key key : mKeys){
-                content.append(String.valueOf((int)(key.getPosX() / mGridDimension)));
+        if (mKeys != null && mKeys.size() > 0) {
+            for (Key key : mKeys) {
+                content.append(String.valueOf((int) (key.getPosX() / mGridDimension)));
                 content.append(",");
-                content.append(String.valueOf((int)(key.getPosY() / mGridDimension)));
+                content.append(String.valueOf((int) (key.getPosY() / mGridDimension)));
                 content.append(":");
             }
             saveToDatFile("keys.dat", content.toString());
@@ -2424,11 +2509,11 @@ abstract class Utils extends Application {
         }
 
         content = new StringBuilder();
-        if(mOrnaments != null && mOrnaments.size() > 0){
-            for(Ornament ornament : mOrnaments){
-                content.append(String.valueOf((int)(ornament.getPosX() / mGridDimension)));
+        if (mOrnaments != null && mOrnaments.size() > 0) {
+            for (Ornament ornament : mOrnaments) {
+                content.append(String.valueOf((int) (ornament.getPosX() / mGridDimension)));
                 content.append(",");
-                content.append(String.valueOf((int)(ornament.getPosY() / mGridDimension)));
+                content.append(String.valueOf((int) (ornament.getPosY() / mGridDimension)));
                 content.append(":");
             }
             saveToDatFile("ornaments.dat", content.toString());
@@ -2437,11 +2522,11 @@ abstract class Utils extends Application {
         }
 
         content = new StringBuilder();
-        if(mSlots != null && mSlots.size() > 0){
-            for(Slot slot : mSlots){
-                content.append(String.valueOf((int)(slot.getPosX() / mGridDimension)));
+        if (mSlots != null && mSlots.size() > 0) {
+            for (Slot slot : mSlots) {
+                content.append(String.valueOf((int) (slot.getPosX() / mGridDimension)));
                 content.append(",");
-                content.append(String.valueOf((int)(slot.getPosY() / mGridDimension)));
+                content.append(String.valueOf((int) (slot.getPosY() / mGridDimension)));
                 content.append(",");
                 content.append(String.valueOf(slot.getOrientation()));
                 content.append(":");
@@ -2452,15 +2537,15 @@ abstract class Utils extends Application {
         }
 
         content = new StringBuilder();
-        content.append(String.valueOf((int)(eist.x / mGridDimension)));
+        content.append(String.valueOf((int) (eist.x / mGridDimension)));
         content.append(",");
-        content.append(String.valueOf((int)(eist.y / mGridDimension)));
+        content.append(String.valueOf((int) (eist.y / mGridDimension)));
         content.append(",");
         content.append(String.valueOf(eist.getDirection()));
         content.append(",");
-        content.append(String.valueOf((int)(exit.getPosX() / mGridDimension)));
+        content.append(String.valueOf((int) (exit.getPosX() / mGridDimension)));
         content.append(",");
-        content.append(String.valueOf((int)(exit.getPosY() / mGridDimension)));
+        content.append(String.valueOf((int) (exit.getPosY() / mGridDimension)));
         content.append(",");
         content.append(String.valueOf(ladder.getSlotIdx()));
 
@@ -2468,24 +2553,24 @@ abstract class Utils extends Application {
 
         boolean teleportsOK = true;
         content = new StringBuilder();
-        if(mTeleports != null && mTeleports.size() == 2){
-            for(Teleport teleport : mTeleports){
-                content.append(String.valueOf((int)(teleport.getPosX() / mGridDimension)));
+        if (mTeleports != null && mTeleports.size() == 2) {
+            for (Teleport teleport : mTeleports) {
+                content.append(String.valueOf((int) (teleport.getPosX() / mGridDimension)));
                 content.append(",");
-                content.append(String.valueOf((int)(teleport.getPosY() / mGridDimension)));
+                content.append(String.valueOf((int) (teleport.getPosY() / mGridDimension)));
                 content.append(":");
             }
             saveToDatFile("teleports.dat", content.toString());
         } else {
             saveToDatFile("teleports.dat", "");
-            if(mTeleports != null && mTeleports.size() == 1) {
-                teleportsOK =  false;
+            if (mTeleports != null && mTeleports.size() == 1) {
+                teleportsOK = false;
             }
         }
-        if(teleportsOK){
-            Toast.makeText(mEditorStage, "Editor saved");
+        if (teleportsOK) {
+            Toast.makeText(mEditorStage, "Editor saved", TOAST_DELAY_SHORT);
         } else {
-            Toast.makeText(mEditorStage, "Editor saved (teleports skipped - pair not found)");
+            Toast.makeText(mEditorStage, "Editor saved (teleports skipped - pair not found)", TOAST_DELAY_SHORT);
         }
     }
 
@@ -2494,7 +2579,7 @@ abstract class Utils extends Application {
         try {
             PrintStream out = new PrintStream(pathAndFilename);
             out.println(content);
-        } catch(IOException e){
+        } catch (IOException e) {
             System.out.println("Failed writing " + filename + ": " + e);
         }
     }
@@ -2502,10 +2587,10 @@ abstract class Utils extends Application {
     /*
      * The class Toast after https://stackoverflow.com/a/38373408/4040598 by @alcoolis
      */
-    private static final class Toast{
+    private static final class Toast {
 
-        private static void makeText(Stage ownerStage, String toastMsg, int toastDelay, int fadeInDelay, int fadeOutDelay){
-            Stage toastStage=new Stage();
+        private static void makeText(Stage ownerStage, String toastMsg, int toastDelay) {
+            Stage toastStage = new Stage();
             toastStage.initOwner(ownerStage);
             toastStage.setResizable(false);
             toastStage.initStyle(StageStyle.TRANSPARENT);
@@ -2515,7 +2600,7 @@ abstract class Utils extends Application {
             text.setFill(Color.WHITE);
 
             StackPane root = new StackPane(text);
-            root.setStyle("-fx-background-radius: 20; -fx-background-color: rgba(0, 0, 0, 0.4); -fx-padding: 20px;");
+            root.setStyle("-fx-background-radius: 20; -fx-background-color: rgba(0, 0, 0, 0.7); -fx-padding: 20px;");
             root.setOpacity(0);
 
             Scene scene = new Scene(root);
@@ -2524,18 +2609,17 @@ abstract class Utils extends Application {
             toastStage.show();
 
             Timeline fadeInTimeline = new Timeline();
-            KeyFrame fadeInKey1 = new KeyFrame(Duration.millis(fadeInDelay), new KeyValue (toastStage.getScene().getRoot().opacityProperty(), 1));
+            KeyFrame fadeInKey1 = new KeyFrame(Duration.millis(200), new KeyValue(toastStage.getScene().getRoot().opacityProperty(), 1));
             fadeInTimeline.getKeyFrames().add(fadeInKey1);
             fadeInTimeline.setOnFinished((ae) -> new Thread(() -> {
                 try {
                     Thread.sleep(toastDelay);
-                }
-                catch (InterruptedException e) {
+                } catch (InterruptedException e) {
 
                     e.printStackTrace();
                 }
                 Timeline fadeOutTimeline = new Timeline();
-                KeyFrame fadeOutKey1 = new KeyFrame(Duration.millis(fadeOutDelay), new KeyValue(toastStage.getScene().getRoot().opacityProperty(), 0));
+                KeyFrame fadeOutKey1 = new KeyFrame(Duration.millis(500), new KeyValue(toastStage.getScene().getRoot().opacityProperty(), 0));
                 fadeOutTimeline.getKeyFrames().add(fadeOutKey1);
                 fadeOutTimeline.setOnFinished((aeb) -> toastStage.close());
                 fadeOutTimeline.play();
@@ -2543,12 +2627,9 @@ abstract class Utils extends Application {
             fadeInTimeline.play();
         }
 
-        private static void makeText(Stage ownerStage, String toastMsg){
-            makeText(ownerStage, toastMsg, 1000, 100, 1000);
-        }
     }
 
-    private void setUpButtons(){
+    private void setUpButtons() {
 
         HBox hBoxRow0 = new HBox();
         hBoxRow0.setLayoutX(toolbar.getOpenArea().getMinX());
@@ -2670,9 +2751,9 @@ abstract class Utils extends Application {
 
         mDoorButton.setOnMouseClicked(event -> {
             MouseButton button = event.getButton();
-            if(button==MouseButton.PRIMARY){
+            if (button == MouseButton.PRIMARY) {
                 toolbar.setSelection(SELECTION_DOOR);
-            } else if(button==MouseButton.SECONDARY){
+            } else if (button == MouseButton.SECONDARY) {
                 toolbar.setSelection(SELECTION_DOOR);
                 if (toolbar.getDoorOrientation() == ORIENTATION_HORIZONTAL) {
                     toolbar.setDoorOrientation(ORIENTATION_VERTICAL);
@@ -2695,9 +2776,9 @@ abstract class Utils extends Application {
 
         mSlotButton.setOnMouseClicked(event -> {
             MouseButton button = event.getButton();
-            if(button == MouseButton.PRIMARY){
+            if (button == MouseButton.PRIMARY) {
                 toolbar.setSelection(SELECTION_SLOT);
-            } else if(button == MouseButton.SECONDARY){
+            } else if (button == MouseButton.SECONDARY) {
                 toolbar.setSelection(SELECTION_SLOT);
                 if (toolbar.getSlotOrientation() == ORIENTATION_HORIZONTAL) {
                     toolbar.setSlotOrientation(ORIENTATION_VERTICAL);
@@ -2807,9 +2888,9 @@ abstract class Utils extends Application {
 
         mArrowButton.setOnMouseClicked(event -> {
             MouseButton button = event.getButton();
-            if(button == MouseButton.PRIMARY) {
+            if (button == MouseButton.PRIMARY) {
                 toolbar.setSelection(SELECTION_ARROW);
-            } else if(button == MouseButton.SECONDARY) {
+            } else if (button == MouseButton.SECONDARY) {
                 toolbar.setSelection(SELECTION_ARROW);
                 switch (toolbar.getArrowDirection()) {
                     case DIR_RIGHT:
@@ -2845,11 +2926,11 @@ abstract class Utils extends Application {
 
         mEistButton.setOnMouseClicked(event -> {
             MouseButton button = event.getButton();
-            if(button == MouseButton.PRIMARY) {
+            if (button == MouseButton.PRIMARY) {
                 toolbar.setSelection(SELECTION_EIST);
-            } else if(button == MouseButton.SECONDARY) {
+            } else if (button == MouseButton.SECONDARY) {
                 toolbar.setSelection(SELECTION_EIST);
-                switch (eist.getDirection()){
+                switch (eist.getDirection()) {
                     case DIR_RIGHT:
                         eist.setDirection(DIR_DOWN);
                         break;
@@ -2893,7 +2974,7 @@ abstract class Utils extends Application {
         disableButtons(false);
     }
 
-    private void disableButtons(boolean disable){
+    private void disableButtons(boolean disable) {
         mImportButton.setDisable(disable);
         mSaveButton.setDisable(disable);
         mSaveAsButton.setDisable(disable);
@@ -2911,11 +2992,11 @@ abstract class Utils extends Application {
         mToolsButton.setDisable(disable);
     }
 
-    String lvlToString(int level){
+    String lvlToString(int level) {
         return (level < 10) ? "0" + String.valueOf(level) : String.valueOf(level);
     }
 
-    private void displayTools(){
+    private void displayTools() {
 
         Stage stage = new Stage();
         stage.initOwner(mEditorStage);
@@ -2927,15 +3008,13 @@ abstract class Utils extends Application {
         stage.setWidth(mEditorStage.getWidth() / 3);
         stage.setHeight(mEditorStage.getHeight() * 0.5);
 
-        Text text = new Text("Select action below");
-        text.setFont(turnsFont);
-        text.setFill(Color.WHITE);
-
         Text hint = new Text();
         hint.setFont(messageFont);
         hint.setFill(Color.WHITE);
 
-        StackPane root = new StackPane(text);
+        hint.setText("Select action below:");
+
+        StackPane root = new StackPane();
         root.setStyle("-fx-background-color: rgba(0, 100, 100, 0.7); -fx-padding: 20px;");
         root.setAlignment(Pos.TOP_CENTER);
 
@@ -2943,73 +3022,83 @@ abstract class Utils extends Application {
         scene.setFill(Color.TRANSPARENT);
         stage.setScene(scene);
 
+        scene.setOnKeyPressed(event -> {
+            switch (event.getCode()) {
+                case ESCAPE:
+                    stage.close();
+                    break;
+                default:
+                    break;
+            }
+        });
+
         VBox buttonsBox = new VBox();
         buttonsBox.setSpacing(20);
         buttonsBox.setMinWidth(root.getMinWidth());
         buttonsBox.setAlignment(Pos.CENTER);
 
         Button button1 = new Button();
-        button1.setMinWidth(mFrameDimension * 2);
+        button1.setMinWidth(mFrameDimension  * 3);
         button1.setText("Delete user level");
 
         button1.addEventHandler(MouseEvent.MOUSE_ENTERED,
                 e -> hint.setText("Deletes selected user-defined level"));
 
         button1.addEventHandler(MouseEvent.MOUSE_EXITED,
-                e -> hint.setText(""));
-        button1.setOnAction(e -> displayImportLevelChoiceDialog());
+                e -> hint.setText("Select action below:"));
+        button1.setOnAction(e -> displayDeleteUserLevelDialog());
 
         Button button2 = new Button();
-        button2.setMinWidth(mFrameDimension * 2);
+        button2.setMinWidth(mFrameDimension  * 3);
         button2.setText("Clear user levels");
 
         button2.addEventHandler(MouseEvent.MOUSE_ENTERED,
                 e -> hint.setText("Deletes all user-defined levels"));
 
         button2.addEventHandler(MouseEvent.MOUSE_EXITED,
-                e -> hint.setText(""));
-        button2.setOnAction(e -> displayImportLevelChoiceDialog());
+                e -> hint.setText("Select action below:"));
+        button2.setOnAction(e -> displayClearAllUserLevelsDialog());
 
         Button buttonExit = new Button();
-        buttonExit.setMinWidth(mFrameDimension * 2);
+        buttonExit.setMinWidth(mFrameDimension  * 3);
         buttonExit.setText("Exit");
 
         buttonExit.addEventHandler(MouseEvent.MOUSE_ENTERED,
                 e -> hint.setText("Closes this window"));
 
         buttonExit.addEventHandler(MouseEvent.MOUSE_EXITED,
-                e -> hint.setText(""));
+                e -> hint.setText("Select action below:"));
         buttonExit.setOnAction(e -> stage.close());
 
         Button button4 = new Button();
-        button4.setMinWidth(mFrameDimension * 2);
+        button4.setMinWidth(mFrameDimension  * 3);
         button4.setText("Import user levels");
 
         button4.addEventHandler(MouseEvent.MOUSE_ENTERED,
                 e -> hint.setText("Imports a set of levels from external file"));
 
         button4.addEventHandler(MouseEvent.MOUSE_EXITED,
-                e -> hint.setText(""));
+                e -> hint.setText("Select action below:"));
         button4.setOnAction(e -> displayImportLevelChoiceDialog());
 
         Button button5 = new Button();
-        button5.setMinWidth(mFrameDimension * 2);
+        button5.setMinWidth(mFrameDimension  * 3);
         button5.setText("Export user levels");
 
         button5.addEventHandler(MouseEvent.MOUSE_ENTERED,
                 e -> hint.setText("Exports user levels to a file"));
 
         button5.addEventHandler(MouseEvent.MOUSE_EXITED,
-                e -> hint.setText(""));
+                e -> hint.setText("Select action below:"));
         button5.setOnAction(e -> displayImportLevelChoiceDialog());
+
+        buttonsBox.getChildren().add(hint);
 
         buttonsBox.getChildren().add(button1);
         buttonsBox.getChildren().add(button2);
         buttonsBox.getChildren().add(button4);
         buttonsBox.getChildren().add(button5);
         buttonsBox.getChildren().add(buttonExit);
-
-        buttonsBox.getChildren().add(hint);
 
         root.getChildren().add(buttonsBox);
 
