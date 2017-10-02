@@ -45,11 +45,15 @@ import javafx.stage.Stage;
 import javafx.stage.StageStyle;
 import javafx.util.Duration;
 
+import game.ZipUtils.*;
+
 import java.io.*;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.prefs.Preferences;
 
@@ -2125,7 +2129,7 @@ abstract class Utils extends Application {
         }
     }
 
-    void displayClearAllUserLevelsDialog() {
+    private void displayClearAllUserLevelsDialog() {
 
         List<String> userLevels = userLevels();
         if (userLevels.size() > 0) {
@@ -2162,6 +2166,35 @@ abstract class Utils extends Application {
         } else {
             Toast.makeText(mEditorStage, "No user-defined levels found", TOAST_DELAY_SHORT);
         }
+
+    }
+
+    private void displayExportLevelsDialog(){
+
+        TextInputDialog dialog = new TextInputDialog("unnamed");
+        dialog.setTitle("Export user levels");
+        dialog.setHeaderText("Exporting user levels to a zip file");
+        dialog.setContentText("Filename:");
+
+        Optional<String> result = dialog.showAndWait();
+        result.ifPresent(name -> {
+            if(name.equals("unnamed")){
+                DateFormat dateFormat = new SimpleDateFormat("-yy-MM-dd-HH-mm-ss");
+                Calendar cal = Calendar.getInstance();
+                name += dateFormat.format(cal.getTime());
+            }
+            File exportFolder = new File(System.getProperty("user.home") + "/.EistReturns/export");
+            if(exportFolder.mkdir()){
+                System.out.println("Export folder created");
+            }
+            try{
+                ZipFileUtil.zipDirectory(new File(System.getProperty("user.home") + "/.EistReturns/levels"),
+                        new File(System.getProperty("user.home") + "/.EistReturns/export/" + name + ".zip"));
+                Toast.makeText(mEditorStage, "Saved to /.EistReturns/export/" + name + ".zip", TOAST_DELAY_LONG);
+            }catch (IOException ioe){
+                System.out.println("Couldn't export to a zip file: " + ioe);
+            }
+        });
 
     }
 
@@ -3117,11 +3150,8 @@ abstract class Utils extends Application {
         button5.addEventHandler(MouseEvent.MOUSE_EXITED,
                 e -> hint.setText("Select action below:"));
         button5.setOnAction(e -> {
-            try{
-                ZipUtils.zipUserLevels("test123.zip");
-            }catch (Exception ex){
-                System.out.println("Couldn't export to a zip file: " + ex);
-            }
+            displayExportLevelsDialog();
+            stage.close();
         });
 
         buttonsBox.getChildren().add(hint);
