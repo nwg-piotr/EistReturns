@@ -2125,7 +2125,7 @@ abstract class Utils extends Application {
         }
     }
 
-    private void displayClearAllUserLevelsDialog() {
+    void displayClearAllUserLevelsDialog() {
 
         List<String> userLevels = userLevels();
         if (userLevels.size() > 0) {
@@ -2439,6 +2439,32 @@ abstract class Utils extends Application {
         }
         Collections.sort(folderNames);
         return folderNames;
+    }
+
+    static File[] userLevelDirs() {
+        File sourceFolder = new File(System.getProperty("user.home") + "/.EistReturns/levels/");
+        File[] sourceDirs = sourceFolder.listFiles();
+        List<File> folders = new ArrayList<>();
+        /*
+         * Skip if the folder name is not a 2-digit number
+         */
+        if (sourceDirs != null) {
+            for (File dir : sourceDirs) {
+                String name = dir.getName();
+                try {
+                    // just to trigger an exception if the folder name couldn't be converted into int
+                    int number = Integer.valueOf(name);
+
+                    if (name.length() == 2) {
+                        folders.add(dir);
+                    }
+                } catch (Exception e) {
+                    System.out.println("Skipped folder: " + name);
+                }
+            }
+        }
+        Collections.sort(folders);
+        return folders.toArray(new File[folders.size()]);
     }
 
     private static void copyFile(File source, File dest) throws IOException {
@@ -3090,7 +3116,13 @@ abstract class Utils extends Application {
 
         button5.addEventHandler(MouseEvent.MOUSE_EXITED,
                 e -> hint.setText("Select action below:"));
-        button5.setOnAction(e -> displayImportLevelChoiceDialog());
+        button5.setOnAction(e -> {
+            try{
+                ZipUtils.zipUserLevels("test123.zip");
+            }catch (Exception ex){
+                System.out.println("Couldn't export to a zip file: " + ex);
+            }
+        });
 
         buttonsBox.getChildren().add(hint);
 
