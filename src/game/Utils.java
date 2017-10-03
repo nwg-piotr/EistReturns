@@ -2167,6 +2167,45 @@ abstract class Utils extends Application {
 
     }
 
+    private void displayImportLevelsDialog(){
+
+        Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+        alert.setTitle("Import user levels");
+        alert.setHeaderText("This will replace user-defined levels");
+        alert.setContentText("Continue?");
+
+        Optional<ButtonType> result = alert.showAndWait();
+        if (result.isPresent()) {
+            if (result.get() == ButtonType.OK) {
+
+                FileChooser fileChooser = new FileChooser();
+                fileChooser.setTitle("Select file to import from");
+                String initialDir = prefs.get("importPath", "");
+                if(!initialDir.isEmpty() && new File(initialDir).exists()){
+                    fileChooser.setInitialDirectory(new File(initialDir));
+                } else {
+                    fileChooser.setInitialDirectory(new File(System.getProperty("user.home")));
+                }
+                fileChooser.getExtensionFilters().addAll(
+                        new FileChooser.ExtensionFilter("Zip files", "*.zip"));
+                File selectedFile = fileChooser.showOpenDialog(mEditorStage);
+                if (selectedFile != null) {
+
+                    Toast.makeText(mEditorStage, "Importing " + selectedFile, TOAST_DELAY_SHORT);
+                    prefs.put("importPath", selectedFile.toString().split(selectedFile.getName())[0]);
+                    try {
+                        ZipFileUtil.unzip(selectedFile, System.getProperty("user.home") + "/.EistReturns/levels/");
+                    } catch (IOException e){
+                        e.printStackTrace();
+                    }
+                } else {
+                    Toast.makeText(mEditorStage, "No file selected", TOAST_DELAY_SHORT);
+                }
+
+            }
+        }
+    }
+
     private void displayExportLevelsDialog(){
 
         TextInputDialog dialog = new TextInputDialog("unnamed");
@@ -3173,7 +3212,10 @@ abstract class Utils extends Application {
 
         button4.addEventHandler(MouseEvent.MOUSE_EXITED,
                 e -> hint.setText("Select action below:"));
-        button4.setOnAction(e -> displayImportLevelChoiceDialog());
+        button4.setOnAction(e -> {
+            stage.close();
+            displayImportLevelsDialog();
+        });
 
         final Button button5 = new Button();
         button5.setMinWidth(mFrameDimension  * 3);
@@ -3185,8 +3227,13 @@ abstract class Utils extends Application {
         button5.addEventHandler(MouseEvent.MOUSE_EXITED,
                 e -> hint.setText("Select action below:"));
         button5.setOnAction(e -> {
-            stage.close();
-            displayExportLevelsDialog();
+            if (userLevels().size() > 0) {
+                stage.close();
+                displayExportLevelsDialog();
+            } else {
+                Toast.makeText(mEditorStage, "No user-defined levels found", TOAST_DELAY_SHORT);
+
+            }
         });
 
         buttonsBox.getChildren().add(hint);

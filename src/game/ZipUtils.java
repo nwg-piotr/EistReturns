@@ -1,15 +1,20 @@
+/*
+ * The code below utilizes the following snippets:
+ * https://stackoverflow.com/a/16646691/4040598 by Jonas Byström
+ * https://stackoverflow.com/a/41776933/4040598 by Jan
+ */
+
 package game;
 
 import java.io.*;
 import java.util.zip.ZipEntry;
+import java.util.zip.ZipInputStream;
 import java.util.zip.ZipOutputStream;
 
 class ZipUtils {
 
-    /**
-     * Based on the https://stackoverflow.com/a/16646691/4040598 by Jonas Byström
-     */
     static final class ZipFileUtil {
+
         static void zipDirectory(File dir, File zipFile) throws IOException {
             FileOutputStream fout = new FileOutputStream(zipFile);
             ZipOutputStream zout = new ZipOutputStream(fout);
@@ -51,7 +56,42 @@ class ZipUtils {
             }
         }
 
+        static void unzip(File source, String out) throws IOException {
+            try (ZipInputStream zis = new ZipInputStream(new FileInputStream(source))) {
+
+                ZipEntry entry = zis.getNextEntry();
+
+                while (entry != null) {
+
+                    File file = new File(out, entry.getName());
+
+                    if (entry.isDirectory()) {
+                        file.mkdirs();
+                    } else {
+                        File parent = file.getParentFile();
+
+                        if (!parent.exists()) {
+                            parent.mkdirs();
+                        }
+
+                        try (BufferedOutputStream bos = new BufferedOutputStream(new FileOutputStream(file))) {
+
+                            byte[] buffer = new byte[4096];
+
+                            int location;
+
+                            while ((location = zis.read(buffer)) != -1) {
+                                bos.write(buffer, 0, location);
+                            }
+                        }
+                    }
+                    entry = zis.getNextEntry();
+                }
+            }
+        }
+
         /**
+         * Check if the folder name is 2-digits number
          * @param file - folder name to check
          * @return true if the folder name consists of 2 digits
          */
