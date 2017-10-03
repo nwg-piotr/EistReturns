@@ -2064,8 +2064,8 @@ abstract class Utils extends Application {
             levels.add(String.valueOf(i));
         }
         ChoiceDialog<String> dialog = new ChoiceDialog<>("1", levels);
-        dialog.setTitle("Import built-in level");
-        dialog.setHeaderText("Select level to import");
+        dialog.setTitle("Import default level");
+        dialog.setHeaderText("Built-in level to import");
         dialog.setContentText("Level:");
 
         Optional<String> result = dialog.showAndWait();
