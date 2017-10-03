@@ -24,8 +24,7 @@ import javafx.scene.media.MediaPlayer;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 import javafx.scene.text.Text;
-import javafx.stage.Modality;
-import javafx.stage.Screen;
+import javafx.stage.*;
 
 import java.io.File;
 
@@ -41,9 +40,8 @@ import game.Sprites.Exit;
 import game.Sprites.Ornament;
 import game.Sprites.Pad;
 import game.Sprites.Toolbar;
-import javafx.stage.Stage;
-import javafx.stage.StageStyle;
 import javafx.util.Duration;
+import javafx.scene.control.ButtonBar.ButtonData;
 
 import game.ZipUtils.*;
 
@@ -2176,25 +2174,63 @@ abstract class Utils extends Application {
         dialog.setHeaderText("Exporting user levels to a zip file");
         dialog.setContentText("Filename:");
 
+        ButtonType ok = new ButtonType("OK", ButtonData.OK_DONE);
+        ButtonType cancel = new ButtonType("Cancel", ButtonData.CANCEL_CLOSE);
+        ButtonType other = new ButtonType("Select file", ButtonData.OTHER);
+        dialog.getDialogPane().getButtonTypes().setAll(ok, cancel, other);
+
+        dialog.setResultConverter(dialogButton -> {
+            if (dialogButton == other) {
+                return "select_file";
+            } else if (dialogButton == ok) {
+                return dialog.getEditor().getText();
+            }
+            return null;
+        });
+
         Optional<String> result = dialog.showAndWait();
         result.ifPresent(name -> {
-            if(name.equals("unnamed")){
-                DateFormat dateFormat = new SimpleDateFormat("-yy-MM-dd-HH-mm-ss");
-                Calendar cal = Calendar.getInstance();
-                name += dateFormat.format(cal.getTime());
-            }
-            File exportFolder = new File(System.getProperty("user.home") + "/.EistReturns/export");
-            if(exportFolder.mkdir()){
-                System.out.println("Export folder created");
-            }
-            try{
-                ZipFileUtil.zipDirectory(new File(System.getProperty("user.home") + "/.EistReturns/levels"),
-                        new File(System.getProperty("user.home") + "/.EistReturns/export/" + name + ".zip"));
-                Toast.makeText(mEditorStage, "Saved to /.EistReturns/export/" + name + ".zip", TOAST_DELAY_LONG);
-            }catch (IOException ioe){
-                System.out.println("Couldn't export to a zip file: " + ioe);
+            if(name.equals("select_file")){
+                System.out.println("SELECT FILE");
+
+                FileChooser fileChooser = new FileChooser();
+                fileChooser.setTitle("Select file to overwrite");
+                fileChooser.setInitialDirectory(new File(System.getProperty("user.home") + "/.EistReturns/export"));
+                fileChooser.getExtensionFilters().addAll(
+                        new FileChooser.ExtensionFilter("Zip files", "*.zip"));
+                File selectedFile = fileChooser.showOpenDialog(mEditorStage);
+                if (selectedFile != null) {
+                    System.out.println("Selected: " + selectedFile);
+                    try {
+                        ZipFileUtil.zipDirectory(new File(System.getProperty("user.home") + "/.EistReturns/levels"),
+                                selectedFile);
+                        Toast.makeText(mEditorStage, "Saved to " + selectedFile, TOAST_DELAY_LONG);
+                    } catch (IOException ioe) {
+                        System.out.println("Couldn't export to a zip file: " + ioe);
+                    }
+                }
+
+            } else {
+
+                if (name.equals("unnamed")) {
+                    DateFormat dateFormat = new SimpleDateFormat("-yy-MM-dd-HH-mm-ss");
+                    Calendar cal = Calendar.getInstance();
+                    name += dateFormat.format(cal.getTime());
+                }
+                File exportFolder = new File(System.getProperty("user.home") + "/.EistReturns/export");
+                if (exportFolder.mkdir()) {
+                    System.out.println("Export folder created");
+                }
+                try {
+                    ZipFileUtil.zipDirectory(new File(System.getProperty("user.home") + "/.EistReturns/levels"),
+                            new File(System.getProperty("user.home") + "/.EistReturns/export/" + name + ".zip"));
+                    Toast.makeText(mEditorStage, "Saved to /.EistReturns/export/" + name + ".zip", TOAST_DELAY_LONG);
+                } catch (IOException ioe) {
+                    System.out.println("Couldn't export to a zip file: " + ioe);
+                }
             }
         });
+
 
     }
 
@@ -2655,7 +2691,7 @@ abstract class Utils extends Application {
             toastStage.initStyle(StageStyle.TRANSPARENT);
 
             Text text = new Text(toastMsg);
-            text.setFont(Font.font("Verdana", 30));
+            text.setFont(Font.font("Verdana", 20));
             text.setFill(Color.WHITE);
 
             StackPane root = new StackPane(text);
@@ -3096,7 +3132,7 @@ abstract class Utils extends Application {
         buttonsBox.setMinWidth(root.getMinWidth());
         buttonsBox.setAlignment(Pos.CENTER);
 
-        Button button1 = new Button();
+        final Button button1 = new Button();
         button1.setMinWidth(mFrameDimension  * 3);
         button1.setText("Delete user level");
 
@@ -3107,7 +3143,7 @@ abstract class Utils extends Application {
                 e -> hint.setText("Select action below:"));
         button1.setOnAction(e -> displayDeleteUserLevelDialog());
 
-        Button button2 = new Button();
+        final Button button2 = new Button();
         button2.setMinWidth(mFrameDimension  * 3);
         button2.setText("Clear user levels");
 
@@ -3118,7 +3154,7 @@ abstract class Utils extends Application {
                 e -> hint.setText("Select action below:"));
         button2.setOnAction(e -> displayClearAllUserLevelsDialog());
 
-        Button buttonExit = new Button();
+        final Button buttonExit = new Button();
         buttonExit.setMinWidth(mFrameDimension  * 3);
         buttonExit.setText("Exit");
 
@@ -3129,7 +3165,7 @@ abstract class Utils extends Application {
                 e -> hint.setText("Select action below:"));
         buttonExit.setOnAction(e -> stage.close());
 
-        Button button4 = new Button();
+        final Button button4 = new Button();
         button4.setMinWidth(mFrameDimension  * 3);
         button4.setText("Import user levels");
 
@@ -3140,7 +3176,7 @@ abstract class Utils extends Application {
                 e -> hint.setText("Select action below:"));
         button4.setOnAction(e -> displayImportLevelChoiceDialog());
 
-        Button button5 = new Button();
+        final Button button5 = new Button();
         button5.setMinWidth(mFrameDimension  * 3);
         button5.setText("Export user levels");
 
@@ -3150,8 +3186,8 @@ abstract class Utils extends Application {
         button5.addEventHandler(MouseEvent.MOUSE_EXITED,
                 e -> hint.setText("Select action below:"));
         button5.setOnAction(e -> {
-            displayExportLevelsDialog();
             stage.close();
+            displayExportLevelsDialog();
         });
 
         buttonsBox.getChildren().add(hint);
