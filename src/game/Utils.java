@@ -2191,7 +2191,6 @@ abstract class Utils extends Application {
         Optional<String> result = dialog.showAndWait();
         result.ifPresent(name -> {
             if(name.equals("select_file")){
-                System.out.println("SELECT FILE");
 
                 FileChooser fileChooser = new FileChooser();
                 fileChooser.setTitle("Select file to overwrite");
