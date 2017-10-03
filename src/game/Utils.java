@@ -47,7 +47,6 @@ import game.ZipUtils.*;
 
 import java.io.*;
 
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.text.DateFormat;
@@ -2085,7 +2084,7 @@ abstract class Utils extends Application {
 
             ChoiceDialog<String> dialog = new ChoiceDialog<>(levels.get(0), levels);
             dialog.setTitle("Open user-defined level");
-            dialog.setHeaderText("User level to open");
+            dialog.setHeaderText("Select level to open");
             dialog.setContentText("Level:");
 
             Optional<String> result = dialog.showAndWait();
@@ -2167,42 +2166,32 @@ abstract class Utils extends Application {
 
     }
 
-    private void displayImportLevelsDialog(){
+    private void importLevelsFromZip(){
 
-        Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
-        alert.setTitle("Import user levels");
-        alert.setHeaderText("This will replace user-defined levels");
-        alert.setContentText("Continue?");
+        FileChooser fileChooser = new FileChooser();
+        fileChooser.setTitle("Select file to import from");
+        String initialDir = prefs.get("importPath", "");
+        if(!initialDir.isEmpty() && new File(initialDir).exists()){
+            fileChooser.setInitialDirectory(new File(initialDir));
+        } else {
+            fileChooser.setInitialDirectory(new File(System.getProperty("user.home")));
+        }
 
-        Optional<ButtonType> result = alert.showAndWait();
-        if (result.isPresent()) {
-            if (result.get() == ButtonType.OK) {
+        fileChooser.getExtensionFilters().addAll(
+                new FileChooser.ExtensionFilter("Zip files", "*.zip"));
+        File selectedFile = fileChooser.showOpenDialog(mEditorStage);
 
-                FileChooser fileChooser = new FileChooser();
-                fileChooser.setTitle("Select file to import from");
-                String initialDir = prefs.get("importPath", "");
-                if(!initialDir.isEmpty() && new File(initialDir).exists()){
-                    fileChooser.setInitialDirectory(new File(initialDir));
-                } else {
-                    fileChooser.setInitialDirectory(new File(System.getProperty("user.home")));
-                }
-                fileChooser.getExtensionFilters().addAll(
-                        new FileChooser.ExtensionFilter("Zip files", "*.zip"));
-                File selectedFile = fileChooser.showOpenDialog(mEditorStage);
-                if (selectedFile != null) {
+        if (selectedFile != null) {
 
-                    Toast.makeText(mEditorStage, "Importing " + selectedFile, TOAST_DELAY_SHORT);
-                    prefs.put("importPath", selectedFile.toString().split(selectedFile.getName())[0]);
-                    try {
-                        ZipFileUtil.unzip(selectedFile, System.getProperty("user.home") + "/.EistReturns/levels/");
-                    } catch (IOException e){
-                        e.printStackTrace();
-                    }
-                } else {
-                    Toast.makeText(mEditorStage, "No file selected", TOAST_DELAY_SHORT);
-                }
-
+            Toast.makeText(mEditorStage, "Importing " + selectedFile, TOAST_DELAY_SHORT);
+            prefs.put("importPath", selectedFile.toString().split(selectedFile.getName())[0]);
+            try {
+                ZipFileUtil.unzip(selectedFile, System.getProperty("user.home") + "/.EistReturns/levels/");
+            } catch (IOException e){
+                e.printStackTrace();
             }
+        } else {
+            Toast.makeText(mEditorStage, "No file selected", TOAST_DELAY_SHORT);
         }
     }
 
@@ -3214,7 +3203,7 @@ abstract class Utils extends Application {
                 e -> hint.setText("Select action below:"));
         button4.setOnAction(e -> {
             stage.close();
-            displayImportLevelsDialog();
+            importLevelsFromZip();
         });
 
         final Button button5 = new Button();
