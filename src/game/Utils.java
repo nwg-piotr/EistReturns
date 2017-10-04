@@ -2218,6 +2218,9 @@ abstract class Utils extends Application {
                         System.out.println("Info file deleted");
                     }
                     Toast.makeText(stage, "User levels cleared", TOAST_LENGTH_SHORT);
+                    if(mGameStage != null){
+                        mGameStage.setTitle("Eist returns: default");
+                    }
                 }
             }
         } else {
@@ -2247,6 +2250,14 @@ abstract class Utils extends Application {
             try {
                 int dirs = ZipFileUtil.unzip(selectedFile, System.getProperty("user.home") + "/.EistReturns/levels/");
                 Toast.makeText(mEditorStage, "Imported " + dirs + " folders from " + selectedFile, TOAST_LENGTH_LONG);
+
+                String info = infoString(System.getProperty("user.home") + "/.EistReturns/levels/info.txt");
+                System.out.println("Info: " + info);
+
+                if (mGameStage != null) {
+                    mGameStage.setTitle("Eist returns: " + info);
+                }
+
             } catch (IOException e) {
                 e.printStackTrace();
             }
