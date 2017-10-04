@@ -67,24 +67,24 @@ public class Editor extends Utils {
         setEditorFiles();
         setBoard();
 
-        stage.setTitle("Level editor");
+        mEditorStage.setTitle("Level editor");
 
-        stage.getIcons().add(new Image("/images/common/eist.png"));
-        stage.setResizable(false);
+        mEditorStage.getIcons().add(new Image("/images/common/eist.png"));
+        mEditorStage.setResizable(false);
         if (mDimensionDivider == 1.0) {
-            stage.setFullScreen(true);
+            mEditorStage.setFullScreen(true);
         }
 
         Group root = new Group();
         mEditorScene = new Scene(root, mSceneWidth, mSceneHeight);
-        stage.setScene(mEditorScene);
+        mEditorStage.setScene(mEditorScene);
 
-        stage.setOnCloseRequest(new EventHandler<WindowEvent>() {
+        mEditorStage.setOnCloseRequest(new EventHandler<WindowEvent>() {
             @Override
             public void handle(WindowEvent event) {
                 System.out.println("Window close requested");
                 event.consume();
-                stage.close();
+                mEditorStage.close();
                 Platform.exit();
             }
         });
@@ -134,6 +134,19 @@ public class Editor extends Utils {
 
         mCurrentLevel = Integer.MAX_VALUE;
         mMuteMusic = true;
+
+        String info = infoString(System.getProperty("user.home") + "/.EistReturns/levels/info.txt");
+        System.out.println("Info: " + info);
+
+        if(info != null){
+            if(mEditorStage != null){
+                mEditorStage.setTitle("Level editor: " + info);
+            }
+        } else {
+            if(mEditorStage != null){
+                mEditorStage.setTitle("Level editor:");
+            }
+        }
 
         loadEditor();
 
@@ -219,7 +232,7 @@ public class Editor extends Utils {
          * Handle the game window minimization:
          * Stop animation timer, pause and media player / start animation, resume sound when restored.
          */
-        stage.iconifiedProperty().addListener(new ChangeListener<Boolean>() {
+        mEditorStage.iconifiedProperty().addListener(new ChangeListener<Boolean>() {
 
             @Override
             public void changed(ObservableValue<? extends Boolean> ov, Boolean t, Boolean t1) {
@@ -255,7 +268,7 @@ public class Editor extends Utils {
             }
         });
 
-        stage.show();
+        mEditorStage.show();
     }
 
     private void drawBoard() {

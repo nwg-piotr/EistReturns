@@ -960,19 +960,13 @@ abstract class Utils extends Application {
         String info = infoString(System.getProperty("user.home") + "/.EistReturns/levels/info.txt");
         System.out.println("Info: " + info);
 
-        if(info != null){
-            if(mGameStage != null){
+        if (info != null) {
+            if (mGameStage != null) {
                 mGameStage.setTitle("Eist returns: " + info);
             }
-            if(mEditorStage != null){
-                mEditorStage.setTitle("Level editor: " + info);
-            }
         } else {
-            if(mGameStage != null){
+            if (mGameStage != null) {
                 mGameStage.setTitle("Eist returns");
-            }
-            if(mEditorStage != null){
-                mEditorStage.setTitle("Level editor");
             }
         }
 
@@ -1289,7 +1283,6 @@ abstract class Utils extends Application {
 
         pixelReader = mBoardImg.getPixelReader();
 
-        System.out.println("\nParsing data files:");
         String dataString;
         /*
          * Load arrows
@@ -1594,7 +1587,7 @@ abstract class Utils extends Application {
         }
     }
 
-    private String infoString(String urlString) {
+    String infoString(String urlString) {
 
         System.out.println("INFO: " + urlString);
 
@@ -2178,6 +2171,12 @@ abstract class Utils extends Application {
                 } else {
                     Toast.makeText(mEditorStage, "Failed deleting " + level, TOAST_LENGTH_SHORT);
                 }
+                if (userLevels().size() == 0) {
+                    File infoFile = new File(System.getProperty("user.home") + "/.EistReturns/levels/info.txt");
+                    if (infoFile.delete()) {
+                        System.out.println("Info file deleted");
+                    }
+                }
 
             }
         } else {
@@ -2193,11 +2192,11 @@ abstract class Utils extends Application {
             Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
             alert.setTitle("Clear user levels");
 
-            StringBuilder names =  new StringBuilder();
+            StringBuilder names = new StringBuilder();
             names.append("To delete: ");
-            for(String levelName : userLevels){
+            for (String levelName : userLevels) {
                 names.append(levelName);
-                if(userLevels.indexOf(levelName) < userLevels.size() -1) {
+                if (userLevels.indexOf(levelName) < userLevels.size() - 1) {
                     names.append(", ");
                 }
             }
@@ -2209,14 +2208,16 @@ abstract class Utils extends Application {
             if (result.isPresent()) {
                 if (result.get() == ButtonType.OK) {
 
-                    for(String levelName : userLevels){
+                    for (String levelName : userLevels) {
                         File levelFolder = new File(System.getProperty("user.home") + "/.EistReturns/levels/" + levelName);
                         System.out.println("Deleting " + levelFolder);
                         deleteFolder(levelFolder);
                     }
+                    File infoFile = new File(System.getProperty("user.home") + "/.EistReturns/levels/info.txt");
+                    if (infoFile.delete()) {
+                        System.out.println("Info file deleted");
+                    }
                     Toast.makeText(stage, "User levels cleared", TOAST_LENGTH_SHORT);
-
-
                 }
             }
         } else {
@@ -2225,12 +2226,12 @@ abstract class Utils extends Application {
 
     }
 
-    private void importLevelsFromZip(){
+    private void importLevelsFromZip() {
 
         FileChooser fileChooser = new FileChooser();
         fileChooser.setTitle("Select file to import from");
         String initialDir = prefs.get("importPath", "");
-        if(!initialDir.isEmpty() && new File(initialDir).exists()){
+        if (!initialDir.isEmpty() && new File(initialDir).exists()) {
             fileChooser.setInitialDirectory(new File(initialDir));
         } else {
             fileChooser.setInitialDirectory(new File(System.getProperty("user.home")));
@@ -2246,7 +2247,7 @@ abstract class Utils extends Application {
             try {
                 int dirs = ZipFileUtil.unzip(selectedFile, System.getProperty("user.home") + "/.EistReturns/levels/");
                 Toast.makeText(mEditorStage, "Imported " + dirs + " folders from " + selectedFile, TOAST_LENGTH_LONG);
-            } catch (IOException e){
+            } catch (IOException e) {
                 e.printStackTrace();
             }
         } else {
@@ -2254,7 +2255,28 @@ abstract class Utils extends Application {
         }
     }
 
-    private void displayExportLevelsDialog(){
+    private void displaySetNameDialog() {
+
+        TextInputDialog dialog = new TextInputDialog("your description here");
+        dialog.setTitle("Name your levels");
+        dialog.setHeaderText("Give your set a short description");
+        dialog.setContentText("Description:");
+
+        Optional<String> result = dialog.showAndWait();
+        result.ifPresent(name -> {
+            if(!name.isEmpty()) {
+                try {
+                    PrintStream out = new PrintStream(System.getProperty("user.home") + "/.EistReturns/levels/info.txt");
+                    out.println(name);
+                    Toast.makeText(mEditorStage, "Levels set named: " + name, TOAST_LENGTH_SHORT);
+                } catch (IOException e) {
+                    Toast.makeText(mEditorStage, "Failed saving the name" + name, TOAST_LENGTH_SHORT);
+                }
+            }
+        });
+    }
+
+    private void displayExportLevelsDialog() {
 
         TextInputDialog dialog = new TextInputDialog("unnamed");
         dialog.setTitle("Export user levels");
@@ -2277,7 +2299,7 @@ abstract class Utils extends Application {
 
         Optional<String> result = dialog.showAndWait();
         result.ifPresent(name -> {
-            if(name.equals("select_file")){
+            if (name.equals("select_file")) {
 
                 FileChooser fileChooser = new FileChooser();
                 fileChooser.setTitle("Select file to overwrite");
@@ -2348,7 +2370,10 @@ abstract class Utils extends Application {
         dialog.setContentText("Level:");
 
         Optional<String> result = dialog.showAndWait();
-        result.ifPresent(s -> copyEditorToUserLevel(Integer.valueOf(s)));
+        result.ifPresent(s -> {
+            copyEditorToUserLevel(Integer.valueOf(s));
+            mEditorStage.setTitle("User level: " + lvlToString(Integer.valueOf(s)));
+        });
     }
 
     private void setEditorFiles(Integer level) {
@@ -2494,7 +2519,7 @@ abstract class Utils extends Application {
         if (level != null) {
 
             lvlNumberToString = lvlToString(level);
-            mEditorStage.setTitle("Imported level: " + lvlToString(level));
+            mEditorStage.setTitle("Imported default level: " + lvlToString(level));
 
         } else {
 
@@ -2527,7 +2552,7 @@ abstract class Utils extends Application {
         File sourceFolder = new File(System.getProperty("user.home") + "/.EistReturns/levels/" + levelName);
 
         String missing = missingLevelFiles(sourceFolder);
-        if(!missing.isEmpty()){
+        if (!missing.isEmpty()) {
             Alert alert = new Alert(Alert.AlertType.WARNING);
             alert.setTitle("Level integrity error");
             alert.setHeaderText("Missing files detected");
@@ -2551,19 +2576,19 @@ abstract class Utils extends Application {
                     System.out.println("Copying error: " + e);
                 }
             }
-            mEditorStage.setTitle("Imported user level: " + levelName);
+            mEditorStage.setTitle("User level: " + levelName);
         }
     }
 
-    private String missingLevelFiles(File sourceFolder){
+    private String missingLevelFiles(File sourceFolder) {
 
         StringBuilder missingFiles = new StringBuilder();
         String[] requiredFiles = new String[]{"amulet.png", "amulets.dat", "arrows.dat", "board.png", "door_h.png",
                 "doors.dat", "door_v.png", "exit_closed.png", "exit_open.png", "key.png", "keys.dat", "ladder_h.png",
                 "ladder_v.png", "level.dat", "ornament.png", "ornaments.dat", "slots.dat", "teleports.dat"};
 
-        for(String filename : requiredFiles){
-            if(!new File(sourceFolder.toString() + "/" + filename).exists()){
+        for (String filename : requiredFiles) {
+            if (!new File(sourceFolder.toString() + "/" + filename).exists()) {
                 missingFiles.append(filename);
                 missingFiles.append("\n");
             }
@@ -2622,32 +2647,6 @@ abstract class Utils extends Application {
         }
         Collections.sort(folderNames);
         return folderNames;
-    }
-
-    static File[] userLevelDirs() {
-        File sourceFolder = new File(System.getProperty("user.home") + "/.EistReturns/levels/");
-        File[] sourceDirs = sourceFolder.listFiles();
-        List<File> folders = new ArrayList<>();
-        /*
-         * Skip if the folder name is not a 2-digit number
-         */
-        if (sourceDirs != null) {
-            for (File dir : sourceDirs) {
-                String name = dir.getName();
-                try {
-                    // just to trigger an exception if the folder name couldn't be converted into int
-                    int number = Integer.valueOf(name);
-
-                    if (name.length() == 2) {
-                        folders.add(dir);
-                    }
-                } catch (Exception e) {
-                    System.out.println("Skipped folder: " + name);
-                }
-            }
-        }
-        Collections.sort(folders);
-        return folders.toArray(new File[folders.size()]);
     }
 
     private static void copyFile(File source, File dest) throws IOException {
@@ -3247,7 +3246,7 @@ abstract class Utils extends Application {
         buttonsBox.setAlignment(Pos.CENTER);
 
         final Button button1 = new Button();
-        button1.setMinWidth(mFrameDimension  * 3);
+        button1.setMinWidth(mFrameDimension * 3);
         button1.setText("Delete user level");
 
         button1.addEventHandler(MouseEvent.MOUSE_ENTERED,
@@ -3258,7 +3257,7 @@ abstract class Utils extends Application {
         button1.setOnAction(e -> displayDeleteUserLevelDialog());
 
         final Button button2 = new Button();
-        button2.setMinWidth(mFrameDimension  * 3);
+        button2.setMinWidth(mFrameDimension * 3);
         button2.setText("Clear user levels");
 
         button2.addEventHandler(MouseEvent.MOUSE_ENTERED,
@@ -3269,7 +3268,7 @@ abstract class Utils extends Application {
         button2.setOnAction(e -> displayClearAllUserLevelsDialog(mEditorStage));
 
         final Button buttonExit = new Button();
-        buttonExit.setMinWidth(mFrameDimension  * 3);
+        buttonExit.setMinWidth(mFrameDimension * 3);
         buttonExit.setText("Exit");
 
         buttonExit.addEventHandler(MouseEvent.MOUSE_ENTERED,
@@ -3280,7 +3279,7 @@ abstract class Utils extends Application {
         buttonExit.setOnAction(e -> stage.close());
 
         final Button button4 = new Button();
-        button4.setMinWidth(mFrameDimension  * 3);
+        button4.setMinWidth(mFrameDimension * 3);
         button4.setText("Import user levels");
 
         button4.addEventHandler(MouseEvent.MOUSE_ENTERED,
@@ -3294,7 +3293,7 @@ abstract class Utils extends Application {
         });
 
         final Button button5 = new Button();
-        button5.setMinWidth(mFrameDimension  * 3);
+        button5.setMinWidth(mFrameDimension * 3);
         button5.setText("Export user levels");
 
         button5.addEventHandler(MouseEvent.MOUSE_ENTERED,
@@ -3312,12 +3311,30 @@ abstract class Utils extends Application {
             }
         });
 
+        final Button buttonName = new Button();
+        buttonName.setMinWidth(mFrameDimension * 3);
+        buttonName.setText("Name your levels");
+
+        buttonName.addEventHandler(MouseEvent.MOUSE_ENTERED,
+                e -> hint.setText("Give the set of levels a name"));
+
+        buttonName.addEventHandler(MouseEvent.MOUSE_EXITED,
+                e -> hint.setText("Select action below:"));
+        buttonName.setOnAction(e -> {
+            if(userLevels().size() > 0) {
+                displaySetNameDialog();
+            } else {
+                Toast.makeText(mEditorStage, "At least 1 saved, user-defined level required", TOAST_LENGTH_LONG);
+            }
+        });
+
         buttonsBox.getChildren().add(hint);
 
         buttonsBox.getChildren().add(button1);
         buttonsBox.getChildren().add(button2);
         buttonsBox.getChildren().add(button4);
         buttonsBox.getChildren().add(button5);
+        buttonsBox.getChildren().add(buttonName);
         buttonsBox.getChildren().add(buttonExit);
 
         root.getChildren().add(buttonsBox);
@@ -3368,7 +3385,7 @@ abstract class Utils extends Application {
         buttonsBox.setAlignment(Pos.CENTER);
 
         final Button buttonSize = new Button();
-        buttonSize.setMinWidth(mFrameDimension  * 3);
+        buttonSize.setMinWidth(mFrameDimension * 3);
         buttonSize.setText("Change board dimension");
 
         buttonSize.addEventHandler(MouseEvent.MOUSE_ENTERED,
@@ -3379,7 +3396,7 @@ abstract class Utils extends Application {
         buttonSize.setOnAction(e -> displaySizeDialog());
 
         final Button buttonFinish = new Button();
-        buttonFinish.setMinWidth(mFrameDimension  * 3);
+        buttonFinish.setMinWidth(mFrameDimension * 3);
         buttonFinish.setText("Exit game");
 
         buttonFinish.addEventHandler(MouseEvent.MOUSE_ENTERED,
@@ -3390,7 +3407,7 @@ abstract class Utils extends Application {
         buttonFinish.setOnAction(e -> Platform.exit());
 
         final Button buttonClose = new Button();
-        buttonClose.setMinWidth(mFrameDimension  * 3);
+        buttonClose.setMinWidth(mFrameDimension * 3);
         buttonClose.setText("Close settings");
 
         buttonClose.addEventHandler(MouseEvent.MOUSE_ENTERED,
@@ -3401,7 +3418,7 @@ abstract class Utils extends Application {
         buttonClose.setOnAction(e -> stage.close());
 
         final Button buttonImport = new Button();
-        buttonImport.setMinWidth(mFrameDimension  * 3);
+        buttonImport.setMinWidth(mFrameDimension * 3);
         buttonImport.setText("Import user levels");
 
         buttonImport.addEventHandler(MouseEvent.MOUSE_ENTERED,
@@ -3415,7 +3432,7 @@ abstract class Utils extends Application {
         });
 
         final Button buttonRestore = new Button();
-        buttonRestore.setMinWidth(mFrameDimension  * 3);
+        buttonRestore.setMinWidth(mFrameDimension * 3);
         buttonRestore.setText("Restore default levels");
 
         buttonRestore.addEventHandler(MouseEvent.MOUSE_ENTERED,
