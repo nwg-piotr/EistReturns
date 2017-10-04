@@ -2183,7 +2183,7 @@ abstract class Utils extends Application {
         File selectedFile = fileChooser.showOpenDialog(mEditorStage);
 
         if (selectedFile != null) {
-            
+
             prefs.put("importPath", selectedFile.toString().split(selectedFile.getName())[0]);
             try {
                 int dirs = ZipFileUtil.unzip(selectedFile, System.getProperty("user.home") + "/.EistReturns/levels/");

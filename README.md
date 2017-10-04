@@ -9,6 +9,8 @@ versions.
 Although I'm still working on some new features, as e.g. the level editor, 
 the game should be fully playable, and not buggy too much.
 
+To launch the level editor, add the argument to the command line: `-E` or `--edit`
+
 Installation
 ===============
 
