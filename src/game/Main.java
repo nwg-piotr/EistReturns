@@ -58,26 +58,28 @@ public class Main extends Utils {
     @Override
     public void start(Stage stage) throws Exception {
 
+        mGameStage = stage;
+
         setBoard();
 
-        stage.setTitle("Eist returns");
-        stage.getIcons().add(new Image("/images/common/eist.png"));
-        stage.setResizable(false);
+        mGameStage.setTitle("Eist returns");
+        mGameStage.getIcons().add(new Image("/images/common/eist.png"));
+        mGameStage.setResizable(false);
         if (mDimensionDivider == 1.0) {
-            stage.setFullScreen(true);
+            mGameStage.setFullScreen(true);
         }
 
         Group root = new Group();
         Scene mScene = new Scene(root, mSceneWidth, mSceneHeight);
-        stage.setScene(mScene);
+        mGameStage.setScene(mScene);
 
 
-        stage.setOnCloseRequest(new EventHandler<WindowEvent>() {
+        mGameStage.setOnCloseRequest(new EventHandler<WindowEvent>() {
             @Override
             public void handle(WindowEvent event) {
                 System.out.println("Window close requested");
                 event.consume();
-                stage.close();
+                mGameStage.close();
                 Platform.exit();
             }
         });
@@ -194,7 +196,7 @@ public class Main extends Utils {
          * Handle the game window minimization:
          * Stop animation timer, pause and media player / start animation, resume sound when restored.
          */
-        stage.iconifiedProperty().addListener(new ChangeListener<Boolean>() {
+        mGameStage.iconifiedProperty().addListener(new ChangeListener<Boolean>() {
 
             @Override
             public void changed(ObservableValue<? extends Boolean> ov, Boolean t, Boolean t1) {
@@ -230,7 +232,7 @@ public class Main extends Utils {
             }
         });
 
-        stage.show();
+        mGameStage.show();
     }
 
     private void drawBoard() {

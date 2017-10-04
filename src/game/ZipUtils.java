@@ -56,7 +56,9 @@ class ZipUtils {
             }
         }
 
-        static void unzip(File source, String out) throws IOException {
+        static int unzip(File source, String out) throws IOException {
+
+            int dirsCounter = 0;
             try (ZipInputStream zis = new ZipInputStream(new FileInputStream(source))) {
 
                 ZipEntry entry = zis.getNextEntry();
@@ -67,6 +69,7 @@ class ZipUtils {
 
                     if (entry.isDirectory()) {
                         file.mkdirs();
+                        dirsCounter++;
                     } else {
                         File parent = file.getParentFile();
 
@@ -88,6 +91,7 @@ class ZipUtils {
                     entry = zis.getNextEntry();
                 }
             }
+            return dirsCounter;
         }
 
         /**

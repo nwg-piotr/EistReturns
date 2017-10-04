@@ -137,6 +137,7 @@ abstract class Utils extends Application {
     private Button mEistButton;
     private Button mClearButton;
 
+    Stage mGameStage;
     Stage mEditorStage;
     Scene mEditorScene;
 
@@ -186,11 +187,10 @@ abstract class Utils extends Application {
     static final int SELECTION_CLEAR = 8;
     static final int SELECTION_EIST = 9;
 
-    static final int TOAST_DELAY_LONG = 3000;
-    static final int TOAST_DELAY_SHORT = 1000;
+    private static final int TOAST_LENGTH_LONG = 3000;
+    private static final int TOAST_LENGTH_SHORT = 1000;
 
     String mMenuHint = "";
-    Rectangle2D detectRect;
 
     Preferences prefs;
 
@@ -560,7 +560,7 @@ abstract class Utils extends Application {
                     loadLevel(mCurrentLevel);
                 } else if (mButtonMenu.contains(pointClicked)) {
 
-                    displaySizeDialog();
+                    displaySettings();
                 }
             }
         }
@@ -1248,7 +1248,6 @@ abstract class Utils extends Application {
         setUpButtons();
         toolbar.setSelection(prefs.getInt("sel", SELECTION_KEY));
 
-        System.out.println("\nLOADING EDITOR\n");
         mEditor = true;
         mTesting = false;
 
@@ -1267,11 +1266,11 @@ abstract class Utils extends Application {
         /*
          * Load board bitmap
          */
-        System.out.println("Loading board from: " + urlString + "board.png");
         mBoardImg = new Image(urlString + "board.png", mSceneWidth, mSceneHeight, true, true, false);
 
         pixelReader = mBoardImg.getPixelReader();
 
+        System.out.println("\nParsing data files:");
         String dataString;
         /*
          * Load arrows
@@ -1534,7 +1533,7 @@ abstract class Utils extends Application {
 
     private String datToString(String urlString) {
 
-        System.out.println("Loading " + urlString);
+        System.out.println(urlString);
 
         StringBuilder stringBuilder = new StringBuilder();
 
@@ -1781,6 +1780,8 @@ abstract class Utils extends Application {
     }
 
     private void deleteIfFound(Point2D checkPoint) {
+
+        Rectangle2D detectRect;
 
         for (Door door : mDoors) {
             detectRect = new Rectangle2D(door.getPosX(), door.getPosY(), mFrameDimension, mFrameDimension);
@@ -2095,7 +2096,7 @@ abstract class Utils extends Application {
                 loadEditor();
             }
         } else {
-            Toast.makeText(mEditorStage, "No user-defined levels found", TOAST_DELAY_SHORT);
+            Toast.makeText(mEditorStage, "No user-defined levels found", TOAST_LENGTH_SHORT);
         }
     }
 
@@ -2115,18 +2116,18 @@ abstract class Utils extends Application {
 
                 File level = new File(System.getProperty("user.home") + "/.EistReturns/levels/" + result.get());
                 if (deleteFolder(level)) {
-                    Toast.makeText(mEditorStage, "User level " + result.get() + " deleted", TOAST_DELAY_SHORT);
+                    Toast.makeText(mEditorStage, "User level " + result.get() + " deleted", TOAST_LENGTH_SHORT);
                 } else {
-                    Toast.makeText(mEditorStage, "Failed deleting " + level, TOAST_DELAY_SHORT);
+                    Toast.makeText(mEditorStage, "Failed deleting " + level, TOAST_LENGTH_SHORT);
                 }
 
             }
         } else {
-            Toast.makeText(mEditorStage, "No user-defined levels found", TOAST_DELAY_SHORT);
+            Toast.makeText(mEditorStage, "No user-defined levels found", TOAST_LENGTH_SHORT);
         }
     }
 
-    private void displayClearAllUserLevelsDialog() {
+    private void displayClearAllUserLevelsDialog(Stage stage) {
 
         List<String> userLevels = userLevels();
         if (userLevels.size() > 0) {
@@ -2155,13 +2156,13 @@ abstract class Utils extends Application {
                         System.out.println("Deleting " + levelFolder);
                         deleteFolder(levelFolder);
                     }
-                    Toast.makeText(mEditorStage, "User levels cleared", TOAST_DELAY_SHORT);
+                    Toast.makeText(stage, "User levels cleared", TOAST_LENGTH_SHORT);
 
 
                 }
             }
         } else {
-            Toast.makeText(mEditorStage, "No user-defined levels found", TOAST_DELAY_SHORT);
+            Toast.makeText(stage, "No user-defined levels found", TOAST_LENGTH_SHORT);
         }
 
     }
@@ -2182,16 +2183,16 @@ abstract class Utils extends Application {
         File selectedFile = fileChooser.showOpenDialog(mEditorStage);
 
         if (selectedFile != null) {
-
-            Toast.makeText(mEditorStage, "Importing " + selectedFile, TOAST_DELAY_SHORT);
+            
             prefs.put("importPath", selectedFile.toString().split(selectedFile.getName())[0]);
             try {
-                ZipFileUtil.unzip(selectedFile, System.getProperty("user.home") + "/.EistReturns/levels/");
+                int dirs = ZipFileUtil.unzip(selectedFile, System.getProperty("user.home") + "/.EistReturns/levels/");
+                Toast.makeText(mEditorStage, "Imported " + dirs + " folders from " + selectedFile, TOAST_LENGTH_LONG);
             } catch (IOException e){
                 e.printStackTrace();
             }
         } else {
-            Toast.makeText(mEditorStage, "No file selected", TOAST_DELAY_SHORT);
+            Toast.makeText(mEditorStage, "No file selected", TOAST_LENGTH_SHORT);
         }
     }
 
@@ -2231,7 +2232,7 @@ abstract class Utils extends Application {
                     try {
                         ZipFileUtil.zipDirectory(new File(System.getProperty("user.home") + "/.EistReturns/levels"),
                                 selectedFile);
-                        Toast.makeText(mEditorStage, "Saved to " + selectedFile, TOAST_DELAY_LONG);
+                        Toast.makeText(mEditorStage, "Saved to " + selectedFile, TOAST_LENGTH_LONG);
                     } catch (IOException ioe) {
                         System.out.println("Couldn't export to a zip file: " + ioe);
                     }
@@ -2251,7 +2252,7 @@ abstract class Utils extends Application {
                 try {
                     ZipFileUtil.zipDirectory(new File(System.getProperty("user.home") + "/.EistReturns/levels"),
                             new File(System.getProperty("user.home") + "/.EistReturns/export/" + name + ".zip"));
-                    Toast.makeText(mEditorStage, "Saved to /.EistReturns/export/" + name + ".zip", TOAST_DELAY_LONG);
+                    Toast.makeText(mEditorStage, "Saved to /.EistReturns/export/" + name + ".zip", TOAST_LENGTH_LONG);
                 } catch (IOException ioe) {
                     System.out.println("Couldn't export to a zip file: " + ioe);
                 }
@@ -2447,6 +2448,7 @@ abstract class Utils extends Application {
         File[] sourceFiles = sourceFolder.listFiles();
 
         if (sourceFiles != null) {
+            System.out.println("\nCopying level files:");
             for (File file : sourceFiles) {
 
                 Path source = Paths.get(file.toString());
@@ -2465,6 +2467,17 @@ abstract class Utils extends Application {
     private void importUserLevelToEditor(String levelName) {
 
         File sourceFolder = new File(System.getProperty("user.home") + "/.EistReturns/levels/" + levelName);
+
+        String missing = missingLevelFiles(sourceFolder);
+        if(!missing.isEmpty()){
+            Alert alert = new Alert(Alert.AlertType.WARNING);
+            alert.setTitle("Level integrity error");
+            alert.setHeaderText("Missing files detected");
+            alert.setContentText(missing);
+
+            alert.showAndWait();
+        }
+
         File[] sourceFiles = sourceFolder.listFiles();
 
         if (sourceFiles != null) {
@@ -2482,6 +2495,22 @@ abstract class Utils extends Application {
             }
             mEditorStage.setTitle("Imported user level: " + levelName);
         }
+    }
+
+    private String missingLevelFiles(File sourceFolder){
+
+        StringBuilder missingFiles = new StringBuilder();
+        String[] requiredFiles = new String[]{"amulet.png", "amulets.dat", "arrows.dat", "board.png", "door_h.png",
+                "doors.dat", "door_v.png", "exit_closed.png", "exit_open.png", "key.png", "keys.dat", "ladder_h.png",
+                "ladder_v.png", "level.dat", "ornament.png", "ornaments.dat", "slots.dat", "teleports.dat"};
+
+        for(String filename : requiredFiles){
+            if(!new File(sourceFolder.toString() + "/" + filename).exists()){
+                missingFiles.append(filename);
+                missingFiles.append("\n");
+            }
+        }
+        return missingFiles.toString();
     }
 
     private void copyEditorToUserLevel(int level) {
@@ -2529,7 +2558,7 @@ abstract class Utils extends Application {
                         folderNames.add(name);
                     }
                 } catch (Exception e) {
-                    System.out.println("Skipped folder: " + name);
+                    System.out.println("Skipped not-a-level folder: " + name);
                 }
             }
         }
@@ -2690,9 +2719,9 @@ abstract class Utils extends Application {
             }
         }
         if (teleportsOK) {
-            Toast.makeText(mEditorStage, "Editor saved", TOAST_DELAY_SHORT);
+            Toast.makeText(mEditorStage, "Editor saved", TOAST_LENGTH_SHORT);
         } else {
-            Toast.makeText(mEditorStage, "Editor saved (teleports skipped - pair not found)", TOAST_DELAY_SHORT);
+            Toast.makeText(mEditorStage, "Editor saved (teleports skipped - pair not found)", TOAST_LENGTH_SHORT);
         }
     }
 
@@ -3137,7 +3166,7 @@ abstract class Utils extends Application {
         hint.setText("Select action below:");
 
         StackPane root = new StackPane();
-        root.setStyle("-fx-background-color: rgba(0, 100, 100, 0.7); -fx-padding: 20px;");
+        root.setStyle("-fx-background-color: rgba(0, 100, 100, 0.9); -fx-padding: 20px;");
         root.setAlignment(Pos.TOP_CENTER);
 
         Scene scene = new Scene(root);
@@ -3179,7 +3208,7 @@ abstract class Utils extends Application {
 
         button2.addEventHandler(MouseEvent.MOUSE_EXITED,
                 e -> hint.setText("Select action below:"));
-        button2.setOnAction(e -> displayClearAllUserLevelsDialog());
+        button2.setOnAction(e -> displayClearAllUserLevelsDialog(mEditorStage));
 
         final Button buttonExit = new Button();
         buttonExit.setMinWidth(mFrameDimension  * 3);
@@ -3220,7 +3249,7 @@ abstract class Utils extends Application {
                 stage.close();
                 displayExportLevelsDialog();
             } else {
-                Toast.makeText(mEditorStage, "No user-defined levels found", TOAST_DELAY_SHORT);
+                Toast.makeText(mEditorStage, "No user-defined levels found", TOAST_LENGTH_SHORT);
 
             }
         });
@@ -3232,6 +3261,119 @@ abstract class Utils extends Application {
         buttonsBox.getChildren().add(button4);
         buttonsBox.getChildren().add(button5);
         buttonsBox.getChildren().add(buttonExit);
+
+        root.getChildren().add(buttonsBox);
+
+        stage.show();
+
+    }
+
+    private void displaySettings() {
+
+        Stage stage = new Stage();
+        stage.initOwner(mGameStage);
+        stage.setResizable(false);
+        stage.initStyle(StageStyle.TRANSPARENT);
+        stage.initModality(Modality.WINDOW_MODAL);
+
+        stage.setTitle("Tools");
+        stage.setWidth(mGameStage.getWidth() / 3);
+        stage.setHeight(mGameStage.getHeight() * 0.5);
+
+        Text hint = new Text();
+        hint.setFont(messageFont);
+        hint.setFill(Color.WHITE);
+
+        hint.setText("Select action below:");
+
+        StackPane root = new StackPane();
+        root.setStyle("-fx-background-color: rgba(0, 100, 100, 0.9); -fx-padding: 20px;");
+        root.setAlignment(Pos.TOP_CENTER);
+
+        Scene scene = new Scene(root);
+        scene.setFill(Color.TRANSPARENT);
+        stage.setScene(scene);
+
+        scene.setOnKeyPressed(event -> {
+            switch (event.getCode()) {
+                case ESCAPE:
+                    stage.close();
+                    break;
+                default:
+                    break;
+            }
+        });
+
+        VBox buttonsBox = new VBox();
+        buttonsBox.setSpacing(20);
+        buttonsBox.setMinWidth(root.getMinWidth());
+        buttonsBox.setAlignment(Pos.CENTER);
+
+        final Button buttonSize = new Button();
+        buttonSize.setMinWidth(mFrameDimension  * 3);
+        buttonSize.setText("Change board dimension");
+
+        buttonSize.addEventHandler(MouseEvent.MOUSE_ENTERED,
+                e -> hint.setText("Switches the widow size (restart required)"));
+
+        buttonSize.addEventHandler(MouseEvent.MOUSE_EXITED,
+                e -> hint.setText("Select action below:"));
+        buttonSize.setOnAction(e -> displaySizeDialog());
+
+        final Button buttonFinish = new Button();
+        buttonFinish.setMinWidth(mFrameDimension  * 3);
+        buttonFinish.setText("Exit game");
+
+        buttonFinish.addEventHandler(MouseEvent.MOUSE_ENTERED,
+                e -> hint.setText("Closes the game"));
+
+        buttonFinish.addEventHandler(MouseEvent.MOUSE_EXITED,
+                e -> hint.setText("Select action below:"));
+        buttonFinish.setOnAction(e -> Platform.exit());
+
+        final Button buttonClose = new Button();
+        buttonClose.setMinWidth(mFrameDimension  * 3);
+        buttonClose.setText("Close settings");
+
+        buttonClose.addEventHandler(MouseEvent.MOUSE_ENTERED,
+                e -> hint.setText("Closes this window"));
+
+        buttonClose.addEventHandler(MouseEvent.MOUSE_EXITED,
+                e -> hint.setText("Select action below:"));
+        buttonClose.setOnAction(e -> stage.close());
+
+        final Button buttonImport = new Button();
+        buttonImport.setMinWidth(mFrameDimension  * 3);
+        buttonImport.setText("Import user levels");
+
+        buttonImport.addEventHandler(MouseEvent.MOUSE_ENTERED,
+                e -> hint.setText("Imports levels from external file"));
+
+        buttonImport.addEventHandler(MouseEvent.MOUSE_EXITED,
+                e -> hint.setText("Select action below:"));
+        buttonImport.setOnAction(e -> {
+            stage.close();
+            importLevelsFromZip();
+        });
+
+        final Button buttonRestore = new Button();
+        buttonRestore.setMinWidth(mFrameDimension  * 3);
+        buttonRestore.setText("Restore default levels");
+
+        buttonRestore.addEventHandler(MouseEvent.MOUSE_ENTERED,
+                e -> hint.setText("Clears all user-defined levels"));
+
+        buttonRestore.addEventHandler(MouseEvent.MOUSE_EXITED,
+                e -> hint.setText("Select action below:"));
+        buttonRestore.setOnAction(e -> displayClearAllUserLevelsDialog(mGameStage));
+
+        buttonsBox.getChildren().add(hint);
+
+        buttonsBox.getChildren().add(buttonFinish);
+        buttonsBox.getChildren().add(buttonSize);
+        buttonsBox.getChildren().add(buttonImport);
+        buttonsBox.getChildren().add(buttonRestore);
+        buttonsBox.getChildren().add(buttonClose);
 
         root.getChildren().add(buttonsBox);
 
