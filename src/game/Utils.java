@@ -957,6 +957,25 @@ abstract class Utils extends Application {
 
         pixelReader = mBoardImg.getPixelReader();
 
+        String info = infoString(System.getProperty("user.home") + "/.EistReturns/levels/info.txt");
+        System.out.println("Info: " + info);
+
+        if(info != null){
+            if(mGameStage != null){
+                mGameStage.setTitle("Eist returns: " + info);
+            }
+            if(mEditorStage != null){
+                mEditorStage.setTitle("Level editor: " + info);
+            }
+        } else {
+            if(mGameStage != null){
+                mGameStage.setTitle("Eist returns");
+            }
+            if(mEditorStage != null){
+                mEditorStage.setTitle("Level editor");
+            }
+        }
+
         String dataString;
         /*
          * Load arrows
@@ -1548,6 +1567,45 @@ abstract class Utils extends Application {
             } catch (FileNotFoundException e) {
                 inputStream = null;
             }
+        }
+        String output = null;
+
+        if (inputStream == null) {
+            System.out.println("inputStream = null, couldn't read");
+            return null;
+
+        } else {
+
+            BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(inputStream));
+            try {
+                String line;
+                while ((line = bufferedReader.readLine()) != null) {
+                    stringBuilder.append(line).append("\n");
+                }
+                output = stringBuilder.toString().trim();
+
+            } catch (IOException e) {
+                displayExceptionAlert("Error reading InputStream", e);
+            }
+            if (output != null && output.equals("")) {
+                output = null;
+            }
+            return output;
+        }
+    }
+
+    private String infoString(String urlString) {
+
+        System.out.println("INFO: " + urlString);
+
+        StringBuilder stringBuilder = new StringBuilder();
+
+        InputStream inputStream;
+
+        try {
+            inputStream = new FileInputStream(urlString);
+        } catch (FileNotFoundException e) {
+            inputStream = null;
         }
         String output = null;
 
