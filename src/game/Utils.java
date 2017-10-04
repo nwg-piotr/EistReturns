@@ -54,6 +54,8 @@ import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.prefs.Preferences;
 
+import static javafx.scene.layout.BackgroundSize.AUTO;
+
 abstract class Utils extends Application {
 
     double mSceneWidth;
@@ -145,6 +147,7 @@ abstract class Utils extends Application {
     Font infoFont;
     Font messageFont;
     Font turnsFont;
+    Font menuFont;
 
     /**
      * The Frame is a rectangular part of the game board of width of 2 columns and height of 2 rows.
@@ -621,6 +624,8 @@ abstract class Utils extends Application {
     Image mIntro04;
     private Image mIntroFinished;
 
+    Image mButtonBcg;
+
     Image mMutedMusicImg;
     Image mMutedSoundImg;
 
@@ -709,6 +714,8 @@ abstract class Utils extends Application {
 
         mMutedMusicImg = new Image(ClassLoader.getSystemResource("images/common/muted_music.png").toExternalForm());
         mMutedSoundImg = new Image(ClassLoader.getSystemResource("images/common/muted_sound.png").toExternalForm());
+
+        mButtonBcg = new Image(ClassLoader.getSystemResource("images/common/menu_button.png").toExternalForm());
 
         /*
          * Initialize pad buttons
@@ -3390,6 +3397,11 @@ abstract class Utils extends Application {
             }
         });
 
+        BackgroundImage backgroundImage = new BackgroundImage( new Image( ClassLoader.getSystemResource("images/common/menu_button.png").toExternalForm()),
+                BackgroundRepeat.NO_REPEAT, BackgroundRepeat.NO_REPEAT, BackgroundPosition.DEFAULT,
+                new BackgroundSize(AUTO, AUTO, true, true, true, false));
+        Background background = new Background(backgroundImage);
+
         VBox buttonsBox = new VBox();
         buttonsBox.setSpacing(20);
         buttonsBox.setMinWidth(root.getMinWidth());
@@ -3407,7 +3419,10 @@ abstract class Utils extends Application {
         buttonSize.setOnAction(e -> displaySizeDialog());
 
         final Button buttonFinish = new Button();
-        buttonFinish.setMinWidth(mFrameDimension * 3);
+        buttonFinish.setFont(menuFont);
+        buttonFinish.setBackground(background);
+        buttonFinish.setMinWidth(mGridDimension * 5);
+        buttonFinish.setMinHeight(mGridDimension);
         buttonFinish.setText("Exit game");
 
         buttonFinish.addEventHandler(MouseEvent.MOUSE_ENTERED,

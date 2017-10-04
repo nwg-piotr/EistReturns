@@ -91,6 +91,8 @@ public class Main extends Utils {
         infoFont = Font.font("SansSerif", FontWeight.NORMAL, 60 / mDimensionDivider * rem);
         levelFont = Font.font("SansSerif", FontWeight.NORMAL, 48 / mDimensionDivider * rem);
         turnsFont = Font.font("SansSerif", FontWeight.NORMAL, 30 / mDimensionDivider * rem);
+        menuFont = Font.loadFont(ClassLoader.getSystemResource("Orbitron-Regular.ttf").toExternalForm(), 22 / mDimensionDivider * rem);
+
         gc.setFont(infoFont);
 
         eist = new Player();
