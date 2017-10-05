@@ -639,7 +639,7 @@ abstract class Utils extends Application {
         //messageFont = Font.font("SansSerif", FontWeight.NORMAL, 22 / mDimensionDivider * rem);
         infoFont = Font.loadFont(ClassLoader.getSystemResource("Orbitron-Regular.ttf").toExternalForm(), 50 / mDimensionDivider * rem);
         levelFont = Font.loadFont(ClassLoader.getSystemResource("Orbitron-Regular.ttf").toExternalForm(), 44 / mDimensionDivider * rem);
-        turnsFont = Font.loadFont(ClassLoader.getSystemResource("Orbitron-Regular.ttf").toExternalForm(), 30 / mDimensionDivider * rem);
+        turnsFont = Font.loadFont(ClassLoader.getSystemResource("Orbitron-Regular.ttf").toExternalForm(), 36 / mDimensionDivider * rem);
         messageFont = Font.loadFont(ClassLoader.getSystemResource("Orbitron-Regular.ttf").toExternalForm(), 22 / mDimensionDivider * rem);
         menuFont = Font.loadFont(ClassLoader.getSystemResource("Orbitron-Regular.ttf").toExternalForm(), 20 / mDimensionDivider * rem);
     }
@@ -2296,7 +2296,12 @@ abstract class Utils extends Application {
 
     private void displaySetNameDialog() {
 
-        TextInputDialog dialog = new TextInputDialog("your description here");
+        String info = infoString(System.getProperty("user.home") + "/.EistReturns/levels/info.txt");
+        if(info == null && mLoadUserLevel){
+            info = "your description here";
+        }
+
+        TextInputDialog dialog = new TextInputDialog(info);
         dialog.setTitle("Name your levels");
         dialog.setHeaderText("Give your set a short description");
         dialog.setContentText("Description:");
@@ -2308,6 +2313,7 @@ abstract class Utils extends Application {
                     PrintStream out = new PrintStream(System.getProperty("user.home") + "/.EistReturns/levels/info.txt");
                     out.println(name);
                     Toast.makeText(mEditorStage, "Levels set named: " + name, TOAST_LENGTH_SHORT);
+                    mEditorStage.setTitle(name);
                 } catch (IOException e) {
                     Toast.makeText(mEditorStage, "Failed saving the name" + name, TOAST_LENGTH_SHORT);
                 }
@@ -3258,7 +3264,6 @@ abstract class Utils extends Application {
         Text hint = new Text();
         hint.setFont(messageFont);
         hint.setFill(Color.WHITE);
-        hint.setStyle("-fx-background-color: rgba(0, 0, 0, 1");
 
         hint.setText("Select action below:");
 

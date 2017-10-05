@@ -13,17 +13,13 @@ import javafx.scene.Scene;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.image.Image;
-import javafx.scene.input.KeyEvent;
 import javafx.scene.media.MediaPlayer;
 import javafx.scene.paint.Color;
-import javafx.scene.text.Font;
-import javafx.scene.text.FontWeight;
 import javafx.scene.transform.Rotate;
 import javafx.stage.Stage;
 import javafx.stage.WindowEvent;
 
 import java.io.File;
-import java.util.prefs.Preferences;
 
 public class Editor extends Utils {
 
@@ -121,7 +117,7 @@ public class Editor extends Utils {
         toolbar.setArrowArea(new Rectangle2D(columns[29], rows[9], mFrameDimension, mFrameDimension));
         toolbar.setEistArea(new Rectangle2D(columns[27], rows[11], mFrameDimension, mFrameDimension));
         toolbar.setClearArea(new Rectangle2D(columns[29], rows[11], mFrameDimension, mFrameDimension));
-        toolbar.setMessageCorner(new Point2D(columns[27], rows[14]));
+        toolbar.setMessageCorner(new Point2D(columns[26], rows[14]));
 
         toolbar.setDoorOrientation(ORIENTATION_HORIZONTAL);
         toolbar.setSlotOrientation(ORIENTATION_HORIZONTAL);
