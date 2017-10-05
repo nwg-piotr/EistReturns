@@ -156,6 +156,7 @@ abstract class Utils extends Application {
     double mFrameDimension;
     double mGridDimension;
     double mHalfGridDimension;
+    double mButtonWidth;
     int mDetectionOffset;
     double mRotationRadius;
 
@@ -247,6 +248,7 @@ abstract class Utils extends Application {
         mSceneHeight = (mSceneWidth / 1920) * 1080;
         mFrameDimension = (mSceneWidth / 1920) * 120;
         mGridDimension = mFrameDimension / 2;
+        mButtonWidth = mGridDimension * 5;
         mHalfGridDimension = mGridDimension / 2;
         mDetectionOffset = (int) mFrameDimension / 6;
         mRotationRadius = mFrameDimension / 4;
@@ -624,10 +626,23 @@ abstract class Utils extends Application {
     Image mIntro04;
     private Image mIntroFinished;
 
-    Image mButtonBcg;
+    BackgroundImage mButtonImage;
+    Background mButtonBackground;
 
     Image mMutedMusicImg;
     Image mMutedSoundImg;
+
+    void initializeFonts(){
+        //infoFont = Font.font("SansSerif", FontWeight.NORMAL, 60 / mDimensionDivider * rem);
+        //levelFont = Font.font("SansSerif", FontWeight.NORMAL, 48 / mDimensionDivider * rem);
+        //turnsFont = Font.font("SansSerif", FontWeight.NORMAL, 30 / mDimensionDivider * rem);
+        //messageFont = Font.font("SansSerif", FontWeight.NORMAL, 22 / mDimensionDivider * rem);
+        infoFont = Font.loadFont(ClassLoader.getSystemResource("Orbitron-Regular.ttf").toExternalForm(), 50 / mDimensionDivider * rem);
+        levelFont = Font.loadFont(ClassLoader.getSystemResource("Orbitron-Regular.ttf").toExternalForm(), 44 / mDimensionDivider * rem);
+        turnsFont = Font.loadFont(ClassLoader.getSystemResource("Orbitron-Regular.ttf").toExternalForm(), 30 / mDimensionDivider * rem);
+        messageFont = Font.loadFont(ClassLoader.getSystemResource("Orbitron-Regular.ttf").toExternalForm(), 22 / mDimensionDivider * rem);
+        menuFont = Font.loadFont(ClassLoader.getSystemResource("Orbitron-Regular.ttf").toExternalForm(), 20 / mDimensionDivider * rem);
+    }
 
     void loadCommonGraphics() {
 
@@ -715,7 +730,10 @@ abstract class Utils extends Application {
         mMutedMusicImg = new Image(ClassLoader.getSystemResource("images/common/muted_music.png").toExternalForm());
         mMutedSoundImg = new Image(ClassLoader.getSystemResource("images/common/muted_sound.png").toExternalForm());
 
-        mButtonBcg = new Image(ClassLoader.getSystemResource("images/common/menu_button.png").toExternalForm());
+        mButtonImage = new BackgroundImage( new Image( ClassLoader.getSystemResource("images/common/menu_button.png").toExternalForm()),
+                BackgroundRepeat.NO_REPEAT, BackgroundRepeat.NO_REPEAT, BackgroundPosition.DEFAULT,
+                new BackgroundSize(AUTO, AUTO, true, true, true, false));
+        mButtonBackground = new Background(mButtonImage);
 
         /*
          * Initialize pad buttons
@@ -965,7 +983,9 @@ abstract class Utils extends Application {
         pixelReader = mBoardImg.getPixelReader();
 
         String info = infoString(System.getProperty("user.home") + "/.EistReturns/levels/info.txt");
-        System.out.println("Info: " + info);
+        if(info == null && mLoadUserLevel){
+            info = "unnamed set";
+        }
 
         if (info != null) {
             if (mGameStage != null) {
@@ -1595,8 +1615,6 @@ abstract class Utils extends Application {
     }
 
     String infoString(String urlString) {
-
-        System.out.println("INFO: " + urlString);
 
         StringBuilder stringBuilder = new StringBuilder();
 
@@ -2260,6 +2278,9 @@ abstract class Utils extends Application {
 
                 String info = infoString(System.getProperty("user.home") + "/.EistReturns/levels/info.txt");
                 System.out.println("Info: " + info);
+                if(info == null){
+                    info = "unnamed set";
+                }
 
                 if (mGameStage != null) {
                     mGameStage.setTitle("Eist returns: " + info);
@@ -2823,10 +2844,10 @@ abstract class Utils extends Application {
 
             Text text = new Text(toastMsg);
             text.setFont(Font.font("Verdana", 20));
-            text.setFill(Color.WHITE);
+            text.setFill(Color.BLACK);
 
             StackPane root = new StackPane(text);
-            root.setStyle("-fx-background-radius: 20; -fx-background-color: rgba(0, 0, 0, 0.7); -fx-padding: 20px;");
+            root.setStyle("-fx-background-radius: 20; -fx-background-color: rgba(255, 255, 255, 0.9); -fx-padding: 20px;");
             root.setOpacity(0);
 
             Scene scene = new Scene(root);
@@ -3232,16 +3253,17 @@ abstract class Utils extends Application {
 
         stage.setTitle("Tools");
         stage.setWidth(mEditorStage.getWidth() / 3);
-        stage.setHeight(mEditorStage.getHeight() * 0.5);
+        stage.setHeight(mEditorStage.getHeight() * 0.6);
 
         Text hint = new Text();
         hint.setFont(messageFont);
         hint.setFill(Color.WHITE);
+        hint.setStyle("-fx-background-color: rgba(0, 0, 0, 1");
 
         hint.setText("Select action below:");
 
         StackPane root = new StackPane();
-        root.setStyle("-fx-background-color: rgba(0, 100, 100, 0.9); -fx-padding: 20px;");
+        root.setStyle("-fx-background-color: rgba(0, 0, 0, 0.8); -fx-padding: 20px;");
         root.setAlignment(Pos.TOP_CENTER);
 
         Scene scene = new Scene(root);
@@ -3264,7 +3286,11 @@ abstract class Utils extends Application {
         buttonsBox.setAlignment(Pos.CENTER);
 
         final Button button1 = new Button();
-        button1.setMinWidth(mFrameDimension * 3);
+        button1.setFont(menuFont);
+        button1.setStyle("-fx-text-fill: white;");
+        button1.setBackground(mButtonBackground);
+        button1.setMinWidth(mButtonWidth);
+        button1.setMinHeight(mGridDimension);
         button1.setText("Delete user level");
 
         button1.addEventHandler(MouseEvent.MOUSE_ENTERED,
@@ -3275,7 +3301,11 @@ abstract class Utils extends Application {
         button1.setOnAction(e -> displayDeleteUserLevelDialog());
 
         final Button button2 = new Button();
-        button2.setMinWidth(mFrameDimension * 3);
+        button2.setFont(menuFont);
+        button2.setStyle("-fx-text-fill: white;");
+        button2.setBackground(mButtonBackground);
+        button2.setMinWidth(mButtonWidth);
+        button2.setMinHeight(mGridDimension);
         button2.setText("Clear user levels");
 
         button2.addEventHandler(MouseEvent.MOUSE_ENTERED,
@@ -3286,7 +3316,11 @@ abstract class Utils extends Application {
         button2.setOnAction(e -> displayClearAllUserLevelsDialog(mEditorStage));
 
         final Button buttonExit = new Button();
-        buttonExit.setMinWidth(mFrameDimension * 3);
+        buttonExit.setFont(menuFont);
+        buttonExit.setStyle("-fx-text-fill: white;");
+        buttonExit.setBackground(mButtonBackground);
+        buttonExit.setMinWidth(mButtonWidth);
+        buttonExit.setMinHeight(mGridDimension);
         buttonExit.setText("Exit");
 
         buttonExit.addEventHandler(MouseEvent.MOUSE_ENTERED,
@@ -3297,7 +3331,11 @@ abstract class Utils extends Application {
         buttonExit.setOnAction(e -> stage.close());
 
         final Button button4 = new Button();
-        button4.setMinWidth(mFrameDimension * 3);
+        button4.setFont(menuFont);
+        button4.setStyle("-fx-text-fill: white;");
+        button4.setBackground(mButtonBackground);
+        button4.setMinWidth(mButtonWidth);
+        button4.setMinHeight(mGridDimension);
         button4.setText("Import user levels");
 
         button4.addEventHandler(MouseEvent.MOUSE_ENTERED,
@@ -3311,7 +3349,11 @@ abstract class Utils extends Application {
         });
 
         final Button button5 = new Button();
-        button5.setMinWidth(mFrameDimension * 3);
+        button5.setFont(menuFont);
+        button5.setStyle("-fx-text-fill: white;");
+        button5.setBackground(mButtonBackground);
+        button5.setMinWidth(mButtonWidth);
+        button5.setMinHeight(mGridDimension);
         button5.setText("Export user levels");
 
         button5.addEventHandler(MouseEvent.MOUSE_ENTERED,
@@ -3330,7 +3372,11 @@ abstract class Utils extends Application {
         });
 
         final Button buttonName = new Button();
-        buttonName.setMinWidth(mFrameDimension * 3);
+        buttonName.setFont(menuFont);
+        buttonName.setStyle("-fx-text-fill: white;");
+        buttonName.setBackground(mButtonBackground);
+        buttonName.setMinWidth(mButtonWidth);
+        buttonName.setMinHeight(mGridDimension);
         buttonName.setText("Name your levels");
 
         buttonName.addEventHandler(MouseEvent.MOUSE_ENTERED,
@@ -3380,7 +3426,7 @@ abstract class Utils extends Application {
         hint.setText("Select action below:");
 
         StackPane root = new StackPane();
-        root.setStyle("-fx-background-color: rgba(0, 100, 100, 0.9); -fx-padding: 20px;");
+        root.setStyle("-fx-background-color: rgba(0, 0, 0, 0.8); -fx-padding: 20px;");
         root.setAlignment(Pos.TOP_CENTER);
 
         Scene scene = new Scene(root);
@@ -3397,19 +3443,18 @@ abstract class Utils extends Application {
             }
         });
 
-        BackgroundImage backgroundImage = new BackgroundImage( new Image( ClassLoader.getSystemResource("images/common/menu_button.png").toExternalForm()),
-                BackgroundRepeat.NO_REPEAT, BackgroundRepeat.NO_REPEAT, BackgroundPosition.DEFAULT,
-                new BackgroundSize(AUTO, AUTO, true, true, true, false));
-        Background background = new Background(backgroundImage);
-
         VBox buttonsBox = new VBox();
         buttonsBox.setSpacing(20);
         buttonsBox.setMinWidth(root.getMinWidth());
         buttonsBox.setAlignment(Pos.CENTER);
 
         final Button buttonSize = new Button();
-        buttonSize.setMinWidth(mFrameDimension * 3);
-        buttonSize.setText("Change board dimension");
+        buttonSize.setFont(menuFont);
+        buttonSize.setStyle("-fx-text-fill: white;");
+        buttonSize.setBackground(mButtonBackground);
+        buttonSize.setMinWidth(mButtonWidth);
+        buttonSize.setMinHeight(mGridDimension);
+        buttonSize.setText("Board dimensions");
 
         buttonSize.addEventHandler(MouseEvent.MOUSE_ENTERED,
                 e -> hint.setText("Switches the widow size (restart required)"));
@@ -3420,8 +3465,9 @@ abstract class Utils extends Application {
 
         final Button buttonFinish = new Button();
         buttonFinish.setFont(menuFont);
-        buttonFinish.setBackground(background);
-        buttonFinish.setMinWidth(mGridDimension * 5);
+        buttonFinish.setStyle("-fx-text-fill: white;");
+        buttonFinish.setBackground(mButtonBackground);
+        buttonFinish.setMinWidth(mButtonWidth);
         buttonFinish.setMinHeight(mGridDimension);
         buttonFinish.setText("Exit game");
 
@@ -3433,7 +3479,11 @@ abstract class Utils extends Application {
         buttonFinish.setOnAction(e -> Platform.exit());
 
         final Button buttonClose = new Button();
-        buttonClose.setMinWidth(mFrameDimension * 3);
+        buttonClose.setFont(menuFont);
+        buttonClose.setStyle("-fx-text-fill: white;");
+        buttonClose.setBackground(mButtonBackground);
+        buttonClose.setMinWidth(mButtonWidth);
+        buttonClose.setMinHeight(mGridDimension);
         buttonClose.setText("Close settings");
 
         buttonClose.addEventHandler(MouseEvent.MOUSE_ENTERED,
@@ -3444,7 +3494,11 @@ abstract class Utils extends Application {
         buttonClose.setOnAction(e -> stage.close());
 
         final Button buttonImport = new Button();
-        buttonImport.setMinWidth(mFrameDimension * 3);
+        buttonImport.setFont(menuFont);
+        buttonImport.setStyle("-fx-text-fill: white;");
+        buttonImport.setBackground(mButtonBackground);
+        buttonImport.setMinWidth(mButtonWidth);
+        buttonImport.setMinHeight(mGridDimension);
         buttonImport.setText("Import user levels");
 
         buttonImport.addEventHandler(MouseEvent.MOUSE_ENTERED,
@@ -3458,7 +3512,11 @@ abstract class Utils extends Application {
         });
 
         final Button buttonRestore = new Button();
-        buttonRestore.setMinWidth(mFrameDimension * 3);
+        buttonRestore.setFont(menuFont);
+        buttonRestore.setStyle("-fx-text-fill: white;");
+        buttonRestore.setBackground(mButtonBackground);
+        buttonRestore.setMinWidth(mButtonWidth);
+        buttonRestore.setMinHeight(mGridDimension);
         buttonRestore.setText("Restore default levels");
 
         buttonRestore.addEventHandler(MouseEvent.MOUSE_ENTERED,

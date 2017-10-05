@@ -88,10 +88,7 @@ public class Main extends Utils {
         root.getChildren().add(canvas);
         gc = canvas.getGraphicsContext2D();
 
-        infoFont = Font.font("SansSerif", FontWeight.NORMAL, 60 / mDimensionDivider * rem);
-        levelFont = Font.font("SansSerif", FontWeight.NORMAL, 48 / mDimensionDivider * rem);
-        turnsFont = Font.font("SansSerif", FontWeight.NORMAL, 30 / mDimensionDivider * rem);
-        menuFont = Font.loadFont(ClassLoader.getSystemResource("Orbitron-Regular.ttf").toExternalForm(), 22 / mDimensionDivider * rem);
+        initializeFonts();
 
         gc.setFont(infoFont);
 
@@ -108,16 +105,13 @@ public class Main extends Utils {
 
         mScene.setOnMouseClicked(this::handleMouseEvent);
 
-        mScene.setOnKeyPressed(new EventHandler<KeyEvent>() {
-            @Override
-            public void handle(KeyEvent event) {
-                switch (event.getCode()) {
-                    case F:
-                        mShowFps = !mShowFps;
-                        break;
-                    default:
-                        break;
-                }
+        mScene.setOnKeyPressed(event -> {
+            switch (event.getCode()) {
+                case F:
+                    mShowFps = !mShowFps;
+                    break;
+                default:
+                    break;
             }
         });
 

@@ -93,11 +93,7 @@ public class Editor extends Utils {
         root.getChildren().add(canvas);
         gc = canvas.getGraphicsContext2D();
 
-        infoFont = Font.font("SansSerif", FontWeight.NORMAL, 60 / mDimensionDivider * rem);
-        levelFont = Font.font("SansSerif", FontWeight.NORMAL, 48 / mDimensionDivider * rem);
-        turnsFont = Font.font("SansSerif", FontWeight.NORMAL, 30 / mDimensionDivider * rem);
-        messageFont = Font.font("SansSerif", FontWeight.NORMAL, 22 / mDimensionDivider * rem);
-        menuFont = Font.loadFont(ClassLoader.getSystemResource("Orbitron-Regular.ttf").toExternalForm(), 22 / mDimensionDivider * rem);
+        initializeFonts();
 
         gc.setFont(infoFont);
 
