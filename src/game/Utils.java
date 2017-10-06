@@ -2270,6 +2270,9 @@ abstract class Utils extends Application {
                     if(mGameStage != null){
                         mGameStage.setTitle("Eist returns: default");
                     }
+                    if(mEditorStage != null) {
+                        mEditorStage.setTitle("Level editor");
+                    }
                 }
             }
         } else {
@@ -2308,6 +2311,9 @@ abstract class Utils extends Application {
 
                 if (mGameStage != null) {
                     mGameStage.setTitle("Eist returns: " + info);
+                }
+                if (mEditorStage != null) {
+                    mEditorStage.setTitle("Level editor: " + info);
                 }
 
             } catch (IOException e) {
