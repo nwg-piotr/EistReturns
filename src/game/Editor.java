@@ -118,7 +118,7 @@ public class Editor extends Utils {
         toolbar.setArrowArea(new Rectangle2D(columns[29], rows[9], mFrameDimension, mFrameDimension));
         toolbar.setEistArea(new Rectangle2D(columns[27], rows[11], mFrameDimension, mFrameDimension));
         toolbar.setClearArea(new Rectangle2D(columns[29], rows[11], mFrameDimension, mFrameDimension));
-        toolbar.setMessageCorner(new Point2D(columns[26], rows[14]));
+        toolbar.setMessageCorner(new Point2D(columns[27], rows[14]));
 
         toolbar.setDoorOrientation(ORIENTATION_HORIZONTAL);
         toolbar.setSlotOrientation(ORIENTATION_HORIZONTAL);
