@@ -130,7 +130,6 @@ public class Editor extends Utils {
         mMuteMusic = true;
 
         String info = infoString(System.getProperty("user.home") + "/.EistReturns/levels/info.txt");
-        System.out.println("Info: " + info);
 
         if(info != null){
             if(mEditorStage != null){

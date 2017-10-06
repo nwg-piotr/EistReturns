@@ -513,7 +513,9 @@ abstract class Utils extends Application {
                         if (toolbar.getSelection() == SELECTION_SLOT &&
                                 pixelReader.getArgb((int) pointClicked.getX(), (int) pointClicked.getY()) == -16777216) {
                             Rectangle2D area = nearestSlot(pointClicked.getX(), pointClicked.getY(), toolbar.getSlotOrientation());
-                            placeSlot(area, toolbar.getSlotOrientation());
+                            if(area != null) {
+                                placeSlot(area, toolbar.getSlotOrientation());
+                            }
                         }
                         if (toolbar.getSelection() == SELECTION_CLEAR) {
                             deleteIfFound(pointClicked);
@@ -1671,11 +1673,27 @@ abstract class Utils extends Application {
         double nearest_left = ((int) (touch_x / mGridDimension)) * mGridDimension;
         double nearest_top = ((int) (touch_y / mGridDimension)) * mGridDimension;
 
+        Rectangle2D slotRect;
         if (orientation == ORIENTATION_VERTICAL) {
-            return new Rectangle2D(nearest_left, nearest_top, mFrameDimension, mGridDimension);
+
+            slotRect = new Rectangle2D(nearest_left - mGridDimension, nearest_top, mFrameDimension, mGridDimension);
+
         } else {
-            return new Rectangle2D(nearest_left, nearest_top, mGridDimension, mFrameDimension);
+
+            slotRect = new Rectangle2D(nearest_left, nearest_top - mGridDimension, mGridDimension, mFrameDimension);
         }
+        return isSlotAllowed(slotRect) ? slotRect : null;
+    }
+
+    private boolean isSlotAllowed(Rectangle2D nearestSquare){
+
+        int top_left_color = pixelReader.getArgb((int) nearestSquare.getMinX(), (int) nearestSquare.getMinY());
+        int top_right_color = pixelReader.getArgb((int) nearestSquare.getMaxX(), (int) nearestSquare.getMinY());
+        int bottom_left_color = pixelReader.getArgb((int) nearestSquare.getMinX(), (int) nearestSquare.getMaxY());
+        int bottom_right_color = pixelReader.getArgb((int) nearestSquare.getMaxX(), (int) nearestSquare.getMaxY());
+
+        return top_left_color != -16777216 && top_right_color != -16777216 &&
+                bottom_left_color != -16777216 && bottom_right_color != -16777216;
     }
 
     /**
@@ -2114,6 +2132,7 @@ abstract class Utils extends Application {
         dialog.setTitle("Setting the game window size");
         dialog.setHeaderText("Select size and restart the game");
         dialog.setContentText("Choose the window size:");
+        dialog.initModality(Modality.WINDOW_MODAL);
 
         Optional<String> result = dialog.showAndWait();
         if (result.isPresent()) {
@@ -2185,6 +2204,7 @@ abstract class Utils extends Application {
             dialog.setTitle("Delete user-defined level");
             dialog.setHeaderText("User level to delete");
             dialog.setContentText("Level:");
+            dialog.initModality(Modality.WINDOW_MODAL);
 
             Optional<String> result = dialog.showAndWait();
 
@@ -2216,6 +2236,7 @@ abstract class Utils extends Application {
 
             Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
             alert.setTitle("Clear user levels");
+            alert.initModality(Modality.WINDOW_MODAL);
 
             StringBuilder names = new StringBuilder();
             names.append("To delete: ");
@@ -2277,7 +2298,6 @@ abstract class Utils extends Application {
                 Toast.makeText(mEditorStage, "Imported " + dirs + " folders from " + selectedFile, TOAST_LENGTH_LONG);
 
                 String info = infoString(System.getProperty("user.home") + "/.EistReturns/levels/info.txt");
-                System.out.println("Info: " + info);
                 if(info == null){
                     info = "unnamed set";
                 }
@@ -2305,6 +2325,7 @@ abstract class Utils extends Application {
         dialog.setTitle("Name your levels");
         dialog.setHeaderText("Give your set a short description");
         dialog.setContentText("Description:");
+        dialog.initModality(Modality.WINDOW_MODAL);
 
         Optional<String> result = dialog.showAndWait();
         result.ifPresent(name -> {
@@ -2327,6 +2348,7 @@ abstract class Utils extends Application {
         dialog.setTitle("Export user levels");
         dialog.setHeaderText("Exporting user levels to a zip file");
         dialog.setContentText("Filename:");
+        dialog.initModality(Modality.WINDOW_MODAL);
 
         ButtonType ok = new ButtonType("OK", ButtonData.OK_DONE);
         ButtonType cancel = new ButtonType("Cancel", ButtonData.CANCEL_CLOSE);
