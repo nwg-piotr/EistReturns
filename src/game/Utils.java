@@ -3137,7 +3137,7 @@ abstract class Utils extends Application {
         mOrnamentButton.setMinWidth(mFrameDimension);
 
         mOrnamentButton.addEventHandler(MouseEvent.MOUSE_ENTERED,
-                e -> mMenuHint = "Click path to add ornament");
+                e -> mMenuHint = "Click path to add\nornament");
 
         mOrnamentButton.addEventHandler(MouseEvent.MOUSE_EXITED,
                 e -> mMenuHint = "");
@@ -3292,7 +3292,7 @@ abstract class Utils extends Application {
 
         stage.setTitle("Tools");
         stage.setWidth(mEditorStage.getWidth() / 3);
-        stage.setHeight(mEditorStage.getHeight() * 0.6);
+        stage.setHeight(mEditorStage.getHeight() * 0.7);
 
         Text hint = new Text();
         hint.setFont(messageFont);
