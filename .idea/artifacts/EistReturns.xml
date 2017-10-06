@@ -3,7 +3,7 @@
     <output-path>$PROJECT_DIR$/out/artifacts/EistReturns</output-path>
     <properties id="javafx-properties">
       <options>
-        <option name="appClass" value="game.Main" />
+        <option name="appClass" value="game.Start" />
         <option name="description" value="arcade-puzzle game" />
         <option name="height" value="720" />
         <option name="htmlPlaceholderId" value="" />

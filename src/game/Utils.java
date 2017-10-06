@@ -2076,6 +2076,7 @@ abstract class Utils extends Application {
         alert.setTitle("About the game");
         alert.setHeaderText("Eist returns\narcade-puzzle game\n\u00a91992-2017 nwg (Piotr Miller)");
         alert.setResizable(true);
+        alert.initOwner(mGameStage);
 
         String message = "This program is free software; you can redistribute it and/or modify it under the terms of the GNU " +
                 "General Public License version 3.0, as published by the Free Software Foundation. Find the source code at" +
@@ -2132,7 +2133,7 @@ abstract class Utils extends Application {
         dialog.setTitle("Setting the game window size");
         dialog.setHeaderText("Select size and restart the game");
         dialog.setContentText("Choose the window size:");
-        dialog.initModality(Modality.WINDOW_MODAL);
+        dialog.initOwner(mGameStage);
 
         Optional<String> result = dialog.showAndWait();
         if (result.isPresent()) {
@@ -2195,7 +2196,7 @@ abstract class Utils extends Application {
         }
     }
 
-    private void displayDeleteUserLevelDialog() {
+    private void displayDeleteUserLevelDialog(Stage stage) {
 
         List<String> levels = userLevels();
         if (userLevels().size() > 0) {
@@ -2204,7 +2205,7 @@ abstract class Utils extends Application {
             dialog.setTitle("Delete user-defined level");
             dialog.setHeaderText("User level to delete");
             dialog.setContentText("Level:");
-            dialog.initModality(Modality.WINDOW_MODAL);
+            dialog.initOwner(stage);
 
             Optional<String> result = dialog.showAndWait();
 
@@ -2236,7 +2237,7 @@ abstract class Utils extends Application {
 
             Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
             alert.setTitle("Clear user levels");
-            alert.initModality(Modality.WINDOW_MODAL);
+            alert.initOwner(stage);
 
             StringBuilder names = new StringBuilder();
             names.append("To delete: ");
@@ -2275,7 +2276,7 @@ abstract class Utils extends Application {
 
     }
 
-    private void importLevelsFromZip() {
+    private void importLevelsFromZip(Stage stage) {
 
         FileChooser fileChooser = new FileChooser();
         fileChooser.setTitle("Select file to import from");
@@ -2288,14 +2289,15 @@ abstract class Utils extends Application {
 
         fileChooser.getExtensionFilters().addAll(
                 new FileChooser.ExtensionFilter("Zip files", "*.zip"));
-        File selectedFile = fileChooser.showOpenDialog(mEditorStage);
+
+        File selectedFile = fileChooser.showOpenDialog(stage);
 
         if (selectedFile != null) {
 
             prefs.put("importPath", selectedFile.toString().split(selectedFile.getName())[0]);
             try {
                 int dirs = ZipFileUtil.unzip(selectedFile, System.getProperty("user.home") + "/.EistReturns/levels/");
-                Toast.makeText(mEditorStage, "Imported " + dirs + " folders from " + selectedFile, TOAST_LENGTH_LONG);
+                Toast.makeText(stage, "Imported " + dirs + " folders from " + selectedFile, TOAST_LENGTH_LONG);
 
                 String info = infoString(System.getProperty("user.home") + "/.EistReturns/levels/info.txt");
                 if(info == null){
@@ -2310,11 +2312,11 @@ abstract class Utils extends Application {
                 e.printStackTrace();
             }
         } else {
-            Toast.makeText(mEditorStage, "No file selected", TOAST_LENGTH_SHORT);
+            Toast.makeText(stage, "No file selected", TOAST_LENGTH_SHORT);
         }
     }
 
-    private void displaySetNameDialog() {
+    private void displaySetNameDialog(Stage stage) {
 
         String info = infoString(System.getProperty("user.home") + "/.EistReturns/levels/info.txt");
         if(info == null && mLoadUserLevel){
@@ -2325,7 +2327,7 @@ abstract class Utils extends Application {
         dialog.setTitle("Name your levels");
         dialog.setHeaderText("Give your set a short description");
         dialog.setContentText("Description:");
-        dialog.initModality(Modality.WINDOW_MODAL);
+        dialog.initOwner(stage);
 
         Optional<String> result = dialog.showAndWait();
         result.ifPresent(name -> {
@@ -2342,13 +2344,13 @@ abstract class Utils extends Application {
         });
     }
 
-    private void displayExportLevelsDialog() {
+    private void displayExportLevelsDialog(Stage stage) {
 
         TextInputDialog dialog = new TextInputDialog("unnamed");
         dialog.setTitle("Export user levels");
         dialog.setHeaderText("Exporting user levels to a zip file");
         dialog.setContentText("Filename:");
-        dialog.initModality(Modality.WINDOW_MODAL);
+        dialog.initOwner(stage);
 
         ButtonType ok = new ButtonType("OK", ButtonData.OK_DONE);
         ButtonType cancel = new ButtonType("Cancel", ButtonData.CANCEL_CLOSE);
@@ -3312,6 +3314,21 @@ abstract class Utils extends Application {
         buttonsBox.setMinWidth(root.getMinWidth());
         buttonsBox.setAlignment(Pos.CENTER);
 
+        final Button buttonExit = new Button();
+        buttonExit.setFont(menuFont);
+        buttonExit.setStyle("-fx-text-fill: white;");
+        buttonExit.setBackground(mButtonBackground);
+        buttonExit.setMinWidth(mButtonWidth);
+        buttonExit.setMinHeight(mGridDimension);
+        buttonExit.setText("Exit editor");
+
+        buttonExit.addEventHandler(MouseEvent.MOUSE_ENTERED,
+                e -> hint.setText("Closes this level editor"));
+
+        buttonExit.addEventHandler(MouseEvent.MOUSE_EXITED,
+                e -> hint.setText("Select action below:"));
+        buttonExit.setOnAction(e -> Platform.exit());
+
         final Button button1 = new Button();
         button1.setFont(menuFont);
         button1.setStyle("-fx-text-fill: white;");
@@ -3325,7 +3342,10 @@ abstract class Utils extends Application {
 
         button1.addEventHandler(MouseEvent.MOUSE_EXITED,
                 e -> hint.setText("Select action below:"));
-        button1.setOnAction(e -> displayDeleteUserLevelDialog());
+        button1.setOnAction(e -> {
+            stage.close();
+            displayDeleteUserLevelDialog(mEditorStage);
+        });
 
         final Button button2 = new Button();
         button2.setFont(menuFont);
@@ -3340,22 +3360,25 @@ abstract class Utils extends Application {
 
         button2.addEventHandler(MouseEvent.MOUSE_EXITED,
                 e -> hint.setText("Select action below:"));
-        button2.setOnAction(e -> displayClearAllUserLevelsDialog(mEditorStage));
+        button2.setOnAction(e -> {
+            stage.close();
+            displayClearAllUserLevelsDialog(mEditorStage);
+        });
 
-        final Button buttonExit = new Button();
-        buttonExit.setFont(menuFont);
-        buttonExit.setStyle("-fx-text-fill: white;");
-        buttonExit.setBackground(mButtonBackground);
-        buttonExit.setMinWidth(mButtonWidth);
-        buttonExit.setMinHeight(mGridDimension);
-        buttonExit.setText("Exit");
+        final Button buttonClose = new Button();
+        buttonClose.setFont(menuFont);
+        buttonClose.setStyle("-fx-text-fill: white;");
+        buttonClose.setBackground(mButtonBackground);
+        buttonClose.setMinWidth(mButtonWidth);
+        buttonClose.setMinHeight(mGridDimension);
+        buttonClose.setText("Close");
 
-        buttonExit.addEventHandler(MouseEvent.MOUSE_ENTERED,
+        buttonClose.addEventHandler(MouseEvent.MOUSE_ENTERED,
                 e -> hint.setText("Closes this window"));
 
-        buttonExit.addEventHandler(MouseEvent.MOUSE_EXITED,
+        buttonClose.addEventHandler(MouseEvent.MOUSE_EXITED,
                 e -> hint.setText("Select action below:"));
-        buttonExit.setOnAction(e -> stage.close());
+        buttonClose.setOnAction(e -> stage.close());
 
         final Button button4 = new Button();
         button4.setFont(menuFont);
@@ -3372,7 +3395,7 @@ abstract class Utils extends Application {
                 e -> hint.setText("Select action below:"));
         button4.setOnAction(e -> {
             stage.close();
-            importLevelsFromZip();
+            importLevelsFromZip(mEditorStage);
         });
 
         final Button button5 = new Button();
@@ -3389,9 +3412,10 @@ abstract class Utils extends Application {
         button5.addEventHandler(MouseEvent.MOUSE_EXITED,
                 e -> hint.setText("Select action below:"));
         button5.setOnAction(e -> {
+            stage.close();
             if (userLevels().size() > 0) {
                 stage.close();
-                displayExportLevelsDialog();
+                displayExportLevelsDialog(mEditorStage);
             } else {
                 Toast.makeText(mEditorStage, "No user-defined levels found", TOAST_LENGTH_SHORT);
 
@@ -3412,8 +3436,9 @@ abstract class Utils extends Application {
         buttonName.addEventHandler(MouseEvent.MOUSE_EXITED,
                 e -> hint.setText("Select action below:"));
         buttonName.setOnAction(e -> {
+            stage.close();
             if(userLevels().size() > 0) {
-                displaySetNameDialog();
+                displaySetNameDialog(mEditorStage);
             } else {
                 Toast.makeText(mEditorStage, "At least 1 saved, user-defined level required", TOAST_LENGTH_LONG);
             }
@@ -3421,12 +3446,13 @@ abstract class Utils extends Application {
 
         buttonsBox.getChildren().add(hint);
 
+        buttonsBox.getChildren().add(buttonExit);
         buttonsBox.getChildren().add(button1);
         buttonsBox.getChildren().add(button2);
         buttonsBox.getChildren().add(button4);
         buttonsBox.getChildren().add(button5);
         buttonsBox.getChildren().add(buttonName);
-        buttonsBox.getChildren().add(buttonExit);
+        buttonsBox.getChildren().add(buttonClose);
 
         root.getChildren().add(buttonsBox);
 
@@ -3440,7 +3466,6 @@ abstract class Utils extends Application {
         stage.initOwner(mGameStage);
         stage.setResizable(false);
         stage.initStyle(StageStyle.TRANSPARENT);
-        stage.initModality(Modality.WINDOW_MODAL);
 
         stage.setTitle("Tools");
         stage.setWidth(mGameStage.getWidth() / 3);
@@ -3488,7 +3513,10 @@ abstract class Utils extends Application {
 
         buttonSize.addEventHandler(MouseEvent.MOUSE_EXITED,
                 e -> hint.setText("Select action below:"));
-        buttonSize.setOnAction(e -> displaySizeDialog());
+        buttonSize.setOnAction(e -> {
+            stage.close();
+            displaySizeDialog();
+        });
 
         final Button buttonFinish = new Button();
         buttonFinish.setFont(menuFont);
@@ -3511,7 +3539,7 @@ abstract class Utils extends Application {
         buttonClose.setBackground(mButtonBackground);
         buttonClose.setMinWidth(mButtonWidth);
         buttonClose.setMinHeight(mGridDimension);
-        buttonClose.setText("Close settings");
+        buttonClose.setText("Close");
 
         buttonClose.addEventHandler(MouseEvent.MOUSE_ENTERED,
                 e -> hint.setText("Closes this window"));
@@ -3535,7 +3563,7 @@ abstract class Utils extends Application {
                 e -> hint.setText("Select action below:"));
         buttonImport.setOnAction(e -> {
             stage.close();
-            importLevelsFromZip();
+            importLevelsFromZip(mGameStage);
         });
 
         final Button buttonRestore = new Button();
@@ -3551,7 +3579,10 @@ abstract class Utils extends Application {
 
         buttonRestore.addEventHandler(MouseEvent.MOUSE_EXITED,
                 e -> hint.setText("Select action below:"));
-        buttonRestore.setOnAction(e -> displayClearAllUserLevelsDialog(mGameStage));
+        buttonRestore.setOnAction(e -> {
+            stage.close();
+            displayClearAllUserLevelsDialog(mGameStage);
+        });
 
         buttonsBox.getChildren().add(hint);
 
