@@ -2164,6 +2164,7 @@ abstract class Utils extends Application {
         dialog.setTitle("Import default level");
         dialog.setHeaderText("Built-in level to import");
         dialog.setContentText("Level:");
+        dialog.initOwner(mEditorStage);
 
         Optional<String> result = dialog.showAndWait();
         if (result.isPresent()) {
@@ -2183,6 +2184,7 @@ abstract class Utils extends Application {
             dialog.setTitle("Open user-defined level");
             dialog.setHeaderText("Select level to open");
             dialog.setContentText("Level:");
+            dialog.initOwner(mEditorStage);
 
             Optional<String> result = dialog.showAndWait();
             if (result.isPresent()) {
@@ -2437,6 +2439,7 @@ abstract class Utils extends Application {
         dialog.setTitle("Save as user level");
         dialog.setHeaderText("Built-in level to override");
         dialog.setContentText("Level:");
+        dialog.initOwner(mEditorStage);
 
         Optional<String> result = dialog.showAndWait();
         result.ifPresent(s -> {
