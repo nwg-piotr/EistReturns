@@ -780,7 +780,7 @@ abstract class Utils extends Application {
 
     void loadLevel(int level) {
 
-        System.out.println("\nLOADING LEVEL " + level + "\n");
+        System.out.println("\nLoading level " + level);
 
         mEditor = false;
 
@@ -971,7 +971,7 @@ abstract class Utils extends Application {
 
             } else {
                 mLoadUserLevel = false;
-                System.out.println("User-defined level not found. Loading from resources.\n");
+                System.out.println("User-defined level not found. Loading from resources.");
             }
 
         } else {
