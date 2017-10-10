@@ -47,6 +47,8 @@ import game.ZipUtils.*;
 
 import java.io.*;
 
+import java.net.URISyntaxException;
+import java.net.URL;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.text.DateFormat;
@@ -1581,7 +1583,7 @@ abstract class Utils extends Application {
         InputStream inputStream;
 
         if (!mLoadUserLevel && !mEditor) {
-            inputStream = Utils.class.getClassLoader().getResourceAsStream(urlString);
+            inputStream = getClass().getClassLoader().getResourceAsStream(urlString);
         } else {
             try {
                 // This should be done better, still I don't know how...
@@ -2376,6 +2378,12 @@ abstract class Utils extends Application {
 
         Optional<String> result = dialog.showAndWait();
         result.ifPresent(name -> {
+
+            File exportFolder = new File(System.getProperty("user.home") + "/.EistReturns/export");
+            if (exportFolder.mkdir()) {
+                System.out.println("Export folder created");
+            }
+
             if (name.equals("select_file")) {
 
                 FileChooser fileChooser = new FileChooser();
@@ -2402,10 +2410,7 @@ abstract class Utils extends Application {
                     Calendar cal = Calendar.getInstance();
                     name += dateFormat.format(cal.getTime());
                 }
-                File exportFolder = new File(System.getProperty("user.home") + "/.EistReturns/export");
-                if (exportFolder.mkdir()) {
-                    System.out.println("Export folder created");
-                }
+
                 try {
                     ZipFileUtil.zipDirectory(new File(System.getProperty("user.home") + "/.EistReturns/levels"),
                             new File(System.getProperty("user.home") + "/.EistReturns/export/" + name + ".zip"));
@@ -2415,8 +2420,6 @@ abstract class Utils extends Application {
                 }
             }
         });
-
-
     }
 
     private static boolean deleteFolder(File folder) {
@@ -2593,35 +2596,33 @@ abstract class Utils extends Application {
 
     private void importBuiltInLevel(Integer level) {
 
-        String lvlNumberToString;
-        if (level != null) {
+        String lvl = level != null ? lvlToString(level) : "03";
+        mEditorStage.setTitle("Imported default level: " + lvl);
 
-            lvlNumberToString = lvlToString(level);
-            mEditorStage.setTitle("Imported default level: " + lvlToString(level));
+        String dst = System.getProperty("user.home") + "/.EistReturns/levels/editor-data";
 
-        } else {
+        try {
+            copyStream(getClass().getClassLoader().getResourceAsStream("levels/" + lvl + "/amulet.png"), new File(dst + "/amulet.png"));
+            copyStream(getClass().getClassLoader().getResourceAsStream("levels/" + lvl + "/amulets.dat"), new File(dst + "/amulets.dat"));
+            copyStream(getClass().getClassLoader().getResourceAsStream("levels/" + lvl + "/arrows.dat"), new File(dst + "/arrows.dat"));
+            copyStream(getClass().getClassLoader().getResourceAsStream("levels/" + lvl + "/board.png"), new File(dst + "/board.png"));
+            copyStream(getClass().getClassLoader().getResourceAsStream("levels/" + lvl + "/door_h.png"), new File(dst + "/door_h.png"));
+            copyStream(getClass().getClassLoader().getResourceAsStream("levels/" + lvl + "/doors.dat"), new File(dst + "/doors.dat"));
+            copyStream(getClass().getClassLoader().getResourceAsStream("levels/" + lvl + "/door_v.png"), new File(dst + "/door_v.png"));
+            copyStream(getClass().getClassLoader().getResourceAsStream("levels/" + lvl + "/exit_closed.png"), new File(dst + "/exit_closed.png"));
+            copyStream(getClass().getClassLoader().getResourceAsStream("levels/" + lvl + "/exit_open.png"), new File(dst + "/exit_open.png"));
+            copyStream(getClass().getClassLoader().getResourceAsStream("levels/" + lvl + "/key.png"), new File(dst + "/key.png"));
+            copyStream(getClass().getClassLoader().getResourceAsStream("levels/" + lvl + "/keys.dat"), new File(dst + "/keys.dat"));
+            copyStream(getClass().getClassLoader().getResourceAsStream("levels/" + lvl + "/ladder_h.png"), new File(dst + "/ladder_h.png"));
+            copyStream(getClass().getClassLoader().getResourceAsStream("levels/" + lvl + "/ladder_v.png"), new File(dst + "/ladder_v.png"));
+            copyStream(getClass().getClassLoader().getResourceAsStream("levels/" + lvl + "/level.dat"), new File(dst + "/level.dat"));
+            copyStream(getClass().getClassLoader().getResourceAsStream("levels/" + lvl + "/ornament.png"), new File(dst + "/ornament.png"));
+            copyStream(getClass().getClassLoader().getResourceAsStream("levels/" + lvl + "/ornaments.dat"), new File(dst + "/ornaments.dat"));
+            copyStream(getClass().getClassLoader().getResourceAsStream("levels/" + lvl + "/slots.dat"), new File(dst + "/slots.dat"));
+            copyStream(getClass().getClassLoader().getResourceAsStream("levels/" + lvl + "/teleports.dat"), new File(dst + "/teleports.dat"));
 
-            lvlNumberToString = "03";
-            mEditorStage.setTitle("Imported sample level: " + lvlNumberToString);
-        }
-
-        File sourceFolder = new File(ClassLoader.getSystemResource("levels/" + lvlNumberToString).toExternalForm().substring(5));
-        File[] sourceFiles = sourceFolder.listFiles();
-
-        if (sourceFiles != null) {
-            System.out.println("\nCopying level files:");
-            for (File file : sourceFiles) {
-
-                Path source = Paths.get(file.toString());
-                Path destination = Paths.get(System.getProperty("user.home") + "/.EistReturns/levels/editor-data", source.getFileName().toString());
-
-                try {
-                    copyFile(source.toFile(), destination.toFile());
-                    System.out.println("Copying: " + file.toString());
-                } catch (IOException e) {
-                    System.out.println("Copying error: " + e);
-                }
-            }
+        } catch (IOException e){
+            System.out.println("Exception while copying stream: " + e);
         }
     }
 
@@ -2729,6 +2730,16 @@ abstract class Utils extends Application {
 
     private static void copyFile(File source, File dest) throws IOException {
         try (InputStream is = new FileInputStream(source); OutputStream os = new FileOutputStream(dest)) {
+            byte[] buffer = new byte[1024];
+            int length;
+            while ((length = is.read(buffer)) > 0) {
+                os.write(buffer, 0, length);
+            }
+        }
+    }
+
+    private static void copyStream(InputStream is, File dest) throws IOException {
+        try (OutputStream os = new FileOutputStream(dest)) {
             byte[] buffer = new byte[1024];
             int length;
             while ((length = is.read(buffer)) > 0) {
