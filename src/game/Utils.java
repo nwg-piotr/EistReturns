@@ -981,7 +981,6 @@ abstract class Utils extends Application {
         /*
          * Load board bitmap
          */
-        System.out.println("Loading board from: " + urlString + "board.png");
         mBoardImg = new Image(urlString + "board.png", mSceneWidth, mSceneHeight, true, true, false);
 
         pixelReader = mBoardImg.getPixelReader();
@@ -1576,8 +1575,6 @@ abstract class Utils extends Application {
 
     private String datToString(String urlString) {
 
-        System.out.println(urlString);
-
         StringBuilder stringBuilder = new StringBuilder();
 
         InputStream inputStream;
@@ -1595,7 +1592,7 @@ abstract class Utils extends Application {
         String output = null;
 
         if (inputStream == null) {
-            System.out.println("inputStream = null, couldn't read");
+            System.out.println("Couldn't read " + urlString);
             return null;
 
         } else {
@@ -1632,7 +1629,7 @@ abstract class Utils extends Application {
         String output = null;
 
         if (inputStream == null) {
-            System.out.println("inputStream = null, couldn't read");
+            System.out.println("Couldn't read "+ urlString);
             return null;
 
         } else {
@@ -2650,7 +2647,6 @@ abstract class Utils extends Application {
 
                 try {
                     copyFile(source.toFile(), destination.toFile());
-                    System.out.println("Copying: " + file.toString());
                 } catch (IOException e) {
                     System.out.println("Copying error: " + e);
                 }
@@ -2694,7 +2690,6 @@ abstract class Utils extends Application {
 
                 try {
                     copyFile(source.toFile(), destFile.toFile());
-                    System.out.println("Copying: " + file.toString());
                 } catch (IOException e) {
                     System.out.println("Copying error: " + e);
                 }
