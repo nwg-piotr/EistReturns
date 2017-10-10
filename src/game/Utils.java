@@ -2578,11 +2578,15 @@ abstract class Utils extends Application {
         File checkMe = new File(System.getProperty("user.home") + "/.EistReturns/levels/editor-data/" + name);
         if (!checkMe.exists()) {
 
-            File replacement = new File(ClassLoader.getSystemResource("levels/03/" + name).toExternalForm().substring(5));
+            String dst = System.getProperty("user.home") + "/.EistReturns/levels/editor-data";
+
             try {
-                copyFile(replacement, checkMe);
+
+                copyStream(getClass().getClassLoader().getResourceAsStream("levels/03/" + name), new File(dst + "/" + name));
+                System.out.println("Missing file substituted: " + name);
+
             } catch (IOException e) {
-                System.out.println("Error copying board.png:" + e);
+                System.out.println("Error copying " + name + ": " + e);
             }
             return false;
 
