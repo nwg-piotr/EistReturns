@@ -1,7 +1,7 @@
 # Maintainer: Piotr Miller <nwg.piotr@gmail.com>
 pkgname=('eist-returns')
-pkgver=0.0.4
-pkgrel=2
+pkgver=0.0.5
+pkgrel=1
 pkgdesc="Arcade-puzzle game"
 arch=('i686' 'x86_64')
 url="https://github.com/nwg-piotr/EistReturns"
@@ -9,7 +9,9 @@ license=('GPL3')
 depends=('java-runtime>=8' 'java-openjfx' 'ffmpeg2.8' 'gstreamer' 'libxtst' 'qt5-base' 'webkit2gtk')
 source=("https://github.com/nwg-piotr/EistReturns/raw/master/arch/eist-returns.jar"
 "https://github.com/nwg-piotr/EistReturns/raw/master/arch/eist-returns.png"
+"https://github.com/nwg-piotr/EistReturns/raw/master/arch/editor.png"
 "https://github.com/nwg-piotr/EistReturns/raw/master/arch/eist-returns"
+"https://github.com/nwg-piotr/EistReturns/raw/master/arch/eist-returns-editor"
 "https://github.com/nwg-piotr/EistReturns/raw/master/arch/eist-returns.desktop")
 md5sums=('af498fde15f95b7e46b412d9c03b7f3a'
          '5ce6928eb681ed62b1028b17f7f372b6'
@@ -21,8 +23,14 @@ package() {
  	 "$pkgdir"/usr/share/java/eist-returns/eist-returns.jar
  	install -D -m 755 eist-returns.desktop \
  	 "$pkgdir"/usr/share/applications/eist-returns.desktop
+ 	install -D -m 755 eist-editor.desktop \
+     "$pkgdir"/usr/share/applications/eist-editor.desktop
 	install -D -m 755 eist-returns \
  	 "$pkgdir"/usr/bin/eist-returns
+ 	install -D -m 755 eist-returns-editor \
+      "$pkgdir"/usr/bin/eist-returns-editor
  	install -D -m 644 eist-returns.png \
- 	 "$pkgdir"/usr/share/eist-returns/eist-returns.png
+ 	 "$pkgdir"/usr/share/eist-returns/eist-editor.png
+ 	install -D -m 644 eist-returns.png \
+     "$pkgdir"/usr/share/eist-returns/eist-editor.png
 }
