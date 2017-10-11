@@ -3637,6 +3637,7 @@ abstract class Utils extends Application {
         buttonImport.setOnAction(e -> {
             stage.close();
             importLevelsFromZip(mGameStage);
+            loadLevel(0);
         });
 
         final Button buttonRestore = new Button();
@@ -3655,6 +3656,7 @@ abstract class Utils extends Application {
         buttonRestore.setOnAction(e -> {
             stage.close();
             displayClearAllUserLevelsDialog(mGameStage);
+            loadLevel(0);
         });
 
         buttonsBox.getChildren().add(hint);
@@ -3672,7 +3674,8 @@ abstract class Utils extends Application {
 
     private void clearScores(){
         prefs.putInt("level", 1);
-        prefs.putInt("achieved", 0);
+        prefs.putInt("achieved", 1);
+        mSelectedLevel = 1;
         for(int i = 1; i < 41; i++){
             prefs.putInt(lvlToString(i) + "best", 0);
         }

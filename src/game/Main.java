@@ -561,7 +561,7 @@ public class Main extends Utils {
                     mCurrentLevel = 0;
                 }
 
-                if (mCurrentLevel > mAchievedLevel) {
+                if (mCurrentLevel > mAchievedLevel && !mDevMode) {
                     prefs.putInt("achieved", mCurrentLevel);
                 }
                 prefs.putInt("level", mCurrentLevel);
