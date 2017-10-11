@@ -6,13 +6,16 @@ import javafx.animation.Timeline;
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.concurrent.Task;
+import javafx.geometry.Insets;
 import javafx.geometry.Point2D;
 import javafx.geometry.Pos;
 import javafx.geometry.Rectangle2D;
 import javafx.scene.Group;
+import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import javafx.scene.image.PixelReader;
 import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
@@ -57,6 +60,8 @@ import java.util.prefs.Preferences;
 import static javafx.scene.layout.BackgroundSize.AUTO;
 
 abstract class Utils extends Application {
+
+    boolean mDevMode = false;
 
     double mSceneWidth;
     double mSceneHeight;
@@ -368,7 +373,6 @@ abstract class Utils extends Application {
                         if (toolbar.getSelection() != null) {
                             prefs.putInt("sel", toolbar.getSelection());
                         }
-                        //toolbar.setSelection(null);
                     }
 
                 } else {
@@ -538,9 +542,11 @@ abstract class Utils extends Application {
                  * Handle intro menu clicks
                  */
                 if (mButtonLevelUp.contains(pointClicked)) {
-                    if (mSelectedLevel < mAchievedLevel && mSelectedLevel < MAX_LEVEL) {
-                        mSelectedLevel++;
-                        prefs.putInt("level", mSelectedLevel);
+                    if (mSelectedLevel < mAchievedLevel || mDevMode) {
+                        if(mSelectedLevel < MAX_LEVEL) {
+                            mSelectedLevel++;
+                            prefs.putInt("level", mSelectedLevel);
+                        }
                     }
                 } else if (mButtonLevelDown.contains(pointClicked)) {
                     if (mSelectedLevel > 1) {
@@ -2240,6 +2246,7 @@ abstract class Utils extends Application {
                     if (infoFile.delete()) {
                         System.out.println("Info file deleted");
                     }
+                    clearScores();
                     Toast.makeText(stage, "User levels cleared", TOAST_LENGTH_SHORT);
                     if(mGameStage != null){
                         mGameStage.setTitle("Eist returns: default");
@@ -2253,6 +2260,72 @@ abstract class Utils extends Application {
             Toast.makeText(stage, "No user-defined levels found", TOAST_LENGTH_SHORT);
         }
 
+    }
+
+    /**
+     * This is for testing purposes, to allow the developer select any level to play
+     */
+    private void displayDevKeyDialog() {
+
+        Dialog<String> dialog = new Dialog<>();
+        dialog.setTitle("Developer mode");
+        dialog.setHeaderText("Enter developer key");
+        dialog.initOwner(mGameStage);
+        dialog.setGraphic(new ImageView(ClassLoader.getSystemResource("images/common/lockpad.png").toExternalForm()));
+
+        ButtonType loginButtonType = new ButtonType("Enter", ButtonData.OK_DONE);
+        dialog.getDialogPane().getButtonTypes().addAll(loginButtonType, ButtonType.CANCEL);
+
+        GridPane grid = new GridPane();
+        grid.setHgap(10);
+        grid.setVgap(10);
+        grid.setPadding(new Insets(20, 150, 10, 20));
+
+        PasswordField password = new PasswordField();
+        password.setPromptText("Key");
+
+        grid.add(new Label("Key:"), 0, 1);
+        grid.add(password, 1, 1);
+
+        Node loginButton = dialog.getDialogPane().lookupButton(loginButtonType);
+        loginButton.setDisable(true);
+
+        password.textProperty().addListener((observable, oldValue, newValue) -> {
+            loginButton.setDisable(newValue.trim().isEmpty());
+        });
+
+        dialog.getDialogPane().setContent(grid);
+
+        Platform.runLater(password::requestFocus);
+
+        dialog.setResultConverter(dialogButton -> {
+            if (dialogButton == loginButtonType) {
+                return password.getText();
+            }
+            return null;
+        });
+
+        Optional<String> result = dialog.showAndWait();
+
+        result.ifPresent(usernamePassword -> {
+            /*
+             * Encode your own key and place below
+             */
+            byte[] asBytes = Base64.getDecoder().decode("QXJjaA==");
+            String pass = "";
+            try{
+                pass = new String(asBytes, "utf-8");
+            } catch (UnsupportedEncodingException e){
+                e.printStackTrace();
+            }
+            if(result.get().equals(pass)){
+                mDevMode = true;
+                Toast.makeText(mGameStage, "Developer mode on", TOAST_LENGTH_SHORT);
+            } else {
+                mDevMode = false;
+                Toast.makeText(mGameStage, "Key invalid", TOAST_LENGTH_SHORT);
+            }
+        });
     }
 
     private void importLevelsFromZip(Stage stage) {
@@ -2289,6 +2362,8 @@ abstract class Utils extends Application {
                 if (mEditorStage != null) {
                     mEditorStage.setTitle("Level editor: " + info);
                 }
+
+                clearScores();
 
             } catch (IOException e) {
                 e.printStackTrace();
@@ -3484,6 +3559,10 @@ abstract class Utils extends Application {
                 case ESCAPE:
                     stage.close();
                     break;
+                case D:
+                    stage.close();
+                    displayDevKeyDialog();
+                    break;
                 default:
                     break;
             }
@@ -3589,6 +3668,13 @@ abstract class Utils extends Application {
         root.getChildren().add(buttonsBox);
 
         stage.show();
+    }
 
+    private void clearScores(){
+        prefs.putInt("level", 1);
+        prefs.putInt("achieved", 0);
+        for(int i = 1; i < 41; i++){
+            prefs.putInt(lvlToString(i) + "best", 0);
+        }
     }
 }
