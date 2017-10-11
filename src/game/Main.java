@@ -2,9 +2,6 @@ package game;
 
 import javafx.animation.AnimationTimer;
 import javafx.application.Platform;
-import javafx.beans.value.ChangeListener;
-import javafx.beans.value.ObservableValue;
-import javafx.event.EventHandler;
 import javafx.geometry.Point2D;
 import javafx.geometry.Rectangle2D;
 import javafx.scene.Group;
@@ -28,7 +25,6 @@ import game.Sprites.Ladder;
 import game.Sprites.Slot;
 import game.Sprites.Exit;
 import game.Sprites.Pad;
-import javafx.stage.WindowEvent;
 
 public class Main extends Utils {
 
@@ -71,14 +67,11 @@ public class Main extends Utils {
         mGameStage.setScene(mScene);
 
 
-        mGameStage.setOnCloseRequest(new EventHandler<WindowEvent>() {
-            @Override
-            public void handle(WindowEvent event) {
-                System.out.println("Window close requested");
-                event.consume();
-                mGameStage.close();
-                Platform.exit();
-            }
+        mGameStage.setOnCloseRequest(event -> {
+            System.out.println("Window close requested");
+            event.consume();
+            mGameStage.close();
+            Platform.exit();
         });
 
         Canvas canvas = new Canvas(mSceneWidth, mSceneHeight);
@@ -189,39 +182,35 @@ public class Main extends Utils {
          * Handle the game window minimization:
          * Stop animation timer, pause and media player / start animation, resume sound when restored.
          */
-        mGameStage.iconifiedProperty().addListener(new ChangeListener<Boolean>() {
+        mGameStage.iconifiedProperty().addListener((ov, t, t1) -> {
 
-            @Override
-            public void changed(ObservableValue<? extends Boolean> ov, Boolean t, Boolean t1) {
+            if(t1){
 
-                if(t1){
-
-                    if(trackMainPlayer != null) {
-                        boolean playing = trackMainPlayer.getStatus().equals(MediaPlayer.Status.PLAYING);
-                        mTrackMainWasPlaying = playing;
-                        if(playing) {
-                            trackMainPlayer.pause();
-                        }
+                if(trackMainPlayer != null) {
+                    boolean playing = trackMainPlayer.getStatus().equals(MediaPlayer.Status.PLAYING);
+                    mTrackMainWasPlaying = playing;
+                    if(playing) {
+                        trackMainPlayer.pause();
                     }
-                    if(trackLevelPlayer != null) {
-                        boolean playing = trackLevelPlayer.getStatus().equals(MediaPlayer.Status.PLAYING);
-                        mTrackLevelWasPlaying = playing;
-                        if(playing) {
-                            trackLevelPlayer.pause();
-                        }
-                    }
-                    animationTimer.stop();
-
-                } else {
-
-                    if (mTrackMainWasPlaying) {
-                        trackMainPlayer.play();
-                    }
-                    if (mTrackLevelWasPlaying) {
-                        trackLevelPlayer.play();
-                    }
-                    animationTimer.start();
                 }
+                if(trackLevelPlayer != null) {
+                    boolean playing = trackLevelPlayer.getStatus().equals(MediaPlayer.Status.PLAYING);
+                    mTrackLevelWasPlaying = playing;
+                    if(playing) {
+                        trackLevelPlayer.pause();
+                    }
+                }
+                animationTimer.stop();
+
+            } else {
+
+                if (mTrackMainWasPlaying) {
+                    trackMainPlayer.play();
+                }
+                if (mTrackLevelWasPlaying) {
+                    trackLevelPlayer.play();
+                }
+                animationTimer.start();
             }
         });
 

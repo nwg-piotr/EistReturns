@@ -47,8 +47,6 @@ import game.ZipUtils.*;
 
 import java.io.*;
 
-import java.net.URISyntaxException;
-import java.net.URL;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.text.DateFormat;
@@ -65,10 +63,6 @@ abstract class Utils extends Application {
     private double mCenterX;
     double walkingSpeedPerSecond;
 
-    double mSplashWidth;
-    double mSplashHeight;
-    double mSplashCenterX;
-
     int mCurrentLevel = 0;
     int mSelectedLevel = 1;
     int mAchievedLevel = 0;
@@ -79,7 +73,7 @@ abstract class Utils extends Application {
     boolean mGameFinished = false;
 
     double mDimensionDivider;
-    double rem;
+    private double rem;
 
     int mCurrentEistFrame = 0;
     int mCurrentArtifactFrame = 0;
@@ -149,7 +143,7 @@ abstract class Utils extends Application {
     Font infoFont;
     Font messageFont;
     Font turnsFont;
-    Font menuFont;
+    private Font menuFont;
 
     /**
      * The Frame is a rectangular part of the game board of width of 2 columns and height of 2 rows.
@@ -158,7 +152,7 @@ abstract class Utils extends Application {
     double mFrameDimension;
     double mGridDimension;
     double mHalfGridDimension;
-    double mButtonWidth;
+    private double mButtonWidth;
     int mDetectionOffset;
     double mRotationRadius;
 
@@ -217,17 +211,6 @@ abstract class Utils extends Application {
      */
     double[] rows = new double[19];
     double[] columns = new double[33];
-
-    void setSplash() {
-        prefs = Preferences.userNodeForPackage(Main.class);
-        mDimensionDivider = prefs.getDouble("divider", 1.5);
-        Rectangle2D primaryScreenBounds = Screen.getPrimary().getVisualBounds();
-        mSceneWidth = primaryScreenBounds.getWidth() / mDimensionDivider;
-        mSplashWidth = mSceneWidth / 2;
-        mSplashHeight = (mSplashWidth / 8) * 5;
-        mSplashCenterX = mSplashWidth / 2;
-
-    }
 
     void setBoard() {
 
@@ -630,17 +613,13 @@ abstract class Utils extends Application {
     Image mIntro04;
     private Image mIntroFinished;
 
-    BackgroundImage mButtonImage;
-    Background mButtonBackground;
+    private Background mButtonBackground;
 
     Image mMutedMusicImg;
     Image mMutedSoundImg;
 
     void initializeFonts(){
-        //infoFont = Font.font("SansSerif", FontWeight.NORMAL, 60 / mDimensionDivider * rem);
-        //levelFont = Font.font("SansSerif", FontWeight.NORMAL, 48 / mDimensionDivider * rem);
-        //turnsFont = Font.font("SansSerif", FontWeight.NORMAL, 30 / mDimensionDivider * rem);
-        //messageFont = Font.font("SansSerif", FontWeight.NORMAL, 22 / mDimensionDivider * rem);
+
         infoFont = Font.loadFont(ClassLoader.getSystemResource("Orbitron-Regular.ttf").toExternalForm(), 50 / mDimensionDivider * rem);
         levelFont = Font.loadFont(ClassLoader.getSystemResource("Orbitron-Regular.ttf").toExternalForm(), 44 / mDimensionDivider * rem);
         turnsFont = Font.loadFont(ClassLoader.getSystemResource("Orbitron-Regular.ttf").toExternalForm(), 36 / mDimensionDivider * rem);
@@ -734,7 +713,7 @@ abstract class Utils extends Application {
         mMutedMusicImg = new Image(ClassLoader.getSystemResource("images/common/muted_music.png").toExternalForm());
         mMutedSoundImg = new Image(ClassLoader.getSystemResource("images/common/muted_sound.png").toExternalForm());
 
-        mButtonImage = new BackgroundImage( new Image( ClassLoader.getSystemResource("images/common/menu_button.png").toExternalForm()),
+        BackgroundImage mButtonImage = new BackgroundImage( new Image( ClassLoader.getSystemResource("images/common/menu_button.png").toExternalForm()),
                 BackgroundRepeat.NO_REPEAT, BackgroundRepeat.NO_REPEAT, BackgroundPosition.DEFAULT,
                 new BackgroundSize(AUTO, AUTO, true, true, true, false));
         mButtonBackground = new Background(mButtonImage);
@@ -2038,10 +2017,6 @@ abstract class Utils extends Application {
         mErrorAlert.showAndWait();
     }
 
-    private void displayExceptionAlert(Exception e) {
-        displayExceptionAlert(null, e);
-    }
-
     private void displayMissingUserFiles(String content) {
 
         Alert alert = new Alert(Alert.AlertType.ERROR);
@@ -3342,7 +3317,7 @@ abstract class Utils extends Application {
         buttonExit.setText("Exit editor");
 
         buttonExit.addEventHandler(MouseEvent.MOUSE_ENTERED,
-                e -> hint.setText("Closes this level editor"));
+                e -> hint.setText("Closes the level editor"));
 
         buttonExit.addEventHandler(MouseEvent.MOUSE_EXITED,
                 e -> hint.setText("Select action below:"));

@@ -3,9 +3,6 @@ package game;
 import game.Sprites.*;
 import javafx.animation.AnimationTimer;
 import javafx.application.Platform;
-import javafx.beans.value.ChangeListener;
-import javafx.beans.value.ObservableValue;
-import javafx.event.EventHandler;
 import javafx.geometry.Point2D;
 import javafx.geometry.Rectangle2D;
 import javafx.scene.Group;
@@ -16,9 +13,7 @@ import javafx.scene.image.Image;
 import javafx.scene.media.MediaPlayer;
 import javafx.scene.paint.Color;
 import javafx.scene.transform.Rotate;
-import javafx.stage.Modality;
 import javafx.stage.Stage;
-import javafx.stage.WindowEvent;
 
 import java.io.File;
 
@@ -76,14 +71,11 @@ public class Editor extends Utils {
         mEditorScene = new Scene(root, mSceneWidth, mSceneHeight);
         mEditorStage.setScene(mEditorScene);
 
-        mEditorStage.setOnCloseRequest(new EventHandler<WindowEvent>() {
-            @Override
-            public void handle(WindowEvent event) {
-                System.out.println("Window close requested");
-                event.consume();
-                mEditorStage.close();
-                Platform.exit();
-            }
+        mEditorStage.setOnCloseRequest(event -> {
+            System.out.println("Window close requested");
+            event.consume();
+            mEditorStage.close();
+            Platform.exit();
         });
 
         Canvas canvas = new Canvas(mSceneWidth, mSceneHeight);
@@ -226,39 +218,35 @@ public class Editor extends Utils {
          * Handle the game window minimization:
          * Stop animation timer, pause and media player / start animation, resume sound when restored.
          */
-        mEditorStage.iconifiedProperty().addListener(new ChangeListener<Boolean>() {
+        mEditorStage.iconifiedProperty().addListener((ov, t, t1) -> {
 
-            @Override
-            public void changed(ObservableValue<? extends Boolean> ov, Boolean t, Boolean t1) {
+            if (t1) {
 
-                if (t1) {
-
-                    if (trackMainPlayer != null) {
-                        boolean playing = trackMainPlayer.getStatus().equals(MediaPlayer.Status.PLAYING);
-                        mTrackMainWasPlaying = playing;
-                        if (playing) {
-                            trackMainPlayer.pause();
-                        }
+                if (trackMainPlayer != null) {
+                    boolean playing = trackMainPlayer.getStatus().equals(MediaPlayer.Status.PLAYING);
+                    mTrackMainWasPlaying = playing;
+                    if (playing) {
+                        trackMainPlayer.pause();
                     }
-                    if (trackLevelPlayer != null) {
-                        boolean playing = trackLevelPlayer.getStatus().equals(MediaPlayer.Status.PLAYING);
-                        mTrackLevelWasPlaying = playing;
-                        if (playing) {
-                            trackLevelPlayer.pause();
-                        }
-                    }
-                    animationTimer.stop();
-
-                } else {
-
-                    if (mTrackMainWasPlaying) {
-                        trackMainPlayer.play();
-                    }
-                    if (mTrackLevelWasPlaying) {
-                        trackLevelPlayer.play();
-                    }
-                    animationTimer.start();
                 }
+                if (trackLevelPlayer != null) {
+                    boolean playing = trackLevelPlayer.getStatus().equals(MediaPlayer.Status.PLAYING);
+                    mTrackLevelWasPlaying = playing;
+                    if (playing) {
+                        trackLevelPlayer.pause();
+                    }
+                }
+                animationTimer.stop();
+
+            } else {
+
+                if (mTrackMainWasPlaying) {
+                    trackMainPlayer.play();
+                }
+                if (mTrackLevelWasPlaying) {
+                    trackLevelPlayer.play();
+                }
+                animationTimer.start();
             }
         });
 
