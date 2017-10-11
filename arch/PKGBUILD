@@ -14,13 +14,13 @@ source=("https://github.com/nwg-piotr/EistReturns/raw/master/arch/eist-returns.j
 "https://github.com/nwg-piotr/EistReturns/raw/master/arch/eist-returns-editor"
 "https://github.com/nwg-piotr/EistReturns/raw/master/arch/eist-returns.desktop"
 "https://github.com/nwg-piotr/EistReturns/raw/master/arch/eist-editor.desktop")
-md5sums=('ba6f7b6827580bf6ca84d23d07979faa'
+md5sums=('069e2676a738d3e50d648588d4394c0b'
          '5ce6928eb681ed62b1028b17f7f372b6'
-         '030eac14f22e1aab5536f39c5e0fd8fe'
+         'b2f83dfbb34128f472d213b17e9c3799'
          'bd051e745cca93a3b94e345c5b2b91bc'
          '383df4312ae0ecc349de9497f7e5223e'
-         'f5d2e0cab50fff7ec5633c4f3f289085'
-         'e93ae8def2b1e1cb734546dbcca3fe72')
+         '06bebf78490e6320806174e783b0d2d5'
+         '774301279c5650008231c44da461fc41')
 
 
 package() {
