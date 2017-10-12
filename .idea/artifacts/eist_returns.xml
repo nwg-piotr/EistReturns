@@ -4,12 +4,12 @@
     <properties id="javafx-properties">
       <options>
         <option name="appClass" value="game.Start" />
-        <option name="description" value="arcade-puzzle game" />
+        <option name="description" value="Arcade-puzzle game" />
         <option name="height" value="720" />
         <option name="htmlPlaceholderId" value="" />
         <option name="title" value="Eist Returns" />
         <option name="vendor" value="nwg" />
-        <option name="version" value="0.0.1" />
+        <option name="version" value="0.0.7-1" />
         <option name="width" value="1280" />
       </options>
     </properties>

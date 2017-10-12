@@ -7,7 +7,7 @@ import javafx.application.Platform;
 public class Start {
 
     public static void main(String[] args) {
-        System.out.println("eist-returns.jar {-E --edit} runs the Level Editor");
+        System.out.println("eist-returns {-E --edit} runs the Level Editor");
 
         if(args.length > 0) {
             String arg = args[0].trim().toUpperCase();

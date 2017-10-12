@@ -629,7 +629,7 @@ abstract class Utils extends Application {
         infoFont = Font.loadFont(ClassLoader.getSystemResource("Orbitron-Regular.ttf").toExternalForm(), 50 / mDimensionDivider * rem);
         levelFont = Font.loadFont(ClassLoader.getSystemResource("Orbitron-Regular.ttf").toExternalForm(), 44 / mDimensionDivider * rem);
         turnsFont = Font.loadFont(ClassLoader.getSystemResource("Orbitron-Regular.ttf").toExternalForm(), 36 / mDimensionDivider * rem);
-        messageFont = Font.loadFont(ClassLoader.getSystemResource("Orbitron-Regular.ttf").toExternalForm(), 22 / mDimensionDivider * rem);
+        messageFont = Font.loadFont(ClassLoader.getSystemResource("Orbitron-Regular.ttf").toExternalForm(), 20 / mDimensionDivider * rem);
         menuFont = Font.loadFont(ClassLoader.getSystemResource("Orbitron-Regular.ttf").toExternalForm(), 20 / mDimensionDivider * rem);
     }
 
@@ -638,7 +638,6 @@ abstract class Utils extends Application {
         /*
          * Load media
          */
-
         try {
             trackMainPlayer = new MediaPlayer(new Media(ClassLoader.getSystemResource("sounds/eist.mp3").toExternalForm()));
             trackMainPlayer.setVolume(0.4);
@@ -2797,7 +2796,7 @@ abstract class Utils extends Application {
         }
     }
 
-    private void saveEditor() {
+    private void saveEditor(boolean toast) {
         StringBuilder content = new StringBuilder();
         if (mArrows != null && mArrows.size() > 0) {
             for (Arrow arrow : mArrows) {
@@ -2914,10 +2913,18 @@ abstract class Utils extends Application {
             }
         }
         if (teleportsOK) {
-            Toast.makeText(mEditorStage, "Editor saved", TOAST_LENGTH_SHORT);
+            if(toast){
+                Toast.makeText(mEditorStage, "Editor saved", TOAST_LENGTH_SHORT);
+            }
         } else {
-            Toast.makeText(mEditorStage, "Editor saved (teleports skipped - pair not found)", TOAST_LENGTH_SHORT);
+            if(toast){
+                Toast.makeText(mEditorStage, "Editor saved (teleports skipped - pair not found)", TOAST_LENGTH_SHORT);
+            }
         }
+    }
+
+    private void saveEditor() {
+        saveEditor(false);
     }
 
     private void saveToDatFile(String filename, String content) {
@@ -3035,7 +3042,7 @@ abstract class Utils extends Application {
 
         mSaveButton.addEventHandler(MouseEvent.MOUSE_EXITED,
                 e -> mMenuHint = "");
-        mSaveButton.setOnAction(e -> saveEditor());
+        mSaveButton.setOnAction(e -> saveEditor(true));
 
         mSaveAsButton = new Button();
         mSaveAsButton.setOpacity(0);
@@ -3352,7 +3359,7 @@ abstract class Utils extends Application {
 
         stage.setTitle("Tools");
         stage.setWidth(mEditorStage.getWidth() / 3);
-        stage.setHeight(mEditorStage.getHeight() * 0.7);
+        stage.setHeight(mEditorStage.getHeight() * 0.8);
 
         Text hint = new Text();
         hint.setFont(messageFont);
@@ -3513,6 +3520,24 @@ abstract class Utils extends Application {
             }
         });
 
+        final Button buttonUpload = new Button();
+        buttonUpload.setFont(menuFont);
+        buttonUpload.setStyle("-fx-text-fill: white;");
+        buttonUpload.setBackground(mButtonBackground);
+        buttonUpload.setMinWidth(mButtonWidth);
+        buttonUpload.setMinHeight(mGridDimension);
+        buttonUpload.setText("Upload a bitmap");
+
+        buttonUpload.addEventHandler(MouseEvent.MOUSE_ENTERED,
+                e -> hint.setText("Uploads external bitmap to the editor"));
+
+        buttonUpload.addEventHandler(MouseEvent.MOUSE_EXITED,
+                e -> hint.setText("Select action below:"));
+        buttonUpload.setOnAction(e -> {
+            stage.close();
+            uploadBitmap();
+        });
+
         buttonsBox.getChildren().add(hint);
 
         buttonsBox.getChildren().add(buttonExit);
@@ -3521,6 +3546,7 @@ abstract class Utils extends Application {
         buttonsBox.getChildren().add(button4);
         buttonsBox.getChildren().add(button5);
         buttonsBox.getChildren().add(buttonName);
+        buttonsBox.getChildren().add(buttonUpload);
         buttonsBox.getChildren().add(buttonClose);
 
         root.getChildren().add(buttonsBox);
@@ -3679,5 +3705,53 @@ abstract class Utils extends Application {
         for(int i = 1; i < 41; i++){
             prefs.putInt(lvlToString(i) + "best", 0);
         }
+    }
+
+    private void uploadBitmap(){
+
+        FileChooser fileChooser = new FileChooser();
+        fileChooser.setTitle("Select a picture to upload");
+        String initialDir = prefs.get("importPath", "");
+        if (!initialDir.isEmpty() && new File(initialDir).exists()) {
+            fileChooser.setInitialDirectory(new File(initialDir));
+        } else {
+            fileChooser.setInitialDirectory(new File(System.getProperty("user.home")));
+        }
+
+        fileChooser.getExtensionFilters().addAll(
+                new FileChooser.ExtensionFilter("png files", "amulet.png", "board.png", "door_h.png",
+                        "door_v.png", "exit_closed.png", "exit_open.png", "key.png", "ladder_h.png", "ladder_v.png", "ornament.png"));
+
+        File selectedFile = fileChooser.showOpenDialog(mEditorStage);
+
+        if (selectedFile != null) {
+
+            prefs.put("importPath", selectedFile.toString().split(selectedFile.getName())[0]);
+
+            Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+            alert.setTitle("File upload");
+            alert.setHeaderText("Replacing the '" + selectedFile.getName() + "' file");
+            alert.setContentText("Are you sure?");
+
+            Optional<ButtonType> result = alert.showAndWait();
+            if (result.isPresent() && result.get() == ButtonType.OK){
+
+                try {
+                    saveEditor();
+                    copyFile(selectedFile, new File(System.getProperty("user.home") + "/.EistReturns/levels/editor-data/" + selectedFile.getName()));
+                    Toast.makeText(mEditorStage, "File " + selectedFile.getName() + " uploaded", TOAST_LENGTH_SHORT);
+                    loadEditor();
+
+                } catch(IOException e){
+                    displayExceptionAlert("Error uploading file", e);
+                }
+
+            }
+
+
+        } else {
+            Toast.makeText(mEditorStage, "No file selected", TOAST_LENGTH_SHORT);
+        }
+
     }
 }

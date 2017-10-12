@@ -620,7 +620,7 @@ public class Editor extends Utils {
 
 
         // Detect black pixel below
-        if (mCurrentFallingFrame == null) {
+        if (mTesting && mCurrentFallingFrame == null) {
             try {
 
                 boolean leftOut = pixelReader.getArgb(eist.detectionPoint1X, eist.detectionPoint1Y) == -16777216;
