@@ -2067,8 +2067,7 @@ abstract class Utils extends Application {
                 "\n\nThe game was created with the following software:" +
                 "\nGraphics: Inkscape, GIMP" +
                 "\nSounds: LMMS, Audacity" +
-                "\nIDE: IntelliJ IDEA Community Edition" +
-                "\nSystem: Manjaro Linux, Antergos Linux";
+                "\nIDE: IntelliJ IDEA Community Edition";
 
         TextArea textArea = new TextArea(message);
         textArea.setEditable(false);
