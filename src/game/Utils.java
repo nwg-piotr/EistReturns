@@ -1692,8 +1692,12 @@ abstract class Utils extends Application {
         double nearest_left = ((int) (touch_x / mGridDimension)) * mGridDimension;
         double nearest_top = ((int) (touch_y / mGridDimension)) * mGridDimension;
 
-        nearest_left = nearest_left - mGridDimension;
-        nearest_top = nearest_top - mGridDimension;
+        if(touch_x - nearest_left < mHalfGridDimension) {
+            nearest_left = nearest_left - mGridDimension;
+        }
+        if(touch_y - nearest_top < mHalfGridDimension) {
+            nearest_top = nearest_top - mGridDimension;
+        }
 
         try {
 
