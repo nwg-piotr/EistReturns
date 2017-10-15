@@ -13,9 +13,10 @@ Installation
 
 Please install the **eist-returns** package from the AUR. Also the PKGBUILD file in the 
 [arch](https://github.com/nwg-piotr/EistReturns/tree/master/arch) directory is always up to date. 
+
 Two separate shortcuts will be created: `Eist returns` for the game, and `Eist Editor` for the Level Editor.
 
-To launch from the command, line just type `eist-returns` for the game, and `eist-returns - E | --edit` for the editor.
+To launch from the command, line just type `eist-returns` for the game, and `eist-returns -E | --edit` for the editor.
 
 **Windows**
 
