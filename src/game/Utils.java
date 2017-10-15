@@ -3564,6 +3564,7 @@ abstract class Utils extends Application {
         stage.initOwner(mGameStage);
         stage.setResizable(false);
         stage.initStyle(StageStyle.TRANSPARENT);
+        stage.initModality(Modality.WINDOW_MODAL);
 
         stage.setTitle("Tools");
         stage.setWidth(mGameStage.getWidth() / 3);
