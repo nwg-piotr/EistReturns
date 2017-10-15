@@ -14,20 +14,13 @@ To **launch the level editor**, add the `-E` or `--edit` argument to the command
 Installation
 ===============
 
+**Arch / Arch-based Linux**
+
+Please install the **eist-returns** package from the AUR. Also the PKGBUILD file in the 
+[arch](https://github.com/nwg-piotr/EistReturns/tree/master/arch) directory is always up to date.
+
 **Windows**
 
 Download [eist-returns.exe](https://github.com/nwg-piotr/EistReturns/raw/master/windows/eist-returns.exe) file,
 move anywhere, double click to run. If your computer has no Java Runtime Environment installed, 
 you’ll be asked to download and install it from Oracle.
-
-**Arch / Arch-based Linux**
-
-Download the latest package from the [arch directory](https://github.com/nwg-piotr/EistReturns/tree/master/arch)
-
-Open Terminal, navigate to Downloads folder and install:
-
-`sudo pacman -U eist-returns-0.0.x-x-x86_64.pkg.tar`
-
-Replace `0.0.x.x` with corresponding numbers from the file you've just downloaded.
-
-The game was tested with vanilla Arch, Antergos and Manjaro Linux.
