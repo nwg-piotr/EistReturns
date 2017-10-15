@@ -6,11 +6,6 @@ and then given it the 2nd life a year ago on [Android devices](https://play.goog
 This project is my sandbox to learn some JavaFX. Come and join if you liked some of the previous 
 versions.
 
-Although I'm still working on some new features, as e.g. the level editor, 
-the game should be fully playable, and not buggy too much.
-
-To **launch the level editor**, add the `-E` or `--edit` argument to the command line.
-
 Installation
 ===============
 
