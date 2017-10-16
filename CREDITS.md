@@ -1,3 +1,6 @@
+Credits
+---
+
 ## Software
 
 - [Inkscape 0.92](http://www.inkscape.org)
@@ -7,7 +10,7 @@
 - [Manjaro Linux](https://manjaro.org)
 - [Antergos Linux](https://antergos.com)
 
-Special thanks to the [Antergos Community Forum](https://forum.antergos.com) team, who helped me to set up the 
+Special thanks to the [Antergos Community Forum](https://forum.antergos.com) team, who helped me set up the 
 development and testing environment.
 
 ## Fonts
