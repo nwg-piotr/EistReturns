@@ -25,7 +25,7 @@ Sorry if I happened to forget someone - thanks anyway!
 
 ## Hardware
 
-Many thanks to Jarosław Jeżowski, who lent me his Atari 65XE in mint condition. It allowed me 
+Many thanks to Jarosław Jeżowski, who lent me his Atari 65XE in excellent condition. It allowed me 
 to launch 25 years old floppies once again(!)
 
 ![Atari](http://nwg.pl/eist/wiki/atari.jpg)
