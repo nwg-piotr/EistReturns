@@ -20,8 +20,8 @@ To launch from the command, line just type `eist-returns` for the game, and `eis
 
 **Windows** (new executables coming soon)
 
-~~Download [eist-returns.exe](https://github.com/nwg-piotr/EistReturns/raw/master/windows/eist-returns.exe) file,
+Download [eist-returns.exe](https://github.com/nwg-piotr/EistReturns/raw/master/windows/eist-returns.exe) file,
 move anywhere, double click to run. If your computer has no Java Runtime Environment installed, 
-you’ll be asked to download and install it from Oracle.~~
+you’ll be asked to download and install it from Oracle. For the Level editor please use the [eist-editor.exe](https://github.com/nwg-piotr/EistReturns/raw/master/windows/eist-editor.exe) file.
 
 Check [wiki pages](https://github.com/nwg-piotr/EistReturns/wiki) to learn more.
