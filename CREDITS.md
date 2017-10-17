@@ -22,3 +22,10 @@ released under the [SIL OPEN FONT LICENSE Version 1.1](http://scripts.sil.org/cm
 
 While working on the code, I used numerous guides and snippets found on the web. Most of them were mentioned in comments. 
 Sorry if I happened to forget someone - thanks anyway!
+
+## Hardware
+
+Many thanks to Jarosław Jeżowski, who lent me his Atari 65XE in mint condition. It allowed me 
+to launch 25 years old floppies once again(!)
+
+![Atari](http://nwg.pl/eist/wiki/atari.jpg)
