@@ -764,7 +764,7 @@ abstract class Utils extends Application {
 
     void loadLevel(int level) {
 
-        System.out.println("\nLoading level " + level);
+        System.out.println("Loading level " + level);
 
         mEditor = false;
 
@@ -1613,7 +1613,6 @@ abstract class Utils extends Application {
         String output = null;
 
         if (inputStream == null) {
-            System.out.println("Couldn't read "+ urlString);
             return null;
 
         } else {
@@ -2067,7 +2066,8 @@ abstract class Utils extends Application {
                 "\n\nThe game was created with the following software:" +
                 "\nGraphics: Inkscape, GIMP" +
                 "\nSounds: LMMS, Audacity" +
-                "\nIDE: IntelliJ IDEA Community Edition";
+                "\nIDE: IntelliJ IDEA Community Edition\n" +
+                "\nOrbitron TrueType font, Copyright (c) 2009, Matt McInerney (matt@pixelspread.com), released under the SIL OPEN FONT LICENSE Version 1.1";
 
         TextArea textArea = new TextArea(message);
         textArea.setEditable(false);
@@ -2328,6 +2328,34 @@ abstract class Utils extends Application {
                 Toast.makeText(mGameStage, "Key invalid", TOAST_LENGTH_SHORT);
             }
         });
+    }
+
+    private void displayHighScores(){
+
+        StringBuilder scores = new StringBuilder();
+
+        for(int i = 1; i < MAX_LEVEL+1; i++){
+            String lvl = lvlToString(i);
+            int value = prefs.getInt(lvl + "best", 0);
+            if(value != 0){
+                scores.append("Level ");
+                scores.append(lvl);
+                scores.append(": ");
+                scores.append(value);
+                scores.append(" turns\n");
+            }
+        }
+        String result = scores.toString();
+        if(result.isEmpty()){
+            result = "No saved scores found";
+        }
+        Alert alert = new Alert(Alert.AlertType.INFORMATION);
+        alert.setTitle("High scores");
+        alert.setHeaderText("Saved results");
+        alert.setContentText(result);
+        alert.initOwner(mGameStage);
+
+        alert.showAndWait();
     }
 
     private void importLevelsFromZip(Stage stage) {
@@ -3568,7 +3596,7 @@ abstract class Utils extends Application {
 
         stage.setTitle("Tools");
         stage.setWidth(mGameStage.getWidth() / 3);
-        stage.setHeight(mGameStage.getHeight() * 0.5);
+        stage.setHeight(mGameStage.getHeight() * 0.7);
 
         Text hint = new Text();
         hint.setFont(messageFont);
@@ -3689,12 +3717,31 @@ abstract class Utils extends Application {
             loadLevel(0);
         });
 
+        final Button buttonScores = new Button();
+        buttonScores.setFont(menuFont);
+        buttonScores.setStyle("-fx-text-fill: white;");
+        buttonScores.setBackground(mButtonBackground);
+        buttonScores.setMinWidth(mButtonWidth);
+        buttonScores.setMinHeight(mGridDimension);
+        buttonScores.setText("High scores");
+
+        buttonScores.addEventHandler(MouseEvent.MOUSE_ENTERED,
+                e -> hint.setText("Displays levels best results"));
+
+        buttonScores.addEventHandler(MouseEvent.MOUSE_EXITED,
+                e -> hint.setText("Select action below:"));
+        buttonScores.setOnAction(e -> {
+            stage.close();
+            displayHighScores();
+        });
+
         buttonsBox.getChildren().add(hint);
 
         buttonsBox.getChildren().add(buttonFinish);
         buttonsBox.getChildren().add(buttonSize);
         buttonsBox.getChildren().add(buttonImport);
         buttonsBox.getChildren().add(buttonRestore);
+        buttonsBox.getChildren().add(buttonScores);
         buttonsBox.getChildren().add(buttonClose);
 
         root.getChildren().add(buttonsBox);
