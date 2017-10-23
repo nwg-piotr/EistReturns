@@ -152,6 +152,8 @@ abstract class Utils extends Application {
     Font playerFont;
     private Font menuFont;
 
+    String mHttpResponse;
+
     /**
      * The Frame is a rectangular part of the game board of width of 2 columns and height of 2 rows.
      * It corresponds to the width of the path on which Eist's sprite moves.
@@ -2392,7 +2394,6 @@ abstract class Utils extends Application {
                 }
             }
         }
-
     }
 
     private void displayLogInDialog(){
@@ -2448,40 +2449,53 @@ abstract class Utils extends Application {
 
         result.ifPresent(usernamePassword -> {
 
-            String player = usernamePassword.getKey();
-            String pass = encode(usernamePassword.getValue());
+            logIn(usernamePassword.getKey(), encode(usernamePassword.getValue()));
 
-            /*
-              temporarily - for testing purposes
-             */
-            String response = "";
+        });
+    }
+
+    private void logIn(String player, String pass){
+
+        mHttpResponse = "";
+
+        Thread thread = new Thread(() -> {
             try {
-                response = HttpURLConnection.sendGet("http://nwg.pl/eist/player.php?action=login&uname=" + player + "&upswd=" + pass);
+                mHttpResponse = HttpURLConnection.sendGet("http://nwg.pl/eist/player.php?action=login&uname=" + player + "&upswd=" + pass);
             }catch (Exception e){
-                e.printStackTrace();
+                Platform.runLater(() -> Toast.makeText(mGameStage, "Connection error: " + e, TOAST_LENGTH_LONG));
             }
-            if(!response.isEmpty()){
-                System.out.println(response);
-                if(response.startsWith("login_ok")){
+
+            if(!mHttpResponse.isEmpty()){
+
+                System.out.println(mHttpResponse);
+
+                if(mHttpResponse.startsWith("login_ok")){
                     mPlayer = player;
                     mPass = pass;
                     prefs.put("user", mPlayer);
                     prefs.put("pass", mPass);
-                    Toast.makeText(mGameStage, "Logged in as " + mPlayer, TOAST_LENGTH_SHORT);
+                    Platform.runLater(() -> Toast.makeText(mGameStage, "Logged in as " + mPlayer, TOAST_LENGTH_SHORT));
 
-                    /* todo compare to currently achieved level, update both online values if higher level stored locally; */
+                    /*
+                    compare to currently achieved level, update both online values if higher level stored locally
+                     */
+                    String[] userData = mHttpResponse.split(":");
+                        int level = Integer.valueOf(userData[1]);
+                        int turns = Integer.valueOf(userData[2]);
+                        System.out.println("User " + userData[0] + ": level " + level + ", turns " + turns);
 
                 } else {
-                    switch(response){
+
+                    switch(mHttpResponse){
                         case "wrong_pswd":
                             prefs.put("user", "");
                             prefs.put("pass", "");
-                            Toast.makeText(mGameStage, "Wrong password for player " + player, TOAST_LENGTH_LONG);
+                            Platform.runLater(() -> Toast.makeText(mGameStage, "Wrong password for player " + player, TOAST_LENGTH_LONG));
                             break;
                         case "no_such_player":
                             prefs.put("user", "");
                             prefs.put("pass", "");
-                            Toast.makeText(mGameStage, "Player " + player + " does not exist", TOAST_LENGTH_LONG);
+                            Platform.runLater(() -> Toast.makeText(mGameStage, "Player " + player + " does not exist", TOAST_LENGTH_LONG));
                             break;
                         default:
                             break;
@@ -2489,6 +2503,7 @@ abstract class Utils extends Application {
                 }
             }
         });
+        thread.start();
     }
 
     private String encode(String source){
