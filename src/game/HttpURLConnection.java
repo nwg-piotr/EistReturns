@@ -13,7 +13,7 @@ import javax.net.ssl.HttpsURLConnection;
 
 public class HttpURLConnection {
 
-    private static final String USER_AGENT = "Mozilla/5.0";
+    private static final String USER_AGENT = "Eist-TheGame";
 
     // HTTP GET request
     static String sendGet(String url) throws Exception {
