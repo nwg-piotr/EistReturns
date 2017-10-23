@@ -244,7 +244,7 @@ public class Main extends Utils {
             }
             String lvlNumberToString = (mSelectedLevel < 10) ? "0" + String.valueOf(mSelectedLevel) : String.valueOf(mSelectedLevel);
             gc.setFont(levelFont);
-            gc.fillText("LEVEL " + lvlNumberToString, columns[27], rows[2]);
+            gc.fillText("LEVEL " + lvlNumberToString, columns[27], rows[1] + mHalfGridDimension);
         } else {
 
             gc.drawImage(mBoardImg, 0, 0, mSceneWidth, mSceneHeight);
@@ -740,6 +740,15 @@ public class Main extends Utils {
         }
         if (mShowFps) {
             gc.fillText("FPS: " + String.valueOf((int) mFps), columns[27], rows[17]);
+        }
+        if(mCurrentLevel == 0) {
+            gc.setFill(Color.color(0, 1, 1, 1));
+            gc.setFont(playerFont);
+            if (!mPlayer.isEmpty()) {
+                gc.fillText("HoF: " + mPlayer, columns[27], rows[3] - mHalfGridDimension);
+            } else {
+                gc.fillText("HoF: offline", columns[27], rows[3] - mHalfGridDimension);
+            }
         }
     }
 

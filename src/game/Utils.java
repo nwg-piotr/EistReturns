@@ -47,6 +47,7 @@ import javafx.util.Duration;
 import javafx.scene.control.ButtonBar.ButtonData;
 
 import game.ZipUtils.*;
+import javafx.util.Pair;
 
 import java.io.*;
 
@@ -148,6 +149,7 @@ abstract class Utils extends Application {
     Font infoFont;
     Font messageFont;
     Font turnsFont;
+    Font playerFont;
     private Font menuFont;
 
     /**
@@ -197,6 +199,9 @@ abstract class Utils extends Application {
 
     String mMenuHint = "";
 
+    String mPlayer = "";
+    private String mPass = "";
+
     Preferences prefs;
 
     /**
@@ -228,6 +233,9 @@ abstract class Utils extends Application {
         mMuteSound = prefs.getBoolean("msound", false);
         mMuteMusic = prefs.getBoolean("mmusic", false);
         mDimensionDivider = prefs.getDouble("divider", 1.5);
+
+        mPlayer = prefs.get("user", "");
+        mPass = prefs.get("pass", "");
 
         /*
          * The dimensions of the Scene and the game board inside will derive from the users' screen width.
@@ -629,6 +637,7 @@ abstract class Utils extends Application {
         infoFont = Font.loadFont(ClassLoader.getSystemResource("Orbitron-Regular.ttf").toExternalForm(), 50 / mDimensionDivider * rem);
         levelFont = Font.loadFont(ClassLoader.getSystemResource("Orbitron-Regular.ttf").toExternalForm(), 44 / mDimensionDivider * rem);
         turnsFont = Font.loadFont(ClassLoader.getSystemResource("Orbitron-Regular.ttf").toExternalForm(), 36 / mDimensionDivider * rem);
+        playerFont = Font.loadFont(ClassLoader.getSystemResource("Orbitron-Regular.ttf").toExternalForm(), 24 / mDimensionDivider * rem);
         messageFont = Font.loadFont(ClassLoader.getSystemResource("Orbitron-Regular.ttf").toExternalForm(), 20 / mDimensionDivider * rem);
         menuFont = Font.loadFont(ClassLoader.getSystemResource("Orbitron-Regular.ttf").toExternalForm(), 20 / mDimensionDivider * rem);
     }
@@ -2313,13 +2322,8 @@ abstract class Utils extends Application {
             /*
              * Encode your own key and place below
              */
-            byte[] asBytes = Base64.getDecoder().decode("QXJjaA==");
-            String pass = "";
-            try{
-                pass = new String(asBytes, "utf-8");
-            } catch (UnsupportedEncodingException e){
-                e.printStackTrace();
-            }
+            String pass = decode("QXJjaA==");
+
             if(result.get().equals(pass)){
                 mDevMode = true;
                 Toast.makeText(mGameStage, "Developer mode on", TOAST_LENGTH_SHORT);
@@ -2356,6 +2360,153 @@ abstract class Utils extends Application {
         alert.initOwner(mGameStage);
 
         alert.showAndWait();
+    }
+
+    private void displayHallOfFame(){
+
+        if(mPlayer.isEmpty()){
+
+            displayLogInDialog();
+
+        } else {
+
+            Alert alert = new Alert(Alert.AlertType.INFORMATION);
+            alert.setTitle("Hall of Fame");
+            alert.setHeaderText("Best result scored so far");
+            alert.setContentText("Results 1\nResults 2\nResults 3\nResults 4\nResults 5\nResults 6\nResults 7\nResults 8\nResults 9\nResults 10");
+            alert.initOwner(mGameStage);
+
+            ButtonType buttonTypeOne = new ButtonType("Log out");
+            ButtonType buttonTypeCancel = new ButtonType("Close", ButtonData.CANCEL_CLOSE);
+
+            alert.getButtonTypes().setAll(buttonTypeOne, buttonTypeCancel);
+
+            Optional<ButtonType> result = alert.showAndWait();
+            if(result.isPresent()) {
+                if (result.get() == buttonTypeOne) {
+                    mPlayer = "";
+                    mPass = "";
+                    prefs.put("user", mPlayer);
+                    prefs.put("pass", mPass);
+                    Toast.makeText(mGameStage, "You have been logged out", TOAST_LENGTH_SHORT);
+                }
+            }
+        }
+
+    }
+
+    private void displayLogInDialog(){
+
+        Dialog<Pair<String, String>> dialog = new Dialog<>();
+        dialog.setTitle("User login");
+        dialog.setHeaderText("Login to the Hall Of Fame");
+        dialog.initOwner(mGameStage);
+
+        dialog.setGraphic(new ImageView(ClassLoader.getSystemResource("images/common/login.png").toExternalForm()));
+
+        ButtonType loginButtonType = new ButtonType("Login", ButtonData.OK_DONE);
+        dialog.getDialogPane().getButtonTypes().addAll(loginButtonType, ButtonType.CANCEL);
+
+        GridPane grid = new GridPane();
+        grid.setHgap(10);
+        grid.setVgap(10);
+        grid.setPadding(new Insets(20, 150, 10, 10));
+
+        TextField username = new TextField();
+        username.setPromptText("Username");
+        PasswordField password = new PasswordField();
+        password.setPromptText("Password");
+
+        grid.add(new Label("Username:"), 0, 0);
+        grid.add(username, 1, 0);
+        grid.add(new Label("Password:"), 0, 1);
+        grid.add(password, 1, 1);
+
+        Node loginButton = dialog.getDialogPane().lookupButton(loginButtonType);
+        loginButton.setDisable(true);
+
+        username.textProperty().addListener((observable, oldValue, newValue) -> {
+            loginButton.setDisable(newValue.trim().isEmpty() || password.getText().isEmpty());
+        });
+
+        password.textProperty().addListener((observable, oldValue, newValue) -> {
+            loginButton.setDisable(newValue.trim().length() < 6 || username.getText().isEmpty());
+        });
+
+        dialog.getDialogPane().setContent(grid);
+
+        Platform.runLater(username::requestFocus);
+
+        dialog.setResultConverter(dialogButton -> {
+            if (dialogButton == loginButtonType) {
+                return new Pair<>(username.getText(), password.getText());
+            }
+            return null;
+        });
+
+        Optional<Pair<String, String>> result = dialog.showAndWait();
+
+        result.ifPresent(usernamePassword -> {
+
+            String player = usernamePassword.getKey();
+            String pass = encode(usernamePassword.getValue());
+
+            /*
+              temporarily - for testing purposes
+             */
+            String response = "";
+            try {
+                response = HttpURLConnection.sendGet("http://nwg.pl/eist/player.php?action=login&uname=" + player + "&upswd=" + pass);
+            }catch (Exception e){
+                e.printStackTrace();
+            }
+            if(!response.isEmpty()){
+                System.out.println(response);
+                if(response.startsWith("login_ok")){
+                    mPlayer = player;
+                    mPass = pass;
+                    prefs.put("user", mPlayer);
+                    prefs.put("pass", mPass);
+                    Toast.makeText(mGameStage, "Logged in as " + mPlayer, TOAST_LENGTH_SHORT);
+
+                    /* todo compare to currently achieved level, update both online values if higher level stored locally; */
+
+                } else {
+                    switch(response){
+                        case "wrong_pswd":
+                            prefs.put("user", "");
+                            prefs.put("pass", "");
+                            Toast.makeText(mGameStage, "Wrong password for player " + player, TOAST_LENGTH_LONG);
+                            break;
+                        case "no_such_player":
+                            prefs.put("user", "");
+                            prefs.put("pass", "");
+                            Toast.makeText(mGameStage, "Player " + player + " does not exist", TOAST_LENGTH_LONG);
+                            break;
+                        default:
+                            break;
+                    }
+                }
+            }
+        });
+    }
+
+    private String encode(String source){
+
+        byte[] asBytes = Base64.getEncoder().encode(source.getBytes());
+        return new String(asBytes);
+    }
+
+    private String decode(String source){
+
+        byte[] asBytes = Base64.getDecoder().decode(source);
+        String pass = "";
+        try{
+            pass = new String(asBytes, "utf-8");
+        } catch (UnsupportedEncodingException e){
+            e.printStackTrace();
+        }
+        return pass;
     }
 
     private void importLevelsFromZip(Stage stage) {
@@ -3723,7 +3874,7 @@ abstract class Utils extends Application {
         buttonScores.setBackground(mButtonBackground);
         buttonScores.setMinWidth(mButtonWidth);
         buttonScores.setMinHeight(mGridDimension);
-        buttonScores.setText("High scores");
+        buttonScores.setText("Your scores");
 
         buttonScores.addEventHandler(MouseEvent.MOUSE_ENTERED,
                 e -> hint.setText("Displays levels best results"));
@@ -3735,6 +3886,24 @@ abstract class Utils extends Application {
             displayHighScores();
         });
 
+        final Button buttonLogIn = new Button();
+        buttonLogIn.setFont(menuFont);
+        buttonLogIn.setStyle("-fx-text-fill: white;");
+        buttonLogIn.setBackground(mButtonBackground);
+        buttonLogIn.setMinWidth(mButtonWidth);
+        buttonLogIn.setMinHeight(mGridDimension);
+        buttonLogIn.setText("Hall of Fame");
+
+        buttonLogIn.addEventHandler(MouseEvent.MOUSE_ENTERED,
+                e -> hint.setText("Displays online users' scores"));
+
+        buttonLogIn.addEventHandler(MouseEvent.MOUSE_EXITED,
+                e -> hint.setText("Select action below:"));
+        buttonLogIn.setOnAction(e -> {
+            stage.close();
+            displayHallOfFame();
+        });
+
         buttonsBox.getChildren().add(hint);
 
         buttonsBox.getChildren().add(buttonFinish);
@@ -3742,6 +3911,7 @@ abstract class Utils extends Application {
         buttonsBox.getChildren().add(buttonImport);
         buttonsBox.getChildren().add(buttonRestore);
         buttonsBox.getChildren().add(buttonScores);
+        buttonsBox.getChildren().add(buttonLogIn);
         buttonsBox.getChildren().add(buttonClose);
 
         root.getChildren().add(buttonsBox);
@@ -3798,7 +3968,6 @@ abstract class Utils extends Application {
                 }
 
             }
-
 
         } else {
             Toast.makeText(mEditorStage, "No file selected", TOAST_LENGTH_SHORT);
