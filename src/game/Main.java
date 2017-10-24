@@ -747,11 +747,12 @@ public class Main extends Utils {
             gc.setFill(Color.color(0.5, 1, 0.5, 1));
             if (!mPlayer.isEmpty()) {
                 gc.setFont(playerFont);
-                String displayName = "HOF:" + mPlayer.toUpperCase();
-                if(displayName.length() > 13) {
-                    gc.fillText(displayName.substring(0, 12).toUpperCase(), columns[27], rows[3] - mHalfGridDimension);
+                String displayName = mPlayer.toUpperCase();
+                if(displayName.length() > 16) {
+                    gc.fillText(displayName.substring(0, 16).toUpperCase() + "...", columns[27], rows[2]);
                 } else {
-                    gc.fillText(displayName.toUpperCase(), columns[27], rows[3] - mHalfGridDimension);
+                    gc.setFill(Color.color(0.5, 1, 0.5, 1));
+                    gc.fillText(displayName.toUpperCase(), columns[27], rows[2]);
                 }
             } else {
                 gc.setFont(turnsFont);
