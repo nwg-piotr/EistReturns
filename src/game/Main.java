@@ -563,6 +563,7 @@ public class Main extends Utils {
 
                 if (mCurrentLevel > mAchievedLevel && !mDevMode) {
                     prefs.putInt("achieved", mCurrentLevel);
+                    updateHallScore(mPlayer, mPass);
                 }
                 prefs.putInt("level", mCurrentLevel);
 
