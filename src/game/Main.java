@@ -244,6 +244,7 @@ public class Main extends Utils {
             }
             String lvlNumberToString = (mSelectedLevel < 10) ? "0" + String.valueOf(mSelectedLevel) : String.valueOf(mSelectedLevel);
             gc.setFont(levelFont);
+            gc.setFill(Color.color(0, 1, 1, 1));
             gc.fillText("LEVEL " + lvlNumberToString, columns[27], rows[1] + mHalfGridDimension);
         } else {
 
@@ -743,12 +744,18 @@ public class Main extends Utils {
             gc.fillText("FPS: " + String.valueOf((int) mFps), columns[27], rows[17]);
         }
         if(mCurrentLevel == 0) {
-            gc.setFill(Color.color(0, 1, 1, 1));
-            gc.setFont(playerFont);
+            gc.setFill(Color.color(0.5, 1, 0.5, 1));
             if (!mPlayer.isEmpty()) {
-                gc.fillText("HoF: " + mPlayer, columns[27], rows[3] - mHalfGridDimension);
+                gc.setFont(playerFont);
+                String displayName = "HOF:" + mPlayer.toUpperCase();
+                if(displayName.length() > 13) {
+                    gc.fillText(displayName.substring(0, 12).toUpperCase(), columns[27], rows[3] - mHalfGridDimension);
+                } else {
+                    gc.fillText(displayName.toUpperCase(), columns[27], rows[3] - mHalfGridDimension);
+                }
             } else {
-                gc.fillText("HoF: offline", columns[27], rows[3] - mHalfGridDimension);
+                gc.setFont(turnsFont);
+                gc.fillText("Hall of Fame", columns[27], rows[3] - mHalfGridDimension);
             }
         }
     }

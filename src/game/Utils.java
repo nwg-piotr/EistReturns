@@ -26,6 +26,7 @@ import javafx.scene.media.MediaException;
 import javafx.scene.media.MediaPlayer;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
+import javafx.scene.text.FontWeight;
 import javafx.scene.text.Text;
 import javafx.stage.*;
 
@@ -101,6 +102,7 @@ abstract class Utils extends Application {
     private Rectangle2D mButtonLevelDown;
     private Rectangle2D mButtonPlay;
     private Rectangle2D mButtonMenu;
+    private Rectangle2D mButtonHall;
 
     private Rectangle2D mButtonAbout;
     private Rectangle2D mButtonMuteMusic;
@@ -570,6 +572,9 @@ abstract class Utils extends Application {
                 } else if (mButtonMenu.contains(pointClicked)) {
 
                     displaySettings();
+
+                } else if (mButtonHall.contains(pointClicked)) {
+                    displayHallOfFame();
                 }
             }
         }
@@ -640,7 +645,7 @@ abstract class Utils extends Application {
         infoFont = Font.loadFont(ClassLoader.getSystemResource("Orbitron-Regular.ttf").toExternalForm(), 50 / mDimensionDivider * rem);
         levelFont = Font.loadFont(ClassLoader.getSystemResource("Orbitron-Regular.ttf").toExternalForm(), 44 / mDimensionDivider * rem);
         turnsFont = Font.loadFont(ClassLoader.getSystemResource("Orbitron-Regular.ttf").toExternalForm(), 36 / mDimensionDivider * rem);
-        playerFont = Font.loadFont(ClassLoader.getSystemResource("Orbitron-Regular.ttf").toExternalForm(), 24 / mDimensionDivider * rem);
+        playerFont = Font.font( "Helvetica", FontWeight.NORMAL, 30 / mDimensionDivider * rem);
         messageFont = Font.loadFont(ClassLoader.getSystemResource("Orbitron-Regular.ttf").toExternalForm(), 20 / mDimensionDivider * rem);
         menuFont = Font.loadFont(ClassLoader.getSystemResource("Orbitron-Regular.ttf").toExternalForm(), 20 / mDimensionDivider * rem);
     }
@@ -758,6 +763,7 @@ abstract class Utils extends Application {
         mButtonLevelUp = new Rectangle2D(columns[29], rows[3], mFrameDimension, mFrameDimension);
         mButtonPlay = new Rectangle2D(columns[27], rows[6], mFrameDimension * 2, mFrameDimension);
         mButtonMenu = new Rectangle2D(columns[30], rows[16], mFrameDimension, mFrameDimension);
+        mButtonHall = new Rectangle2D(columns[27], rows[1], mFrameDimension * 2, mFrameDimension);
         mButtonAbout = new Rectangle2D(columns[27], rows[9], mFrameDimension * 2, mGridDimension);
         mButtonMuteMusic = new Rectangle2D(columns[30], rows[11], mFrameDimension, mFrameDimension);
         mButtonMuteSound = new Rectangle2D(columns[30], rows[13], mFrameDimension, mFrameDimension);
@@ -2472,7 +2478,8 @@ abstract class Utils extends Application {
                     mPass = pass;
                     prefs.put("user", mPlayer);
                     prefs.put("pass", mPass);
-                    Platform.runLater(() -> Toast.makeText(mGameStage, "Logged in as " + mPlayer, TOAST_LENGTH_SHORT));
+                    Platform.runLater(this::showHallScores);
+                    //Platform.runLater(() -> Toast.makeText(mGameStage, "Logged in as " + mPlayer, TOAST_LENGTH_SHORT));
 
                     /*
                     compare to currently achieved level, update both online values if higher level stored locally
