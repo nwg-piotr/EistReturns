@@ -2479,7 +2479,6 @@ abstract class Utils extends Application {
                     prefs.put("user", mPlayer);
                     prefs.put("pass", mPass);
                     Platform.runLater(this::showHallScores);
-                    //Platform.runLater(() -> Toast.makeText(mGameStage, "Logged in as " + mPlayer, TOAST_LENGTH_SHORT));
 
                     /*
                     compare to currently achieved level, update both online values if higher level stored locally
