@@ -2386,7 +2386,7 @@ abstract class Utils extends Application {
     private void displayLogInDialog(){
 
         Dialog<Pair<String, String>> dialog = new Dialog<>();
-        dialog.setTitle("User login");
+        dialog.setTitle("Player login");
         dialog.setHeaderText("Login to the Hall Of Fame");
         dialog.initOwner(mGameStage);
 
@@ -2402,11 +2402,11 @@ abstract class Utils extends Application {
         grid.setPadding(new Insets(20, 150, 10, 10));
 
         TextField username = new TextField();
-        username.setPromptText("Username");
+        username.setPromptText("Name");
         PasswordField password = new PasswordField();
         password.setPromptText("Password");
 
-        grid.add(new Label("Username:"), 0, 0);
+        grid.add(new Label("Player name:"), 0, 0);
         grid.add(username, 1, 0);
         grid.add(new Label("Password:"), 0, 1);
         grid.add(password, 1, 1);
@@ -2449,15 +2449,89 @@ abstract class Utils extends Application {
         result.ifPresent(usernamePassword -> {
 
             if(!mNewPlayer){
-                logIn(usernamePassword.getKey(), encode(usernamePassword.getValue()));
+                playerLogin(usernamePassword.getKey(), encode(usernamePassword.getValue()));
             } else {
-                newPlayer(usernamePassword.getKey(), encode(usernamePassword.getValue()));
+                playerNew(usernamePassword.getKey(), encode(usernamePassword.getValue()));
             }
 
         });
     }
 
-    private void logIn(String player, String pass){
+    private void displayManagePlayerDialog(){
+
+        Dialog<Pair<String, String>> dialog = new Dialog<>();
+        dialog.setTitle("Manage players");
+        dialog.setHeaderText("Select player account");
+        dialog.initOwner(mGameStage);
+
+        dialog.setGraphic(new ImageView(ClassLoader.getSystemResource("images/common/login.png").toExternalForm()));
+
+        ButtonType newButtonType = new ButtonType("New player", ButtonData.OK_DONE);
+        ButtonType loginButtonType = new ButtonType("Delete player", ButtonData.OTHER);
+        dialog.getDialogPane().getButtonTypes().addAll(newButtonType, loginButtonType, ButtonType.CANCEL);
+
+        GridPane grid = new GridPane();
+        grid.setHgap(10);
+        grid.setVgap(10);
+        grid.setPadding(new Insets(20, 150, 10, 10));
+
+        TextField username = new TextField();
+        username.setPromptText("Name");
+        PasswordField password = new PasswordField();
+        password.setPromptText("Password");
+
+        grid.add(new Label("Player name:"), 0, 0);
+        grid.add(username, 1, 0);
+        grid.add(new Label("Password:"), 0, 1);
+        grid.add(password, 1, 1);
+
+        Node loginButton = dialog.getDialogPane().lookupButton(loginButtonType);
+        loginButton.setDisable(true);
+
+        Node newButton = dialog.getDialogPane().lookupButton(newButtonType);
+        newButton.setDisable(true);
+
+        username.textProperty().addListener((observable, oldValue, newValue) -> {
+            loginButton.setDisable(newValue.trim().isEmpty() || password.getText().isEmpty());
+            newButton.setDisable(newValue.trim().isEmpty() || password.getText().isEmpty());
+        });
+
+        password.textProperty().addListener((observable, oldValue, newValue) -> {
+            loginButton.setDisable(newValue.trim().length() < 6 || username.getText().isEmpty());
+            newButton.setDisable(newValue.trim().length() < 6 || username.getText().isEmpty());
+        });
+
+        dialog.getDialogPane().setContent(grid);
+
+        Platform.runLater(username::requestFocus);
+
+        mNewPlayer = false;
+
+        dialog.setResultConverter(dialogButton -> {
+            if (dialogButton == loginButtonType) {
+                return new Pair<>(username.getText(), password.getText());
+            }
+            if (dialogButton == newButtonType) {
+                mNewPlayer = true;
+                return new Pair<>(username.getText(), password.getText());
+            }
+            return null;
+        });
+
+        Optional<Pair<String, String>> result = dialog.showAndWait();
+
+        result.ifPresent(usernamePassword -> {
+
+            if(!mNewPlayer){
+                playerDelete(usernamePassword.getKey(), encode(usernamePassword.getValue()));
+            } else {
+                playerNew(usernamePassword.getKey(), encode(usernamePassword.getValue()));
+            }
+
+        });
+    }
+
+    private void playerLogin(String player, String pass){
 
         mHttpResponse = "";
 
@@ -2467,7 +2541,6 @@ abstract class Utils extends Application {
             }catch (Exception e){
                 Platform.runLater(() -> Toast.makeText(mGameStage, "Connection error: " + e, TOAST_LENGTH_LONG));
             }
-
 
             if(!mHttpResponse.isEmpty()){
 
@@ -2516,81 +2589,101 @@ abstract class Utils extends Application {
 
     void updateHallScore(String player, String pass){
 
-        mHttpResponse = "";
+        if(userLevels().size() == 0) {
 
-        Thread thread = new Thread(() -> {
-            try {
-                mHttpResponse = HttpURLConnection.sendGet("http://nwg.pl/eist/player.php?action=update&uname=" +
-                        player + "&upswd=" + pass + "&ulevel=" + mAchievedLevel + "&uturns=" + totalTurns());
-            } catch (Exception e){
-                Platform.runLater(() -> Toast.makeText(mGameStage, "Connection error: " + e, TOAST_LENGTH_LONG));
-            }
+            mHttpResponse = "";
 
-            if(!mHttpResponse.isEmpty()){
+            Thread thread = new Thread(() -> {
+                try {
+                    /*
+                     * We're storing the completed level value, which means mAchievedLevel-1
+                     */
+                    mHttpResponse = HttpURLConnection.sendGet("http://nwg.pl/eist/player.php?action=update&uname=" +
+                            player + "&upswd=" + pass + "&ulevel=" + (mAchievedLevel-1) + "&uturns=" + totalTurns());
 
-                System.out.println(mHttpResponse);
-
-                if(mHttpResponse.equals("scores_updated")){
-                    Platform.runLater(() -> Toast.makeText(mGameStage, "Hall of Fame updated", TOAST_LENGTH_SHORT));
-                } else {
-                    Platform.runLater(() -> Toast.makeText(mGameStage, "Failed updating Hall of Fame", TOAST_LENGTH_LONG));
+                } catch (Exception e) {
+                    Platform.runLater(() -> Toast.makeText(mGameStage, "Connection error: " + e, TOAST_LENGTH_LONG));
                 }
-            }
-        });
-        thread.start();
+
+                if (!mHttpResponse.isEmpty()) {
+
+                    System.out.println(mHttpResponse);
+
+                    if (mHttpResponse.equals("scores_updated")) {
+                        Platform.runLater(() -> Toast.makeText(mGameStage, "Hall of Fame updated", TOAST_LENGTH_SHORT));
+                    } else {
+                        Platform.runLater(() -> Toast.makeText(mGameStage, "Failed updating Hall of Fame", TOAST_LENGTH_LONG));
+                    }
+                }
+            });
+            thread.start();
+        }
     }
 
     private void showHallScores(){
 
-        mHttpResponse = "";
+        if(userLevels().size() == 0) {
 
-        Thread thread = new Thread(() -> {
-            try {
-                mHttpResponse = HttpURLConnection.sendGet("http://nwg.pl/eist/player.php?action=display&ulimit=40");
-            } catch (Exception e){
-                Platform.runLater(() -> Toast.makeText(mGameStage, "Connection error: " + e, TOAST_LENGTH_LONG));
-            }
+            mHttpResponse = "";
 
-            if(!mHttpResponse.isEmpty()){
+            Thread thread = new Thread(() -> {
+                try {
+                    mHttpResponse = HttpURLConnection.sendGet("http://nwg.pl/eist/player.php?action=display&ulimit=40");
+                } catch (Exception e) {
+                    Platform.runLater(() -> Toast.makeText(mGameStage, "Connection error: " + e, TOAST_LENGTH_LONG));
+                }
 
-                System.out.println(mHttpResponse);
-                Platform.runLater(() -> displayHallAlert(mHttpResponse));
+                if (!mHttpResponse.isEmpty()) {
 
-            }
-        });
-        thread.start();
+                    System.out.println(mHttpResponse);
+                    Platform.runLater(() -> displayHallAlert(mHttpResponse));
+
+                }
+            });
+            thread.start();
+        } else {
+            displayHallAlert("user_set");
+        }
     }
 
     private void displayHallAlert(String scores){
+
         Alert alert = new Alert(Alert.AlertType.INFORMATION);
         alert.setTitle("Hall of Fame");
         alert.setHeaderText("Best result scored so far");
-        if(!scores.isEmpty()){
-            String rows[] = scores.split(":");
-            StringBuilder allRows = new StringBuilder();
-            for(String row : rows){
 
-                String[] thisRow = row.split(",");
-                String singleRow = thisRow[0].toUpperCase() +
-                        ": level " +
-                        thisRow[1] +
-                        ", turns " +
-                        thisRow[2];
-                if(thisRow[0].toUpperCase().equals(mPlayer.toUpperCase())){
-                    singleRow += " *** IT'S YOU! ***";
+        if(!scores.equals("user_set")) {
+            if (!scores.isEmpty()) {
+                String rows[] = scores.split(":");
+                StringBuilder allRows = new StringBuilder();
+                for (String row : rows) {
+
+                    String[] thisRow = row.split(",");
+                    String singleRow = thisRow[0].toUpperCase() +
+                            ": " +
+                            thisRow[1] +
+                            " levels, " +
+                            thisRow[2] +
+                            " turns";
+                    if (thisRow[0].toUpperCase().equals(mPlayer.toUpperCase())) {
+                        singleRow += " *** IT'S YOU! ***";
+                    }
+
+                    allRows.append(singleRow);
+                    allRows.append("\n");
                 }
-
-                allRows.append(singleRow);
-                allRows.append("\n");
+                alert.setContentText(allRows.toString());
+            } else {
+                alert.setContentText("Couldn't load scores\n");
             }
-            alert.setContentText(allRows.toString());
         } else {
-            alert.setContentText("Couldn't load scores\n");
+            alert.setHeaderText("Hall of Fame unavailable");
+            alert.setContentText("You're playing an user-defined set.\nRestore default levels to access the Hall of Fame.\nNote: this will CLEAR current level scores!\n ");
         }
         alert.initOwner(mGameStage);
 
         ButtonType buttonTypeOne = new ButtonType("Log out");
-        ButtonType buttonTypeCancel = new ButtonType("Close", ButtonData.CANCEL_CLOSE);
+        ButtonType buttonTypeCancel = new ButtonType("Close", ButtonData.OK_DONE);
 
         alert.getButtonTypes().setAll(buttonTypeOne, buttonTypeCancel);
 
@@ -2606,14 +2699,14 @@ abstract class Utils extends Application {
         }
     }
 
-    private void newPlayer(String player, String pass){
+    private void playerNew(String player, String pass){
 
         mHttpResponse = "";
 
         Thread thread = new Thread(() -> {
             try {
                 mHttpResponse = HttpURLConnection.sendGet("http://nwg.pl/eist/player.php?action=create&uname=" +
-                        player + "&upswd=" + pass + "&ulevel=" + mAchievedLevel + "&uturns=" + totalTurns());
+                        player + "&upswd=" + pass + "&ulevel=" + (mAchievedLevel-1) + "&uturns=" + totalTurns());
             }catch (Exception e){
                 Platform.runLater(() -> Toast.makeText(mGameStage, "Connection error: " + e, TOAST_LENGTH_LONG));
             }
@@ -2639,6 +2732,46 @@ abstract class Utils extends Application {
                         prefs.put("user", "");
                         prefs.put("pass", "");
                         Platform.runLater(() -> Toast.makeText(mGameStage, "Player " + player + " already exists", TOAST_LENGTH_LONG));
+                        break;
+                    default:
+                        break;
+                }
+            }
+        });
+        thread.start();
+    }
+
+    private void playerDelete(String player, String pass){
+
+        mHttpResponse = "";
+
+        Thread thread = new Thread(() -> {
+            try {
+                mHttpResponse = HttpURLConnection.sendGet("http://nwg.pl/eist/player.php?action=delete&uname=" +
+                        player + "&upswd=" + pass);
+            }catch (Exception e){
+                Platform.runLater(() -> Toast.makeText(mGameStage, "Connection error: " + e, TOAST_LENGTH_LONG));
+            }
+
+            if(!mHttpResponse.isEmpty()){
+
+                System.out.println(mHttpResponse);
+
+                switch(mHttpResponse){
+                    case "player_deleted":
+                        if(player.equals(mPlayer)){
+                            mPlayer = "";
+                            mPass = "";
+                            prefs.put("user", mPlayer);
+                            prefs.put("pass", mPass);
+                        }
+                        Platform.runLater(() -> Toast.makeText(mGameStage, "Player " + player + " deleted", TOAST_LENGTH_SHORT));
+                        break;
+                    case "failed_deleting":
+                        Platform.runLater(() -> Toast.makeText(mGameStage, "Couldn't delete player " + player, TOAST_LENGTH_LONG));
+                        break;
+                    case "no_player_wrong_pass":
+                        Platform.runLater(() -> Toast.makeText(mGameStage, "Wrong player name or password", TOAST_LENGTH_LONG));
                         break;
                     default:
                         break;
@@ -4039,7 +4172,7 @@ abstract class Utils extends Application {
         buttonScores.setBackground(mButtonBackground);
         buttonScores.setMinWidth(mButtonWidth);
         buttonScores.setMinHeight(mGridDimension);
-        buttonScores.setText("Your scores");
+        buttonScores.setText("Level scores");
 
         buttonScores.addEventHandler(MouseEvent.MOUSE_ENTERED,
                 e -> hint.setText("Displays levels best results"));
@@ -4057,16 +4190,16 @@ abstract class Utils extends Application {
         buttonLogIn.setBackground(mButtonBackground);
         buttonLogIn.setMinWidth(mButtonWidth);
         buttonLogIn.setMinHeight(mGridDimension);
-        buttonLogIn.setText("Hall of Fame");
+        buttonLogIn.setText("Manage players");
 
         buttonLogIn.addEventHandler(MouseEvent.MOUSE_ENTERED,
-                e -> hint.setText("Displays online users' scores"));
+                e -> hint.setText("Create or delete player"));
 
         buttonLogIn.addEventHandler(MouseEvent.MOUSE_EXITED,
                 e -> hint.setText("Select action below:"));
         buttonLogIn.setOnAction(e -> {
             stage.close();
-            displayHallOfFame();
+            displayManagePlayerDialog();
         });
 
         buttonsBox.getChildren().add(hint);

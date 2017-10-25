@@ -564,6 +564,7 @@ public class Main extends Utils {
 
                 if (mCurrentLevel > mAchievedLevel && !mDevMode) {
                     prefs.putInt("achieved", mCurrentLevel);
+                    mAchievedLevel = mCurrentLevel;
                     updateHallScore(mPlayer, mPass);
                 }
                 prefs.putInt("level", mCurrentLevel);
@@ -755,8 +756,8 @@ public class Main extends Utils {
                     gc.fillText(displayName.toUpperCase(), columns[27], rows[2]);
                 }
             } else {
-                gc.setFont(turnsFont);
-                gc.fillText("Hall of Fame", columns[27], rows[3] - mHalfGridDimension);
+                gc.setFont(playerFont);
+                gc.fillText("Hall of Fame login", columns[27], rows[2]);
             }
         }
     }
