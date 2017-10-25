@@ -2556,11 +2556,11 @@ abstract class Utils extends Application {
                     /*
                     compare to currently achieved level, update both online values if higher level stored locally
                      */
-                    String[] userData = mHttpResponse.split(":");
+                    String[] userData = mHttpResponse.split(",");
                         int level = Integer.valueOf(userData[1]);
                         int turns = Integer.valueOf(userData[2]);
                         if(mAchievedLevel > level){
-                            updateHallScore(player, pass);
+                            //updateHallScore(player, pass);
                         }
                         System.out.println("User " + userData[0] + ": level " + level + ", turns " + turns);
                         System.out.println("Local user turns = " + totalTurns());
@@ -2633,12 +2633,8 @@ abstract class Utils extends Application {
                     Platform.runLater(() -> Toast.makeText(mGameStage, "Connection error: " + e, TOAST_LENGTH_LONG));
                 }
 
-                if (!mHttpResponse.isEmpty()) {
-
-                    System.out.println(mHttpResponse);
-                    Platform.runLater(() -> displayHallAlert(mHttpResponse));
-
-                }
+                System.out.println(mHttpResponse);
+                Platform.runLater(() -> displayHallAlert(mHttpResponse));
             });
             thread.start();
         } else {
@@ -2648,6 +2644,7 @@ abstract class Utils extends Application {
 
     private void displayHallAlert(String scores){
 
+        System.out.println("displayHallAlert()");
         Alert alert = new Alert(Alert.AlertType.INFORMATION);
         alert.setTitle("Hall of Fame");
         alert.setHeaderText("Best result scored so far");
