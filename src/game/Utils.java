@@ -2576,7 +2576,6 @@ abstract class Utils extends Application {
                     String[] levelsData = wholeLine[1].split(",");
                     for (int i = 1; i < 41; i++) {
                         prefs.putInt(lvlToString(i) + "best", Integer.valueOf(levelsData[i - 1]));
-                        System.out.println(lvlToString(i) + "best = " + Integer.valueOf(levelsData[i - 1]));
                     }
 
                 } else {
@@ -2732,6 +2731,7 @@ abstract class Utils extends Application {
                         mPass = pass;
                         prefs.put("user", mPlayer);
                         prefs.put("pass", mPass);
+                        clearScores();
                         Platform.runLater(() -> Toast.makeText(mGameStage, "Logged in as new player " + mPlayer, TOAST_LENGTH_SHORT));
                         break;
                     case "failed_creating":
