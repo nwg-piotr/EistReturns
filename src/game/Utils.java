@@ -155,7 +155,7 @@ abstract class Utils extends Application {
     private Font menuFont;
 
     private String mHttpResponse;
-    private  boolean mNewPlayer;
+    private boolean mNewPlayer;
 
     /**
      * The Frame is a rectangular part of the game board of width of 2 columns and height of 2 rows.
@@ -515,7 +515,7 @@ abstract class Utils extends Application {
                         if (toolbar.getSelection() == SELECTION_SLOT &&
                                 pixelReader.getArgb((int) pointClicked.getX(), (int) pointClicked.getY()) == -16777216) {
                             Rectangle2D area = nearestSlot(pointClicked.getX(), pointClicked.getY(), toolbar.getSlotOrientation());
-                            if(area != null) {
+                            if (area != null) {
                                 placeSlot(area, toolbar.getSlotOrientation());
                             }
                         }
@@ -556,7 +556,7 @@ abstract class Utils extends Application {
                  */
                 if (mButtonLevelUp.contains(pointClicked)) {
                     if (mSelectedLevel < mAchievedLevel || mDevMode) {
-                        if(mSelectedLevel < MAX_LEVEL) {
+                        if (mSelectedLevel < MAX_LEVEL) {
                             mSelectedLevel++;
                             prefs.putInt("level", mSelectedLevel);
                         }
@@ -640,12 +640,12 @@ abstract class Utils extends Application {
     Image mMutedMusicImg;
     Image mMutedSoundImg;
 
-    void initializeFonts(){
+    void initializeFonts() {
 
         infoFont = Font.loadFont(ClassLoader.getSystemResource("Orbitron-Regular.ttf").toExternalForm(), 50 / mDimensionDivider * rem);
         levelFont = Font.loadFont(ClassLoader.getSystemResource("Orbitron-Regular.ttf").toExternalForm(), 44 / mDimensionDivider * rem);
         turnsFont = Font.loadFont(ClassLoader.getSystemResource("Orbitron-Regular.ttf").toExternalForm(), 36 / mDimensionDivider * rem);
-        playerFont = Font.font( "Helvetica", FontWeight.NORMAL, 26 / mDimensionDivider * rem);
+        playerFont = Font.font("Helvetica", FontWeight.NORMAL, 26 / mDimensionDivider * rem);
         messageFont = Font.loadFont(ClassLoader.getSystemResource("Orbitron-Regular.ttf").toExternalForm(), 20 / mDimensionDivider * rem);
         menuFont = Font.loadFont(ClassLoader.getSystemResource("Orbitron-Regular.ttf").toExternalForm(), 20 / mDimensionDivider * rem);
     }
@@ -735,7 +735,7 @@ abstract class Utils extends Application {
         mMutedMusicImg = new Image(ClassLoader.getSystemResource("images/common/muted_music.png").toExternalForm());
         mMutedSoundImg = new Image(ClassLoader.getSystemResource("images/common/muted_sound.png").toExternalForm());
 
-        BackgroundImage mButtonImage = new BackgroundImage( new Image( ClassLoader.getSystemResource("images/common/menu_button.png").toExternalForm()),
+        BackgroundImage mButtonImage = new BackgroundImage(new Image(ClassLoader.getSystemResource("images/common/menu_button.png").toExternalForm()),
                 BackgroundRepeat.NO_REPEAT, BackgroundRepeat.NO_REPEAT, BackgroundPosition.DEFAULT,
                 new BackgroundSize(AUTO, AUTO, true, true, true, false));
         mButtonBackground = new Background(mButtonImage);
@@ -988,7 +988,7 @@ abstract class Utils extends Application {
         pixelReader = mBoardImg.getPixelReader();
 
         String info = infoString(System.getProperty("user.home") + "/.EistReturns/levels/info.txt");
-        if(info == null && mLoadUserLevel){
+        if (info == null && mLoadUserLevel) {
             info = "unnamed set";
         }
 
@@ -1685,7 +1685,7 @@ abstract class Utils extends Application {
         return isSlotAllowed(slotRect) ? slotRect : null;
     }
 
-    private boolean isSlotAllowed(Rectangle2D nearestSquare){
+    private boolean isSlotAllowed(Rectangle2D nearestSquare) {
 
         int top_left_color = pixelReader.getArgb((int) nearestSquare.getMinX(), (int) nearestSquare.getMinY());
         int top_right_color = pixelReader.getArgb((int) nearestSquare.getMaxX(), (int) nearestSquare.getMinY());
@@ -1709,10 +1709,10 @@ abstract class Utils extends Application {
         double nearest_left = ((int) (touch_x / mGridDimension)) * mGridDimension;
         double nearest_top = ((int) (touch_y / mGridDimension)) * mGridDimension;
 
-        if(touch_x - nearest_left < mHalfGridDimension) {
+        if (touch_x - nearest_left < mHalfGridDimension) {
             nearest_left = nearest_left - mGridDimension;
         }
-        if(touch_y - nearest_top < mHalfGridDimension) {
+        if (touch_y - nearest_top < mHalfGridDimension) {
             nearest_top = nearest_top - mGridDimension;
         }
 
@@ -2268,10 +2268,10 @@ abstract class Utils extends Application {
                     }
                     clearScores();
                     Toast.makeText(stage, "User levels cleared", TOAST_LENGTH_SHORT);
-                    if(mGameStage != null){
+                    if (mGameStage != null) {
                         mGameStage.setTitle("Eist returns: default");
                     }
-                    if(mEditorStage != null) {
+                    if (mEditorStage != null) {
                         mEditorStage.setTitle("Level editor");
                     }
                 }
@@ -2333,7 +2333,7 @@ abstract class Utils extends Application {
              */
             String pass = decode("QXJjaA==");
 
-            if(result.get().equals(pass)){
+            if (result.get().equals(pass)) {
                 mDevMode = true;
                 Toast.makeText(mGameStage, "Developer mode on", TOAST_LENGTH_SHORT);
             } else {
@@ -2343,14 +2343,14 @@ abstract class Utils extends Application {
         });
     }
 
-    private void displayHighScores(){
+    private void displayHighScores() {
 
         StringBuilder scores = new StringBuilder();
 
-        for(int i = 1; i < MAX_LEVEL+1; i++){
+        for (int i = 1; i < MAX_LEVEL + 1; i++) {
             String lvl = lvlToString(i);
             int value = prefs.getInt(lvl + "best", 0);
-            if(value != 0){
+            if (value != 0) {
                 scores.append("Level ");
                 scores.append(lvl);
                 scores.append(": ");
@@ -2359,7 +2359,7 @@ abstract class Utils extends Application {
             }
         }
         String result = scores.toString();
-        if(result.isEmpty()){
+        if (result.isEmpty()) {
             result = "No saved scores found";
         }
         Alert alert = new Alert(Alert.AlertType.INFORMATION);
@@ -2371,9 +2371,9 @@ abstract class Utils extends Application {
         alert.showAndWait();
     }
 
-    private void displayHallOfFame(){
+    private void displayHallOfFame() {
 
-        if(mPlayer.isEmpty()){
+        if (mPlayer.isEmpty()) {
 
             displayLogInDialog();
 
@@ -2383,7 +2383,7 @@ abstract class Utils extends Application {
         }
     }
 
-    private void displayLogInDialog(){
+    private void displayLogInDialog() {
 
         Dialog<Pair<String, String>> dialog = new Dialog<>();
         dialog.setTitle("Player login");
@@ -2448,7 +2448,7 @@ abstract class Utils extends Application {
 
         result.ifPresent(usernamePassword -> {
 
-            if(!mNewPlayer){
+            if (!mNewPlayer) {
                 playerLogin(usernamePassword.getKey(), encode(usernamePassword.getValue()));
             } else {
                 playerNew(usernamePassword.getKey(), encode(usernamePassword.getValue()));
@@ -2457,7 +2457,7 @@ abstract class Utils extends Application {
         });
     }
 
-    private void displayManagePlayerDialog(){
+    private void displayManagePlayerDialog() {
 
         Dialog<Pair<String, String>> dialog = new Dialog<>();
         dialog.setTitle("Manage players");
@@ -2522,7 +2522,7 @@ abstract class Utils extends Application {
 
         result.ifPresent(usernamePassword -> {
 
-            if(!mNewPlayer){
+            if (!mNewPlayer) {
                 playerDelete(usernamePassword.getKey(), encode(usernamePassword.getValue()));
             } else {
                 playerNew(usernamePassword.getKey(), encode(usernamePassword.getValue()));
@@ -2531,43 +2531,57 @@ abstract class Utils extends Application {
         });
     }
 
-    private void playerLogin(String player, String pass){
+    void playerLogin(String player, String pass) {
 
         mHttpResponse = "";
 
         Thread thread = new Thread(() -> {
             try {
                 mHttpResponse = HttpURLConnection.sendGet("http://nwg.pl/eist/player.php?action=login&uname=" + player + "&upswd=" + pass);
-            }catch (Exception e){
+            } catch (Exception e) {
                 Platform.runLater(() -> Toast.makeText(mGameStage, "Connection error: " + e, TOAST_LENGTH_LONG));
             }
 
-            if(!mHttpResponse.isEmpty()){
+            if (!mHttpResponse.isEmpty()) {
 
                 System.out.println(mHttpResponse);
 
-                if(mHttpResponse.startsWith("login_ok")){
+                if (mHttpResponse.startsWith("login_ok")) {
                     mPlayer = player;
                     mPass = pass;
                     prefs.put("user", mPlayer);
                     prefs.put("pass", mPass);
                     Platform.runLater(this::showHallScores);
 
+                    String[] wholeLine = mHttpResponse.split(":");
                     /*
-                    compare to currently achieved level, update both online values if higher level stored locally
+                    Parse user data: name, completed levels, total turns
                      */
-                    String[] userData = mHttpResponse.split(",");
-                        int level = Integer.valueOf(userData[1]);
-                        int turns = Integer.valueOf(userData[2]);
-                        if(mAchievedLevel > level){
-                            //updateHallScore(player, pass);
-                        }
-                        System.out.println("User " + userData[0] + ": level " + level + ", turns " + turns);
-                        System.out.println("Local user turns = " + totalTurns());
+                    String[] userData = wholeLine[0].split(",");
+                    int completedLevel = Integer.valueOf(userData[1]);
+                    mAchievedLevel = completedLevel + 1;
+                    mSelectedLevel = mAchievedLevel;
+                    prefs.putInt("achieved", mAchievedLevel);
+
+                    int turns = Integer.valueOf(userData[2]);
+                    if (mAchievedLevel > completedLevel) {
+                        //updateHallScore(player, pass);
+                    }
+                    System.out.println("User " + userData[0] + ": level " + completedLevel + ", turns " + turns);
+                    System.out.println("Local user turns = " + totalTurns());
+
+                    /*
+                    Parse turns value stored for each level
+                     */
+                    String[] levelsData = wholeLine[1].split(",");
+                    for (int i = 1; i < 41; i++) {
+                        prefs.putInt(lvlToString(i) + "best", Integer.valueOf(levelsData[i - 1]));
+                        System.out.println(lvlToString(i) + "best = " + Integer.valueOf(levelsData[i - 1]));
+                    }
 
                 } else {
 
-                    switch(mHttpResponse){
+                    switch (mHttpResponse) {
                         case "wrong_pswd":
                             prefs.put("user", "");
                             prefs.put("pass", "");
@@ -2587,9 +2601,9 @@ abstract class Utils extends Application {
         thread.start();
     }
 
-    void updateHallScore(String player, String pass){
+    void updateHallScore(String player, String pass, String levelName, int levelValue) {
 
-        if(userLevels().size() == 0) {
+        if (userLevels().size() == 0) {
 
             mHttpResponse = "";
 
@@ -2599,7 +2613,8 @@ abstract class Utils extends Application {
                      * We're storing the completed level value, which means mAchievedLevel-1
                      */
                     mHttpResponse = HttpURLConnection.sendGet("http://nwg.pl/eist/player.php?action=update&uname=" +
-                            player + "&upswd=" + pass + "&ulevel=" + (mAchievedLevel-1) + "&uturns=" + totalTurns());
+                            player + "&upswd=" + pass + "&ulevel=" + (mAchievedLevel - 1) + "&uturns=" + totalTurns() +
+                            "&lname=l" + levelName + "&lvalue=" + levelValue);
 
                 } catch (Exception e) {
                     Platform.runLater(() -> Toast.makeText(mGameStage, "Connection error: " + e, TOAST_LENGTH_LONG));
@@ -2620,9 +2635,9 @@ abstract class Utils extends Application {
         }
     }
 
-    private void showHallScores(){
+    private void showHallScores() {
 
-        if(userLevels().size() == 0) {
+        if (userLevels().size() == 0) {
 
             mHttpResponse = "";
 
@@ -2642,14 +2657,13 @@ abstract class Utils extends Application {
         }
     }
 
-    private void displayHallAlert(String scores){
+    private void displayHallAlert(String scores) {
 
-        System.out.println("displayHallAlert()");
         Alert alert = new Alert(Alert.AlertType.INFORMATION);
         alert.setTitle("Hall of Fame");
         alert.setHeaderText("Best result scored so far");
 
-        if(!scores.equals("user_set")) {
+        if (!scores.equals("user_set")) {
             if (!scores.isEmpty()) {
                 String rows[] = scores.split(":");
                 StringBuilder allRows = new StringBuilder();
@@ -2685,34 +2699,34 @@ abstract class Utils extends Application {
         alert.getButtonTypes().setAll(buttonTypeOne, buttonTypeCancel);
 
         Optional<ButtonType> result = alert.showAndWait();
-        if(result.isPresent()) {
+        if (result.isPresent()) {
             if (result.get() == buttonTypeOne) {
                 mPlayer = "";
                 mPass = "";
                 prefs.put("user", mPlayer);
                 prefs.put("pass", mPass);
-                Toast.makeText(mGameStage, "You have been logged out", TOAST_LENGTH_SHORT);
+                Toast.makeText(mGameStage, "Hall of Fame offline, scores no longer stored", TOAST_LENGTH_LONG);
             }
         }
     }
 
-    private void playerNew(String player, String pass){
+    private void playerNew(String player, String pass) {
 
         mHttpResponse = "";
 
         Thread thread = new Thread(() -> {
             try {
                 mHttpResponse = HttpURLConnection.sendGet("http://nwg.pl/eist/player.php?action=create&uname=" +
-                        player + "&upswd=" + pass + "&ulevel=" + (mAchievedLevel-1) + "&uturns=" + totalTurns());
-            }catch (Exception e){
+                        player + "&upswd=" + pass + "&ulevel=" + (mAchievedLevel - 1) + "&uturns=" + totalTurns());
+            } catch (Exception e) {
                 Platform.runLater(() -> Toast.makeText(mGameStage, "Connection error: " + e, TOAST_LENGTH_LONG));
             }
 
-            if(!mHttpResponse.isEmpty()){
+            if (!mHttpResponse.isEmpty()) {
 
                 System.out.println(mHttpResponse);
 
-                switch(mHttpResponse){
+                switch (mHttpResponse) {
                     case "player_created":
                         mPlayer = player;
                         mPass = pass;
@@ -2738,7 +2752,7 @@ abstract class Utils extends Application {
         thread.start();
     }
 
-    private void playerDelete(String player, String pass){
+    private void playerDelete(String player, String pass) {
 
         mHttpResponse = "";
 
@@ -2746,17 +2760,17 @@ abstract class Utils extends Application {
             try {
                 mHttpResponse = HttpURLConnection.sendGet("http://nwg.pl/eist/player.php?action=delete&uname=" +
                         player + "&upswd=" + pass);
-            }catch (Exception e){
+            } catch (Exception e) {
                 Platform.runLater(() -> Toast.makeText(mGameStage, "Connection error: " + e, TOAST_LENGTH_LONG));
             }
 
-            if(!mHttpResponse.isEmpty()){
+            if (!mHttpResponse.isEmpty()) {
 
                 System.out.println(mHttpResponse);
 
-                switch(mHttpResponse){
+                switch (mHttpResponse) {
                     case "player_deleted":
-                        if(player.equals(mPlayer)){
+                        if (player.equals(mPlayer)) {
                             mPlayer = "";
                             mPass = "";
                             prefs.put("user", mPlayer);
@@ -2778,27 +2792,27 @@ abstract class Utils extends Application {
         thread.start();
     }
 
-    private int totalTurns(){
+    private int totalTurns() {
         int totally = 0;
-        for(int i = 1; i < MAX_LEVEL + 1; i++){
+        for (int i = 1; i < MAX_LEVEL + 1; i++) {
             totally += prefs.getInt(lvlToString(i) + "best", 0);
         }
         return totally;
     }
 
-    private String encode(String source){
+    private String encode(String source) {
 
         byte[] asBytes = Base64.getEncoder().encode(source.getBytes());
         return new String(asBytes);
     }
 
-    private String decode(String source){
+    private String decode(String source) {
 
         byte[] asBytes = Base64.getDecoder().decode(source);
         String pass = "";
-        try{
+        try {
             pass = new String(asBytes, "utf-8");
-        } catch (UnsupportedEncodingException e){
+        } catch (UnsupportedEncodingException e) {
             e.printStackTrace();
         }
         return pass;
@@ -2828,7 +2842,7 @@ abstract class Utils extends Application {
                 Toast.makeText(stage, "Imported " + dirs + " folders from " + selectedFile, TOAST_LENGTH_LONG);
 
                 String info = infoString(System.getProperty("user.home") + "/.EistReturns/levels/info.txt");
-                if(info == null){
+                if (info == null) {
                     info = "unnamed set";
                 }
 
@@ -2852,7 +2866,7 @@ abstract class Utils extends Application {
     private void displaySetNameDialog(Stage stage) {
 
         String info = infoString(System.getProperty("user.home") + "/.EistReturns/levels/info.txt");
-        if(info == null && mLoadUserLevel){
+        if (info == null && mLoadUserLevel) {
             info = "your description here";
         }
 
@@ -2864,7 +2878,7 @@ abstract class Utils extends Application {
 
         Optional<String> result = dialog.showAndWait();
         result.ifPresent(name -> {
-            if(!name.isEmpty()) {
+            if (!name.isEmpty()) {
                 try {
                     PrintStream out = new PrintStream(System.getProperty("user.home") + "/.EistReturns/levels/info.txt");
                     out.println(name);
@@ -3148,7 +3162,7 @@ abstract class Utils extends Application {
             copyStream(getClass().getClassLoader().getResourceAsStream("levels/" + lvl + "/slots.dat"), new File(dst + "/slots.dat"));
             copyStream(getClass().getClassLoader().getResourceAsStream("levels/" + lvl + "/teleports.dat"), new File(dst + "/teleports.dat"));
 
-        } catch (IOException e){
+        } catch (IOException e) {
             System.out.println("Exception while copying stream: " + e);
         }
     }
@@ -3390,11 +3404,11 @@ abstract class Utils extends Application {
             }
         }
         if (teleportsOK) {
-            if(toast){
+            if (toast) {
                 Toast.makeText(mEditorStage, "Editor saved", TOAST_LENGTH_SHORT);
             }
         } else {
-            if(toast){
+            if (toast) {
                 Toast.makeText(mEditorStage, "Editor saved (teleports skipped - pair not found)", TOAST_LENGTH_SHORT);
             }
         }
@@ -3990,7 +4004,7 @@ abstract class Utils extends Application {
                 e -> hint.setText("Select action below:"));
         buttonName.setOnAction(e -> {
             stage.close();
-            if(userLevels().size() > 0) {
+            if (userLevels().size() > 0) {
                 displaySetNameDialog(mEditorStage);
             } else {
                 Toast.makeText(mEditorStage, "At least 1 saved, user-defined level required", TOAST_LENGTH_LONG);
@@ -4214,16 +4228,16 @@ abstract class Utils extends Application {
         stage.show();
     }
 
-    private void clearScores(){
+    private void clearScores() {
         prefs.putInt("level", 1);
         prefs.putInt("achieved", 1);
         mSelectedLevel = 1;
-        for(int i = 1; i < 41; i++){
+        for (int i = 1; i < 41; i++) {
             prefs.putInt(lvlToString(i) + "best", 0);
         }
     }
 
-    private void uploadBitmap(){
+    private void uploadBitmap() {
 
         FileChooser fileChooser = new FileChooser();
         fileChooser.setTitle("Select a picture to upload");
@@ -4250,7 +4264,7 @@ abstract class Utils extends Application {
             alert.setContentText("Are you sure?");
 
             Optional<ButtonType> result = alert.showAndWait();
-            if (result.isPresent() && result.get() == ButtonType.OK){
+            if (result.isPresent() && result.get() == ButtonType.OK) {
 
                 try {
                     saveEditor();
@@ -4258,7 +4272,7 @@ abstract class Utils extends Application {
                     Toast.makeText(mEditorStage, "File " + selectedFile.getName() + " uploaded", TOAST_LENGTH_SHORT);
                     loadEditor();
 
-                } catch(IOException e){
+                } catch (IOException e) {
                     displayExceptionAlert("Error uploading file", e);
                 }
 

@@ -215,6 +215,13 @@ public class Main extends Utils {
         });
 
         mGameStage.show();
+
+        mPlayer = prefs.get("user", "");
+        mPass = prefs.get("pass", "");
+
+        if(!mPlayer.isEmpty() && !mPass.isEmpty()){
+            playerLogin(mPlayer, mPass);
+        }
     }
 
     private void drawBoard() {
@@ -547,6 +554,7 @@ public class Main extends Utils {
              */
             if (exit.getArea().contains(eist.getCenter())) {
 
+                /*
                 if (mTurnsCounter < mTurnsBest || mTurnsBest == 0) {
                     String lvlNumberToString = (mCurrentLevel < 10) ? "0" + String.valueOf(mCurrentLevel) : String.valueOf(mCurrentLevel);
                     prefs.putInt(lvlNumberToString + "best", mTurnsCounter);
@@ -554,6 +562,8 @@ public class Main extends Utils {
                         displayNewBestAlert(mTurnsBest, mTurnsCounter);
                     }
                 }
+                */
+                prefs.putInt(lvlToString(mCurrentLevel) + "best", mTurnsCounter);
 
                 if (mCurrentLevel + 1 < MAX_LEVEL) {
                     mCurrentLevel++;
@@ -565,7 +575,9 @@ public class Main extends Utils {
                 if (mCurrentLevel > mAchievedLevel && !mDevMode) {
                     prefs.putInt("achieved", mCurrentLevel);
                     mAchievedLevel = mCurrentLevel;
-                    //updateHallScore(mPlayer, mPass);
+                }
+                if(!mPlayer.isEmpty() && !mPass.isEmpty()) {
+                    updateHallScore(mPlayer, mPass, lvlToString(mCurrentLevel - 1), mTurnsCounter);
                 }
                 prefs.putInt("level", mCurrentLevel);
 
