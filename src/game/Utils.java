@@ -150,6 +150,7 @@ abstract class Utils extends Application {
     Font levelFont;
     Font infoFont;
     Font messageFont;
+    Font hofFont;
     Font turnsFont;
     Font playerFont;
     private Font menuFont;
@@ -165,6 +166,7 @@ abstract class Utils extends Application {
     double mGridDimension;
     double mHalfGridDimension;
     private double mButtonWidth;
+    private double mButtonWidthNarrow;
     int mDetectionOffset;
     double mRotationRadius;
 
@@ -252,6 +254,7 @@ abstract class Utils extends Application {
         mFrameDimension = (mSceneWidth / 1920) * 120;
         mGridDimension = mFrameDimension / 2;
         mButtonWidth = mGridDimension * 5;
+        mButtonWidthNarrow = mGridDimension * 3;
         mHalfGridDimension = mGridDimension / 2;
         mDetectionOffset = (int) mFrameDimension / 6;
         mRotationRadius = mFrameDimension / 4;
@@ -636,6 +639,7 @@ abstract class Utils extends Application {
     private Image mIntroFinished;
 
     private Background mButtonBackground;
+    private Background mButtonBackgroundNarrow;
 
     Image mMutedMusicImg;
     Image mMutedSoundImg;
@@ -647,6 +651,7 @@ abstract class Utils extends Application {
         turnsFont = Font.loadFont(ClassLoader.getSystemResource("Orbitron-Regular.ttf").toExternalForm(), 36 / mDimensionDivider * rem);
         playerFont = Font.font("Helvetica", FontWeight.NORMAL, 26 / mDimensionDivider * rem);
         messageFont = Font.loadFont(ClassLoader.getSystemResource("Orbitron-Regular.ttf").toExternalForm(), 20 / mDimensionDivider * rem);
+        hofFont = Font.loadFont(ClassLoader.getSystemResource("Orbitron-Regular.ttf").toExternalForm(), 27 / mDimensionDivider * rem);
         menuFont = Font.loadFont(ClassLoader.getSystemResource("Orbitron-Regular.ttf").toExternalForm(), 20 / mDimensionDivider * rem);
     }
 
@@ -739,6 +744,11 @@ abstract class Utils extends Application {
                 BackgroundRepeat.NO_REPEAT, BackgroundRepeat.NO_REPEAT, BackgroundPosition.DEFAULT,
                 new BackgroundSize(AUTO, AUTO, true, true, true, false));
         mButtonBackground = new Background(mButtonImage);
+
+        BackgroundImage mButtonImageNarrow = new BackgroundImage(new Image(ClassLoader.getSystemResource("images/common/menu_button_narrow.png").toExternalForm()),
+                BackgroundRepeat.NO_REPEAT, BackgroundRepeat.NO_REPEAT, BackgroundPosition.DEFAULT,
+                new BackgroundSize(AUTO, AUTO, true, true, true, false));
+        mButtonBackgroundNarrow = new Background(mButtonImageNarrow);
 
         /*
          * Initialize pad buttons
@@ -2648,7 +2658,7 @@ abstract class Utils extends Application {
                 }
 
                 System.out.println(mHttpResponse);
-                Platform.runLater(() -> displayHallAlert(mHttpResponse));
+                Platform.runLater(() -> displayHoF(mHttpResponse));
             });
             thread.start();
         } else {
@@ -4224,6 +4234,126 @@ abstract class Utils extends Application {
         buttonsBox.getChildren().add(buttonClose);
 
         root.getChildren().add(buttonsBox);
+
+        stage.show();
+    }
+
+    void displayHoF(String scores) {
+
+        Text header = new Text();
+        header.setFont(levelFont);
+        header.setFill(Color.WHITE);
+
+        Text content = new Text();
+        content.setFont(playerFont);
+        content.setFill(Color.WHITE);
+
+        if (!scores.equals("user_set")) {
+            if (!scores.isEmpty()) {
+                String rows[] = scores.split(":");
+                StringBuilder allRows = new StringBuilder();
+                int pos = 1;
+                for (String row : rows) {
+
+                    String[] thisRow = row.split(",");
+                    String singleRow = pos + ". " + thisRow[0].toUpperCase() +
+                            ": " +
+                            thisRow[1] +
+                            " levels, " +
+                            thisRow[2] +
+                            " turns";
+                    if (thisRow[0].toUpperCase().equals(mPlayer.toUpperCase())) {
+                        singleRow += " *** IT'S YOU! ***";
+                    }
+
+                    allRows.append(singleRow);
+                    allRows.append("\n");
+                    pos++;
+                }
+                header.setText("Hall of Fame");
+                content.setText(allRows.toString());
+            } else {
+                header.setText("Couldn't load scores\n");
+            }
+        } else {
+            header.setText("Hall of Fame unavailable");
+            content.setText("You're playing an user-defined set.\nRestore default levels to access the Hall of Fame.\nNote: this will CLEAR current level scores!\n ");
+        }
+
+        Stage stage = new Stage();
+        stage.initOwner(mGameStage);
+        stage.setResizable(false);
+        stage.initStyle(StageStyle.TRANSPARENT);
+        stage.initModality(Modality.WINDOW_MODAL);
+
+        stage.setTitle("Hall of Fame");
+        stage.setWidth(mGameStage.getWidth() / 3);
+        stage.setHeight(mGameStage.getHeight() * 0.7);
+
+        header.setText("Hall of Fame");
+
+        StackPane root = new StackPane();
+        root.setStyle("-fx-background-color: rgba(0, 0, 0, 0.8); -fx-padding: 20px;");
+        root.setAlignment(Pos.TOP_CENTER);
+
+        Scene scene = new Scene(root);
+        scene.setFill(Color.TRANSPARENT);
+        stage.setScene(scene);
+
+        scene.setOnKeyPressed(event -> {
+            switch (event.getCode()) {
+                case ESCAPE:
+                    stage.close();
+                    break;
+                case ENTER:
+                    stage.close();
+                    break;
+                default:
+                    break;
+            }
+        });
+
+        VBox contentBox = new VBox();
+        contentBox.setSpacing(20);
+        contentBox.setMinWidth(root.getMinWidth());
+        contentBox.setAlignment(Pos.TOP_CENTER);
+
+        contentBox.getChildren().add(header);
+        contentBox.getChildren().add(content);
+
+        final Button buttonLogout = new Button();
+        buttonLogout.setFont(menuFont);
+        buttonLogout.setStyle("-fx-text-fill: white;");
+        buttonLogout.setBackground(mButtonBackgroundNarrow);
+        buttonLogout.setMinWidth(mButtonWidthNarrow);
+        buttonLogout.setMinHeight(mGridDimension);
+        buttonLogout.setText("Log out");
+        buttonLogout.setOnAction(e -> {
+            stage.close();
+        });
+
+        final Button buttonClose = new Button();
+        buttonClose.setFont(menuFont);
+        buttonClose.setStyle("-fx-text-fill: white;");
+        buttonClose.setBackground(mButtonBackgroundNarrow);
+        buttonClose.setMinWidth(mButtonWidthNarrow);
+        buttonClose.setMinHeight(mGridDimension);
+        buttonClose.setText("Close");
+        buttonClose.setOnAction(e -> {
+            stage.close();
+        });
+
+        HBox buttonsBox = new HBox();
+        buttonsBox.setSpacing(20);
+        buttonsBox.setMinWidth(root.getMinWidth());
+        buttonsBox.setAlignment(Pos.CENTER);
+
+        buttonsBox.getChildren().add(buttonLogout);
+        buttonsBox.getChildren().add(buttonClose);
+
+        contentBox.getChildren().add(buttonsBox);
+
+        root.getChildren().add(contentBox);
 
         stage.show();
     }
