@@ -150,7 +150,6 @@ abstract class Utils extends Application {
     Font levelFont;
     Font infoFont;
     Font messageFont;
-    Font hofFont;
     Font turnsFont;
     Font playerFont;
     private Font menuFont;
@@ -651,7 +650,7 @@ abstract class Utils extends Application {
         turnsFont = Font.loadFont(ClassLoader.getSystemResource("Orbitron-Regular.ttf").toExternalForm(), 36 / mDimensionDivider * rem);
         playerFont = Font.font("Helvetica", FontWeight.NORMAL, 26 / mDimensionDivider * rem);
         messageFont = Font.loadFont(ClassLoader.getSystemResource("Orbitron-Regular.ttf").toExternalForm(), 20 / mDimensionDivider * rem);
-        hofFont = Font.loadFont(ClassLoader.getSystemResource("Orbitron-Regular.ttf").toExternalForm(), 27 / mDimensionDivider * rem);
+        Font hofFont = Font.loadFont(ClassLoader.getSystemResource("Orbitron-Regular.ttf").toExternalForm(), 27 / mDimensionDivider * rem);
         menuFont = Font.loadFont(ClassLoader.getSystemResource("Orbitron-Regular.ttf").toExternalForm(), 20 / mDimensionDivider * rem);
     }
 
@@ -2280,6 +2279,10 @@ abstract class Utils extends Application {
                     Toast.makeText(stage, "User levels cleared", TOAST_LENGTH_SHORT);
                     if (mGameStage != null) {
                         mGameStage.setTitle("Eist returns: default");
+
+                        if(!mPlayer.isEmpty() && !mPass.isEmpty()){
+                            playerLogin(mPlayer, mPass);
+                        }
                     }
                     if (mEditorStage != null) {
                         mEditorStage.setTitle("Level editor");
@@ -2573,13 +2576,6 @@ abstract class Utils extends Application {
                     mSelectedLevel = mAchievedLevel;
                     prefs.putInt("achieved", mAchievedLevel);
 
-                    int turns = Integer.valueOf(userData[2]);
-                    if (mAchievedLevel > completedLevel) {
-                        //updateHallScore(player, pass);
-                    }
-                    System.out.println("User " + userData[0] + ": level " + completedLevel + ", turns " + turns);
-                    System.out.println("Local user turns = " + totalTurns());
-
                     /*
                     Parse turns value stored for each level
                      */
@@ -2652,7 +2648,7 @@ abstract class Utils extends Application {
 
             Thread thread = new Thread(() -> {
                 try {
-                    mHttpResponse = HttpURLConnection.sendGet("http://nwg.pl/eist/player.php?action=display&ulimit=40");
+                    mHttpResponse = HttpURLConnection.sendGet("http://nwg.pl/eist/player.php?action=display&ulimit=20");
                 } catch (Exception e) {
                     Platform.runLater(() -> Toast.makeText(mGameStage, "Connection error: " + e, TOAST_LENGTH_LONG));
                 }
@@ -2662,61 +2658,16 @@ abstract class Utils extends Application {
             });
             thread.start();
         } else {
-            displayHallAlert("user_set");
+            displayHoF("user_set");
         }
     }
 
-    private void displayHallAlert(String scores) {
-
-        Alert alert = new Alert(Alert.AlertType.INFORMATION);
-        alert.setTitle("Hall of Fame");
-        alert.setHeaderText("Best result scored so far");
-
-        if (!scores.equals("user_set")) {
-            if (!scores.isEmpty()) {
-                String rows[] = scores.split(":");
-                StringBuilder allRows = new StringBuilder();
-                for (String row : rows) {
-
-                    String[] thisRow = row.split(",");
-                    String singleRow = thisRow[0].toUpperCase() +
-                            ": " +
-                            thisRow[1] +
-                            " levels, " +
-                            thisRow[2] +
-                            " turns";
-                    if (thisRow[0].toUpperCase().equals(mPlayer.toUpperCase())) {
-                        singleRow += " *** IT'S YOU! ***";
-                    }
-
-                    allRows.append(singleRow);
-                    allRows.append("\n");
-                }
-                alert.setContentText(allRows.toString());
-            } else {
-                alert.setContentText("Couldn't load scores\n");
-            }
-        } else {
-            alert.setHeaderText("Hall of Fame unavailable");
-            alert.setContentText("You're playing an user-defined set.\nRestore default levels to access the Hall of Fame.\nNote: this will CLEAR current level scores!\n ");
-        }
-        alert.initOwner(mGameStage);
-
-        ButtonType buttonTypeOne = new ButtonType("Log out");
-        ButtonType buttonTypeCancel = new ButtonType("Close", ButtonData.OK_DONE);
-
-        alert.getButtonTypes().setAll(buttonTypeOne, buttonTypeCancel);
-
-        Optional<ButtonType> result = alert.showAndWait();
-        if (result.isPresent()) {
-            if (result.get() == buttonTypeOne) {
-                mPlayer = "";
-                mPass = "";
-                prefs.put("user", mPlayer);
-                prefs.put("pass", mPass);
-                Toast.makeText(mGameStage, "Hall of Fame offline, scores no longer stored", TOAST_LENGTH_LONG);
-            }
-        }
+    private void playerLogOut(){
+        mPlayer = "";
+        mPass = "";
+        prefs.put("user", mPlayer);
+        prefs.put("pass", mPass);
+        Toast.makeText(mGameStage, "Hall of Fame offline, scores no longer stored", TOAST_LENGTH_LONG);
     }
 
     private void playerNew(String player, String pass) {
@@ -4238,20 +4189,22 @@ abstract class Utils extends Application {
         stage.show();
     }
 
-    void displayHoF(String scores) {
+    private void displayHoF(String scores) {
 
         Text header = new Text();
         header.setFont(levelFont);
-        header.setFill(Color.WHITE);
+        header.setFill(Color.color(0, 1, 1, 1));
 
-        Text content = new Text();
-        content.setFont(playerFont);
-        content.setFill(Color.WHITE);
+        Text contentText = new Text();
+        contentText.setFont(playerFont);
+        contentText.setFill(Color.WHITE);
+
+        List<String> entryLines = new ArrayList<>();
 
         if (!scores.equals("user_set")) {
             if (!scores.isEmpty()) {
+
                 String rows[] = scores.split(":");
-                StringBuilder allRows = new StringBuilder();
                 int pos = 1;
                 for (String row : rows) {
 
@@ -4262,22 +4215,17 @@ abstract class Utils extends Application {
                             " levels, " +
                             thisRow[2] +
                             " turns";
-                    if (thisRow[0].toUpperCase().equals(mPlayer.toUpperCase())) {
-                        singleRow += " *** IT'S YOU! ***";
-                    }
-
-                    allRows.append(singleRow);
-                    allRows.append("\n");
+                    entryLines.add(singleRow);
                     pos++;
                 }
                 header.setText("Hall of Fame");
-                content.setText(allRows.toString());
+                //contentText.setText(allRows.toString());
             } else {
                 header.setText("Couldn't load scores\n");
             }
         } else {
             header.setText("Hall of Fame unavailable");
-            content.setText("You're playing an user-defined set.\nRestore default levels to access the Hall of Fame.\nNote: this will CLEAR current level scores!\n ");
+            entryLines.add("You're playing an user-defined set.\nRestore default levels to access the Hall of Fame.\nNote: this will CLEAR current level scores!\n ");
         }
 
         Stage stage = new Stage();
@@ -4286,17 +4234,15 @@ abstract class Utils extends Application {
         stage.initStyle(StageStyle.TRANSPARENT);
         stage.initModality(Modality.WINDOW_MODAL);
 
-        stage.setTitle("Hall of Fame");
-        stage.setWidth(mGameStage.getWidth() / 3);
-        stage.setHeight(mGameStage.getHeight() * 0.7);
-
-        header.setText("Hall of Fame");
+        stage.setWidth(mFrameDimension * 6);
+        stage.setHeight(mGameStage.getHeight() * 0.9);
 
         StackPane root = new StackPane();
-        root.setStyle("-fx-background-color: rgba(0, 0, 0, 0.8); -fx-padding: 20px;");
+        root.setStyle("-fx-background-color: rgba(0, 0, 0, 0.8); -fx-padding: " + mGridDimension + ";");
         root.setAlignment(Pos.TOP_CENTER);
 
         Scene scene = new Scene(root);
+        scene.getStylesheets().add("stylesheet.css");
         scene.setFill(Color.TRANSPARENT);
         stage.setScene(scene);
 
@@ -4317,9 +4263,31 @@ abstract class Utils extends Application {
         contentBox.setSpacing(20);
         contentBox.setMinWidth(root.getMinWidth());
         contentBox.setAlignment(Pos.TOP_CENTER);
-
         contentBox.getChildren().add(header);
-        contentBox.getChildren().add(content);
+
+        VBox scoreLines = new VBox();
+        scoreLines.setMinWidth(contentBox.getWidth());
+        for(String line : entryLines){
+            Text text = new Text(line);
+            text.setFont(playerFont);
+            if(line.toUpperCase().contains(" " + mPlayer.toUpperCase() + ": ")) {
+                text.setFill(Color.color(0.5, 1, 0.5, 1));
+            } else {
+
+                text.setFill(Color.WHITE);
+            }
+            scoreLines.getChildren().add(text);
+        }
+        contentBox.getChildren().add(scoreLines);
+
+        //contentBox.getChildren().add(contentText);
+
+        ScrollPane scrollPane = new ScrollPane();
+        scrollPane.setPrefSize(stage.getWidth(), stage.getHeight());
+        scrollPane.setHbarPolicy(ScrollPane.ScrollBarPolicy.AS_NEEDED);
+        scrollPane.setVbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
+        scrollPane.setContent(contentText);
+        contentBox.getChildren().add(scrollPane);
 
         final Button buttonLogout = new Button();
         buttonLogout.setFont(menuFont);
@@ -4330,6 +4298,7 @@ abstract class Utils extends Application {
         buttonLogout.setText("Log out");
         buttonLogout.setOnAction(e -> {
             stage.close();
+            playerLogOut();
         });
 
         final Button buttonClose = new Button();
