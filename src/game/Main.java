@@ -576,7 +576,7 @@ public class Main extends Utils {
                     prefs.putInt("achieved", mCurrentLevel);
                     mAchievedLevel = mCurrentLevel;
                 }
-                if(!mPlayer.isEmpty() && !mPass.isEmpty()) {
+                if(!mPlayer.isEmpty() && !mPass.isEmpty() && !mDevMode) {
                     updateHallScore(mPlayer, mPass, lvlToString(mCurrentLevel - 1), mTurnsCounter);
                 }
                 prefs.putInt("level", mCurrentLevel);
