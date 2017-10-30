@@ -10,7 +10,7 @@
         <option name="nativeBundle" value="exe" />
         <option name="title" value="Eist returns" />
         <option name="vendor" value="nwg" />
-        <option name="version" value="0.0.9-1" />
+        <option name="version" value="0.0.9-3" />
         <option name="width" value="1280" />
       </options>
     </properties>
