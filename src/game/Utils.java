@@ -2614,6 +2614,9 @@ abstract class Utils extends Application {
         if (userLevels().size() == 0) {
 
             mHttpResponse = "";
+            if(exit) {
+                Toast.makeText(mGameStage, "Connecting Hall of Fame...", TOAST_LENGTH_LONG);
+            }
 
             Thread thread = new Thread(() -> {
                 try {
@@ -2647,7 +2650,11 @@ abstract class Utils extends Application {
                     }
                 }
                 if (exit) {
-                    Platform.exit();
+                    Platform.runLater(() -> {
+                        mGameStage.close();
+                        Platform.exit();
+                    });
+
                 }
             });
             thread.start();
