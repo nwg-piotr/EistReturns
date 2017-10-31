@@ -2280,7 +2280,7 @@ abstract class Utils extends Application {
                     if (mGameStage != null) {
                         mGameStage.setTitle("Eist returns: default");
 
-                        if(!mPlayer.isEmpty() && !mPass.isEmpty()){
+                        if (!mPlayer.isEmpty() && !mPass.isEmpty()) {
                             playerLogin(mPlayer, mPass);
                         }
                     }
@@ -2606,7 +2606,7 @@ abstract class Utils extends Application {
         thread.start();
     }
 
-    void updateHallScore(String player, String pass, String levelName, int levelValue) {
+    void updateHallScore(String player, String pass, boolean exit) {
 
         if (userLevels().size() == 0) {
 
@@ -2614,18 +2614,10 @@ abstract class Utils extends Application {
 
             Thread thread = new Thread(() -> {
                 try {
-                    /*
-                     * We're storing the completed level value, which means mAchievedLevel-1
-                     */
-                    /*
-                    mHttpResponse = HttpURLConnection.sendGet("http://nwg.pl/eist/player.php?action=update&uname=" +
-                            player + "&upswd=" + pass + "&ulevel=" + (mAchievedLevel - 1) + "&uturns=" + totalTurns() +
-                            "&lname=l" + levelName + "&lvalue=" + levelValue);
-                    */
 
                     StringBuilder url = new StringBuilder();
                     String part0 = "http://nwg.pl/eist/player.php?action=updateall&uname=" + player + "&upswd=" + pass + "&ulevel=" +
-                            (mAchievedLevel - 1)  + "&uturns=" + totalTurns();
+                            (mAchievedLevel - 1) + "&uturns=" + totalTurns();
                     url.append(part0);
 
                     for (int i = 1; i < MAX_LEVEL + 1; i++) {
@@ -2650,6 +2642,9 @@ abstract class Utils extends Application {
                     } else {
                         Platform.runLater(() -> Toast.makeText(mGameStage, "Failed updating Hall of Fame", TOAST_LENGTH_LONG));
                     }
+                }
+                if (exit) {
+                    Platform.exit();
                 }
             });
             thread.start();
@@ -2678,7 +2673,7 @@ abstract class Utils extends Application {
         }
     }
 
-    private void playerLogOut(){
+    private void playerLogOut() {
         mPlayer = "";
         mPass = "";
         prefs.put("user", mPlayer);
@@ -4099,8 +4094,12 @@ abstract class Utils extends Application {
 
         buttonFinish.addEventHandler(MouseEvent.MOUSE_EXITED,
                 e -> hint.setText("Select action below:"));
-        buttonFinish.setOnAction(e -> Platform.exit());
-
+        buttonFinish.setOnAction(e -> {
+            if (!mPlayer.isEmpty() && !mPass.isEmpty() && !mDevMode) {
+                updateHallScore(mPlayer, mPass, true);
+            }
+        });
+        
         final Button buttonClose = new Button();
         buttonClose.setFont(menuFont);
         buttonClose.setStyle("-fx-text-fill: white;");
@@ -4283,10 +4282,10 @@ abstract class Utils extends Application {
 
         VBox scoreLines = new VBox();
         scoreLines.setMinWidth(contentBox.getWidth());
-        for(String line : entryLines){
+        for (String line : entryLines) {
             Text text = new Text(line);
             text.setFont(playerFont);
-            if(line.toUpperCase().contains(" " + mPlayer.toUpperCase() + ": ")) {
+            if (line.toUpperCase().contains(" " + mPlayer.toUpperCase() + ": ")) {
                 text.setFill(Color.color(0.5, 1, 0.5, 1));
             } else {
 

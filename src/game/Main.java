@@ -70,8 +70,11 @@ public class Main extends Utils {
         mGameStage.setOnCloseRequest(event -> {
             System.out.println("Window close requested");
             event.consume();
-            mGameStage.close();
-            Platform.exit();
+            if(!mPlayer.isEmpty() && !mPass.isEmpty() && !mDevMode) {
+                updateHallScore(mPlayer, mPass, true);
+            }
+            //mGameStage.close();
+            //Platform.exit();
         });
 
         Canvas canvas = new Canvas(mSceneWidth, mSceneHeight);
@@ -100,6 +103,10 @@ public class Main extends Utils {
                 case F:
                     mShowFps = !mShowFps;
                     break;
+                case S:
+                    if(!mPlayer.isEmpty() && !mPass.isEmpty() && !mDevMode) {
+                        updateHallScore(mPlayer, mPass, false);
+                    }
                 default:
                     break;
             }
@@ -577,7 +584,7 @@ public class Main extends Utils {
                     mAchievedLevel = mCurrentLevel;
                 }
                 if(!mPlayer.isEmpty() && !mPass.isEmpty() && !mDevMode) {
-                    updateHallScore(mPlayer, mPass, lvlToString(mCurrentLevel - 1), mTurnsCounter);
+                    updateHallScore(mPlayer, mPass, false);
                 }
                 prefs.putInt("level", mCurrentLevel);
 
