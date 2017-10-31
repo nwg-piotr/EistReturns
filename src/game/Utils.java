@@ -2083,7 +2083,7 @@ abstract class Utils extends Application {
     private void displayAboutAlert() {
         Alert alert = new Alert(Alert.AlertType.INFORMATION);
         alert.setTitle("About the game");
-        alert.setHeaderText("Eist returns\narcade-puzzle game\n\u00a91992-2017 nwg (Piotr Miller)");
+        alert.setHeaderText("Eist returns\narcade-puzzle game\n\u00a91992-2017 nwg (Piotr Miller)\nhttp://nwg.pl/eist");
         alert.setResizable(true);
         alert.initOwner(mGameStage);
 
@@ -2617,9 +2617,25 @@ abstract class Utils extends Application {
                     /*
                      * We're storing the completed level value, which means mAchievedLevel-1
                      */
+                    /*
                     mHttpResponse = HttpURLConnection.sendGet("http://nwg.pl/eist/player.php?action=update&uname=" +
                             player + "&upswd=" + pass + "&ulevel=" + (mAchievedLevel - 1) + "&uturns=" + totalTurns() +
                             "&lname=l" + levelName + "&lvalue=" + levelValue);
+                    */
+
+                    StringBuilder url = new StringBuilder();
+                    String part0 = "http://nwg.pl/eist/player.php?action=updateall&uname=" + player + "&upswd=" + pass + "&ulevel=" +
+                            (mAchievedLevel - 1)  + "&uturns=" + totalTurns();
+                    url.append(part0);
+
+                    for (int i = 1; i < MAX_LEVEL + 1; i++) {
+                        url.append("&l");
+                        url.append(lvlToString(i));
+                        url.append("=");
+                        url.append(prefs.getInt(lvlToString(i) + "best", 0));
+                    }
+
+                    mHttpResponse = HttpURLConnection.sendGet(url.toString());
 
                 } catch (Exception e) {
                     Platform.runLater(() -> Toast.makeText(mGameStage, "Connection error: " + e, TOAST_LENGTH_LONG));
