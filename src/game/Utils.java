@@ -2581,7 +2581,10 @@ abstract class Utils extends Application {
                      */
                     String[] levelsData = wholeLine[1].split(",");
                     for (int i = 1; i < 41; i++) {
-                        prefs.putInt(lvlToString(i) + "best", Integer.valueOf(levelsData[i - 1]));
+                        int score = Integer.valueOf(levelsData[i - 1]);
+                        if(score > 0) {
+                            prefs.putInt(lvlToString(i) + "best", score);
+                        }
                     }
 
                 } else {
@@ -2640,7 +2643,7 @@ abstract class Utils extends Application {
                     if (mHttpResponse.equals("scores_updated")) {
                         Platform.runLater(() -> Toast.makeText(mGameStage, "Hall of Fame updated", TOAST_LENGTH_SHORT));
                     } else {
-                        Platform.runLater(() -> Toast.makeText(mGameStage, "Failed updating Hall of Fame", TOAST_LENGTH_LONG));
+                        Platform.runLater(() -> Toast.makeText(mGameStage, "Failed saving results, press 'S' to retry", TOAST_LENGTH_LONG));
                     }
                 }
                 if (exit) {
@@ -4099,7 +4102,7 @@ abstract class Utils extends Application {
                 updateHallScore(mPlayer, mPass, true);
             }
         });
-        
+
         final Button buttonClose = new Button();
         buttonClose.setFont(menuFont);
         buttonClose.setStyle("-fx-text-fill: white;");
