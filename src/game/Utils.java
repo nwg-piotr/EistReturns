@@ -1,9 +1,12 @@
 package game;
 
+import com.sun.deploy.uitoolkit.impl.fx.HostServicesFactory;
+import com.sun.javafx.application.HostServicesDelegate;
 import javafx.animation.KeyFrame;
 import javafx.animation.KeyValue;
 import javafx.animation.Timeline;
 import javafx.application.Application;
+import javafx.application.HostServices;
 import javafx.application.Platform;
 import javafx.concurrent.Task;
 import javafx.geometry.Insets;
@@ -14,6 +17,12 @@ import javafx.scene.Group;
 import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
+import javafx.scene.control.Button;
+import javafx.scene.control.Dialog;
+import javafx.scene.control.Label;
+import javafx.scene.control.ScrollPane;
+import javafx.scene.control.TextArea;
+import javafx.scene.control.TextField;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.image.PixelReader;
@@ -28,8 +37,10 @@ import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
 import javafx.scene.text.Text;
+import javafx.scene.web.WebView;
 import javafx.stage.*;
 
+import java.awt.*;
 import java.io.File;
 
 import game.Sprites.Player;
@@ -52,11 +63,14 @@ import javafx.util.Pair;
 
 import java.io.*;
 
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.*;
+import java.util.List;
 import java.util.prefs.BackingStoreException;
 import java.util.prefs.Preferences;
 
@@ -157,6 +171,8 @@ abstract class Utils extends Application {
 
     private String mHttpResponse;
     private boolean mNewPlayer;
+    private boolean mHofInProgress;
+    boolean mResultsChanged = false;
 
     /**
      * The Frame is a rectangular part of the game board of width of 2 columns and height of 2 rows.
@@ -577,7 +593,11 @@ abstract class Utils extends Application {
                     displaySettings();
 
                 } else if (mButtonHall.contains(pointClicked)) {
-                    displayHallOfFame();
+                    if(!mHofInProgress) {
+                        displayHallOfFame();
+                    } else {
+                        Toast.makeText(mGameStage, "Already asking the cloud, wait...", TOAST_LENGTH_SHORT);
+                    }
                 }
             }
         }
@@ -2413,13 +2433,16 @@ abstract class Utils extends Application {
 
     private void displayHallOfFame() {
 
-        if (mPlayer.isEmpty()) {
+        if(!mHofInProgress) {
 
-            displayLogInDialog();
+            if (mPlayer.isEmpty()) {
 
-        } else {
+                displayLogInDialog();
 
-            showHallScores();
+            } else {
+
+                showHallScores();
+            }
         }
     }
 
@@ -2607,7 +2630,7 @@ abstract class Utils extends Application {
             try {
                 mHttpResponse = HttpURLConnection.sendGet("http://nwg.pl/eist/player.php?action=login&uname=" + player + "&upswd=" + pass);
             } catch (Exception e) {
-                Platform.runLater(() -> Toast.makeText(mGameStage, "Connection error: " + e, TOAST_LENGTH_LONG));
+                Platform.runLater(() -> displayExceptionAlert("Internet connection error", e));
             }
 
             if (!mHttpResponse.isEmpty()) {
@@ -2670,6 +2693,7 @@ abstract class Utils extends Application {
         if (userLevels().size() == 0) {
 
             mHttpResponse = "";
+
             if(exit) {
                 Toast.makeText(mGameStage, "Connecting Hall of Fame...", TOAST_LENGTH_LONG);
             }
@@ -2701,6 +2725,7 @@ abstract class Utils extends Application {
 
                     if (mHttpResponse.equals("scores_updated")) {
                         Platform.runLater(() -> Toast.makeText(mGameStage, "Hall of Fame updated", TOAST_LENGTH_SHORT));
+                        mResultsChanged = false;
                     } else {
                         Platform.runLater(() -> Toast.makeText(mGameStage, "Failed saving results, press 'S' to retry", TOAST_LENGTH_LONG));
                     }
@@ -2713,6 +2738,9 @@ abstract class Utils extends Application {
                 }
             });
             thread.start();
+
+        }  else {
+            Platform.exit();
         }
     }
 
@@ -2720,6 +2748,7 @@ abstract class Utils extends Application {
 
         if (userLevels().size() == 0) {
 
+            mHofInProgress = true;
             mHttpResponse = "";
 
             Thread thread = new Thread(() -> {
@@ -2730,11 +2759,15 @@ abstract class Utils extends Application {
                 }
 
                 System.out.println(mHttpResponse);
-                Platform.runLater(() -> displayHoF(mHttpResponse));
+                Platform.runLater(() -> { displayHoF(mHttpResponse);
+                    mHofInProgress = false;
+                });
             });
             thread.start();
+
         } else {
             displayHoF("user_set");
+            mHofInProgress = false;
         }
     }
 
@@ -4093,7 +4126,7 @@ abstract class Utils extends Application {
 
         stage.setTitle("Tools");
         stage.setWidth(mGameStage.getWidth() / 3);
-        stage.setHeight(mGameStage.getHeight() * 0.7);
+        stage.setHeight(mGameStage.getHeight() * 0.9);
 
         Text hint = new Text();
         hint.setFont(messageFont);
@@ -4102,7 +4135,7 @@ abstract class Utils extends Application {
         hint.setText("Select action below:");
 
         StackPane root = new StackPane();
-        root.setStyle("-fx-background-color: rgba(0, 0, 0, 0.85); -fx-padding: 20px;");
+        root.setStyle("-fx-background-color: rgba(0, 0, 0, 0.8); -fx-padding: 20px;");
         root.setAlignment(Pos.TOP_CENTER);
 
         Scene scene = new Scene(root);
@@ -4178,10 +4211,10 @@ abstract class Utils extends Application {
         buttonFinish.addEventHandler(MouseEvent.MOUSE_EXITED,
                 e -> hint.setText("Select action below:"));
         buttonFinish.setOnAction(e -> {
-            if (!mPlayer.isEmpty() && !mPass.isEmpty() && !mDevMode) {
-                updateHallScore(mPlayer, mPass, true);
+            stage.close();
+            if(mResultsChanged) {
+                gameExit(false);
             } else {
-                mGameStage.close();
                 Platform.exit();
             }
         });
@@ -4257,22 +4290,40 @@ abstract class Utils extends Application {
             displayHighScores();
         });
 
-        final Button buttonLogIn = new Button();
-        buttonLogIn.setFont(menuFont);
-        buttonLogIn.setStyle("-fx-text-fill: white;");
-        buttonLogIn.setBackground(mButtonBackground);
-        buttonLogIn.setMinWidth(mButtonWidth);
-        buttonLogIn.setMinHeight(mGridDimension);
-        buttonLogIn.setText("Manage players");
+        final Button buttonManagePlayers = new Button();
+        buttonManagePlayers.setFont(menuFont);
+        buttonManagePlayers.setStyle("-fx-text-fill: white;");
+        buttonManagePlayers.setBackground(mButtonBackground);
+        buttonManagePlayers.setMinWidth(mButtonWidth);
+        buttonManagePlayers.setMinHeight(mGridDimension);
+        buttonManagePlayers.setText("Manage players");
 
-        buttonLogIn.addEventHandler(MouseEvent.MOUSE_ENTERED,
+        buttonManagePlayers.addEventHandler(MouseEvent.MOUSE_ENTERED,
                 e -> hint.setText("Create or delete player"));
 
-        buttonLogIn.addEventHandler(MouseEvent.MOUSE_EXITED,
+        buttonManagePlayers.addEventHandler(MouseEvent.MOUSE_EXITED,
                 e -> hint.setText("Select action below:"));
-        buttonLogIn.setOnAction(e -> {
+        buttonManagePlayers.setOnAction(e -> {
             stage.close();
             displayManagePlayerDialog();
+        });
+
+        final Button buttonLogOut = new Button();
+        buttonLogOut.setFont(menuFont);
+        buttonLogOut.setStyle("-fx-text-fill: white;");
+        buttonLogOut.setBackground(mButtonBackground);
+        buttonLogOut.setMinWidth(mButtonWidth);
+        buttonLogOut.setMinHeight(mGridDimension);
+        buttonLogOut.setText("Log me out");
+
+        buttonLogOut.addEventHandler(MouseEvent.MOUSE_ENTERED,
+                e -> hint.setText("Disconnect the Hall of Fame"));
+
+        buttonLogOut.addEventHandler(MouseEvent.MOUSE_EXITED,
+                e -> hint.setText("Select action below:"));
+        buttonLogOut.setOnAction(e -> {
+            stage.close();
+            playerLogOut();
         });
 
         buttonsBox.getChildren().add(hint);
@@ -4283,7 +4334,8 @@ abstract class Utils extends Application {
         buttonsBox.getChildren().add(buttonImport);
         buttonsBox.getChildren().add(buttonRestore);
         buttonsBox.getChildren().add(buttonScores);
-        buttonsBox.getChildren().add(buttonLogIn);
+        buttonsBox.getChildren().add(buttonManagePlayers);
+        buttonsBox.getChildren().add(buttonLogOut);
         buttonsBox.getChildren().add(buttonClose);
 
         root.getChildren().add(buttonsBox);
@@ -4382,8 +4434,6 @@ abstract class Utils extends Application {
         }
         contentBox.getChildren().add(scoreLines);
 
-        //contentBox.getChildren().add(contentText);
-
         ScrollPane scrollPane = new ScrollPane();
         scrollPane.setPrefSize(stage.getWidth(), stage.getHeight());
         scrollPane.setHbarPolicy(ScrollPane.ScrollBarPolicy.AS_NEEDED);
@@ -4403,6 +4453,20 @@ abstract class Utils extends Application {
             playerLogOut();
         });
 
+        final Button buttonWebsite = new Button();
+        buttonWebsite.setFont(menuFont);
+        buttonWebsite.setStyle("-fx-text-fill: white;");
+        buttonWebsite.setBackground(mButtonBackgroundNarrow);
+        buttonWebsite.setMinWidth(mButtonWidthNarrow);
+        buttonWebsite.setMinHeight(mGridDimension);
+        buttonWebsite.setText("Details");
+        buttonWebsite.setOnAction(e -> {
+            stage.close();
+
+            Platform.runLater(this::openWebsite);
+
+        });
+
         final Button buttonClose = new Button();
         buttonClose.setFont(menuFont);
         buttonClose.setStyle("-fx-text-fill: white;");
@@ -4420,6 +4484,7 @@ abstract class Utils extends Application {
         buttonsBox.setAlignment(Pos.CENTER);
 
         buttonsBox.getChildren().add(buttonLogout);
+        buttonsBox.getChildren().add(buttonWebsite);
         buttonsBox.getChildren().add(buttonClose);
 
         contentBox.getChildren().add(buttonsBox);
@@ -4483,5 +4548,52 @@ abstract class Utils extends Application {
             Toast.makeText(mEditorStage, "No file selected", TOAST_LENGTH_SHORT);
         }
 
+    }
+
+    void gameExit(boolean askForConfirmation){
+
+        if(askForConfirmation) {
+            Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+            alert.setTitle("Exit game");
+            if (mResultsChanged && !mPlayer.isEmpty()) {
+                alert.setHeaderText("This will quit current game.\nResults will be stored in the Hall of Fame.");
+            } else {
+                alert.setHeaderText("This will quit current game. ");
+            }
+            alert.setContentText("Are you sure you want to exit?");
+
+            Optional<ButtonType> result = alert.showAndWait();
+            if (result.isPresent() && result.get() == ButtonType.OK) {
+                if (mResultsChanged && !mPlayer.isEmpty() && !mPass.isEmpty() && !mDevMode) {
+                    updateHallScore(mPlayer, mPass, true);
+                } else {
+                    mGameStage.close();
+                    Platform.exit();
+                }
+            }
+        } else {
+            if (!mPlayer.isEmpty() && !mPass.isEmpty() && !mDevMode) {
+                updateHallScore(mPlayer, mPass, true);
+            } else {
+                mGameStage.close();
+                Platform.exit();
+            }
+        }
+
+    }
+
+    private void openWebsite(){
+        Thread thread = new Thread(() -> {
+
+            try {
+                java.awt.Desktop.getDesktop().browse(new URI("http://nwg.pl/eist/index.php?uname=" + mPlayer));
+            } catch (URISyntaxException e1) {
+                System.out.println("URISyntaxException " + e1);
+            } catch (IOException e2) {
+                System.out.println("IOException " + e2);
+            }
+            System.out.println("www thread finished");
+        });
+        thread.start();
     }
 }

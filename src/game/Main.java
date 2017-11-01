@@ -26,6 +26,7 @@ import game.Sprites.Ladder;
 import game.Sprites.Slot;
 import game.Sprites.Exit;
 import game.Sprites.Pad;
+import javafx.stage.StageStyle;
 
 public class Main extends Utils {
 
@@ -59,6 +60,7 @@ public class Main extends Utils {
         mGameStage.setTitle("Eist returns");
         mGameStage.getIcons().add(new Image("/images/common/eist.png"));
         mGameStage.setResizable(false);
+        mGameStage.initStyle(StageStyle.UNDECORATED);
         if (mDimensionDivider == 1.0) {
             mGameStage.setFullScreen(true);
         }
@@ -110,6 +112,9 @@ public class Main extends Utils {
                     break;
                 case C:
                     displayClearAllDialog();
+                    break;
+                case ESCAPE:
+                    gameExit(true);
                     break;
                 default:
                     break;
@@ -596,6 +601,7 @@ public class Main extends Utils {
                 }
                 */
                 prefs.putInt(lvlToString(mCurrentLevel) + "best", mTurnsCounter);
+                mResultsChanged = true;
 
                 if (mCurrentLevel + 1 < MAX_LEVEL) {
                     mCurrentLevel++;
