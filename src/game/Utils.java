@@ -57,6 +57,7 @@ import java.nio.file.Paths;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.*;
+import java.util.prefs.BackingStoreException;
 import java.util.prefs.Preferences;
 
 import static javafx.scene.layout.BackgroundSize.AUTO;
@@ -2080,6 +2081,32 @@ abstract class Utils extends Application {
         alert.showAndWait();
     }
 
+    void displayFirstRunAlert(){
+        Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+        alert.setGraphic(new ImageView(ClassLoader.getSystemResource("images/common/cloud.png").toExternalForm()));
+        alert.setTitle("Hall of Fame cloud service");
+        alert.setHeaderText("Create or login to a Hall of Fame account");
+        alert.setContentText("Online account lets you sync the game state\nbetween devices and compare results\nto other players.\n\n");
+        alert.initOwner(mGameStage);
+
+        ButtonType buttonTypeOK = new ButtonType("Create/Login", ButtonData.OK_DONE);
+        ButtonType buttonTypeDontAsk = new ButtonType("Don't ask again", ButtonData.NO);
+        ButtonType buttonTypeLater = new ButtonType("Ask later", ButtonData.CANCEL_CLOSE);
+
+        alert.getButtonTypes().setAll(buttonTypeOK, buttonTypeDontAsk, buttonTypeLater);
+
+        Optional<ButtonType> result = alert.showAndWait();
+        if(result.isPresent()) {
+            if (result.get() == buttonTypeOK) {
+                prefs.putBoolean("hofAsked", true);
+                displayHallOfFame();
+            } else if (result.get() == buttonTypeDontAsk) {
+                prefs.putBoolean("hofAsked", true);
+            }
+        }
+
+    }
+
     private void displayAboutAlert() {
         Alert alert = new Alert(Alert.AlertType.INFORMATION);
         alert.setTitle("About the game");
@@ -2348,7 +2375,7 @@ abstract class Utils extends Application {
 
             if (result.get().equals(pass)) {
                 mDevMode = true;
-                Toast.makeText(mGameStage, "Developer mode on", TOAST_LENGTH_SHORT);
+                playerLogOut();
             } else {
                 mDevMode = false;
                 Toast.makeText(mGameStage, "Key invalid", TOAST_LENGTH_SHORT);
@@ -2544,7 +2571,34 @@ abstract class Utils extends Application {
         });
     }
 
+    void displayClearAllDialog(){
+        Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+        alert.setTitle("Clear scores and settings");
+        alert.setHeaderText("This will clear all the game settings\nand locally stores results!");
+        alert.setContentText("Are you REALLY sure?");
+
+        Optional<ButtonType> result = alert.showAndWait();
+        if(result.isPresent() && result.get() == ButtonType.OK) {
+            try {
+                prefs.clear();
+                mPlayer = "";
+                mPass = "";
+                mAchievedLevel = 1;
+                mCurrentLevel = 0;
+                mSelectedLevel = 1;
+                mDevMode = false;
+                loadLevel(0);
+                Toast.makeText(mGameStage, "Restoring factory defaults...", TOAST_LENGTH_SHORT);
+            } catch (BackingStoreException e){
+                displayExceptionAlert("Couldn't clear settings", e);
+            }
+
+        }
+    }
+
     void playerLogin(String player, String pass) {
+
+        prefs.putBoolean("hofAsked", true);
 
         mHttpResponse = "";
 
@@ -2564,6 +2618,7 @@ abstract class Utils extends Application {
                     mPass = pass;
                     prefs.put("user", mPlayer);
                     prefs.put("pass", mPass);
+                    mDevMode = false;
                     Platform.runLater(this::showHallScores);
 
                     String[] wholeLine = mHttpResponse.split(":");
@@ -4047,7 +4102,7 @@ abstract class Utils extends Application {
         hint.setText("Select action below:");
 
         StackPane root = new StackPane();
-        root.setStyle("-fx-background-color: rgba(0, 0, 0, 0.8); -fx-padding: 20px;");
+        root.setStyle("-fx-background-color: rgba(0, 0, 0, 0.85); -fx-padding: 20px;");
         root.setAlignment(Pos.TOP_CENTER);
 
         Scene scene = new Scene(root);
@@ -4091,6 +4146,24 @@ abstract class Utils extends Application {
             displaySizeDialog();
         });
 
+        final Button buttonClearAll = new Button();
+        buttonClearAll.setFont(menuFont);
+        buttonClearAll.setStyle("-fx-text-fill: white;");
+        buttonClearAll.setBackground(mButtonBackground);
+        buttonClearAll.setMinWidth(mButtonWidth);
+        buttonClearAll.setMinHeight(mGridDimension);
+        buttonClearAll.setText("Reset the game");
+
+        buttonClearAll.addEventHandler(MouseEvent.MOUSE_ENTERED,
+                e -> hint.setText("Clears settings and locally saved scores"));
+
+        buttonClearAll.addEventHandler(MouseEvent.MOUSE_EXITED,
+                e -> hint.setText("Select action below:"));
+        buttonClearAll.setOnAction(e -> {
+            stage.close();
+            displayClearAllDialog();
+        });
+
         final Button buttonFinish = new Button();
         buttonFinish.setFont(menuFont);
         buttonFinish.setStyle("-fx-text-fill: white;");
@@ -4107,6 +4180,9 @@ abstract class Utils extends Application {
         buttonFinish.setOnAction(e -> {
             if (!mPlayer.isEmpty() && !mPass.isEmpty() && !mDevMode) {
                 updateHallScore(mPlayer, mPass, true);
+            } else {
+                mGameStage.close();
+                Platform.exit();
             }
         });
 
@@ -4203,6 +4279,7 @@ abstract class Utils extends Application {
 
         buttonsBox.getChildren().add(buttonFinish);
         buttonsBox.getChildren().add(buttonSize);
+        buttonsBox.getChildren().add(buttonClearAll);
         buttonsBox.getChildren().add(buttonImport);
         buttonsBox.getChildren().add(buttonRestore);
         buttonsBox.getChildren().add(buttonScores);

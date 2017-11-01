@@ -2,6 +2,7 @@ package game;
 
 import javafx.animation.AnimationTimer;
 import javafx.application.Platform;
+import javafx.concurrent.Task;
 import javafx.geometry.Point2D;
 import javafx.geometry.Rectangle2D;
 import javafx.scene.Group;
@@ -107,6 +108,10 @@ public class Main extends Utils {
                     if(!mPlayer.isEmpty() && !mPass.isEmpty() && !mDevMode) {
                         updateHallScore(mPlayer, mPass, false);
                     }
+                    break;
+                case C:
+                    displayClearAllDialog();
+                    break;
                 default:
                     break;
             }
@@ -226,8 +231,29 @@ public class Main extends Utils {
         mPlayer = prefs.get("user", "");
         mPass = prefs.get("pass", "");
 
-        if(!mPlayer.isEmpty() && !mPass.isEmpty()){
-            playerLogin(mPlayer, mPass);
+        if(!prefs.getBoolean("hofAsked", false)) {
+            if (mPlayer.isEmpty() && mPass.isEmpty()) {
+
+                Task<Void> sleeper = new Task<Void>() {
+                    @Override
+                    protected Void call() throws Exception {
+                        try {
+                            Thread.sleep(1000);
+                        } catch (InterruptedException e) {
+                            System.out.println(e.toString());
+                        }
+                        return null;
+                    }
+                };
+                sleeper.setOnSucceeded(event -> {
+                    displayFirstRunAlert();
+                });
+                new Thread(sleeper).start();
+            }
+        } else {
+            if (!mPlayer.isEmpty() && !mPass.isEmpty()) {
+                playerLogin(mPlayer, mPass);
+            }
         }
     }
 
@@ -776,7 +802,11 @@ public class Main extends Utils {
                 }
             } else {
                 gc.setFont(playerFont);
-                gc.fillText("Hall of Fame login", columns[27], rows[2]);
+                if(!mDevMode) {
+                    gc.fillText("Hall of Fame login", columns[27], rows[2]);
+                } else {
+                    gc.fillText("Developer mode", columns[27], rows[2]);
+                }
             }
         }
     }
