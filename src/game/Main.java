@@ -287,7 +287,7 @@ public class Main extends Utils {
                     break;
             }
             String lvlNumberToString = (mSelectedLevel < 10) ? "0" + String.valueOf(mSelectedLevel) : String.valueOf(mSelectedLevel);
-            gc.setFont(levelFont);
+            gc.setFont(infoFont);
             gc.setFill(Color.color(0, 1, 1, 1));
             gc.fillText("LEVEL " + lvlNumberToString, columns[27], rows[1] + mHalfGridDimension);
         } else {

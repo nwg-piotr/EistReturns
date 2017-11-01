@@ -95,7 +95,6 @@ abstract class Utils extends Application {
     boolean mGameFinished = false;
 
     double mDimensionDivider;
-    private double rem;
 
     int mCurrentEistFrame = 0;
     int mCurrentArtifactFrame = 0;
@@ -162,7 +161,6 @@ abstract class Utils extends Application {
     Stage mEditorStage;
     Scene mEditorScene;
 
-    Font levelFont;
     Font infoFont;
     Font messageFont;
     Font turnsFont;
@@ -275,7 +273,6 @@ abstract class Utils extends Application {
         mDetectionOffset = (int) mFrameDimension / 6;
         mRotationRadius = mFrameDimension / 4;
         walkingSpeedPerSecond = mSceneWidth / 14d;
-        rem = javafx.scene.text.Font.getDefault().getSize() / 13;
 
         /*
          * Create the folder which user can upload custom levels data to.
@@ -666,13 +663,20 @@ abstract class Utils extends Application {
 
     void initializeFonts() {
 
+        /*
         infoFont = Font.loadFont(ClassLoader.getSystemResource("Orbitron-Regular.ttf").toExternalForm(), 50 / mDimensionDivider * rem);
         levelFont = Font.loadFont(ClassLoader.getSystemResource("Orbitron-Regular.ttf").toExternalForm(), 44 / mDimensionDivider * rem);
         turnsFont = Font.loadFont(ClassLoader.getSystemResource("Orbitron-Regular.ttf").toExternalForm(), 36 / mDimensionDivider * rem);
         playerFont = Font.font("Helvetica", FontWeight.NORMAL, 26 / mDimensionDivider * rem);
         messageFont = Font.loadFont(ClassLoader.getSystemResource("Orbitron-Regular.ttf").toExternalForm(), 20 / mDimensionDivider * rem);
-        Font hofFont = Font.loadFont(ClassLoader.getSystemResource("Orbitron-Regular.ttf").toExternalForm(), 27 / mDimensionDivider * rem);
         menuFont = Font.loadFont(ClassLoader.getSystemResource("Orbitron-Regular.ttf").toExternalForm(), 20 / mDimensionDivider * rem);
+        */
+
+        infoFont = Font.loadFont(ClassLoader.getSystemResource("Orbitron-Regular.ttf").toExternalForm(), mGridDimension * 0.75);
+        turnsFont = Font.loadFont(ClassLoader.getSystemResource("Orbitron-Regular.ttf").toExternalForm(), mGridDimension * 0.6);
+        playerFont = Font.font("Helvetica", FontWeight.NORMAL, mGridDimension * 0.45);
+        messageFont = Font.loadFont(ClassLoader.getSystemResource("Orbitron-Regular.ttf").toExternalForm(), mGridDimension * 0.35);
+        menuFont = Font.loadFont(ClassLoader.getSystemResource("Orbitron-Regular.ttf").toExternalForm(), mGridDimension * 0.35);
     }
 
     void loadCommonGraphics() {
@@ -4259,7 +4263,7 @@ abstract class Utils extends Application {
         buttonRestore.setBackground(mButtonBackground);
         buttonRestore.setMinWidth(mButtonWidth);
         buttonRestore.setMinHeight(mGridDimension);
-        buttonRestore.setText("Restore default levels");
+        buttonRestore.setText("Restore levels");
 
         buttonRestore.addEventHandler(MouseEvent.MOUSE_ENTERED,
                 e -> hint.setText("Clears all user-defined levels"));
@@ -4346,7 +4350,7 @@ abstract class Utils extends Application {
     private void displayHoF(String scores) {
 
         Text header = new Text();
-        header.setFont(levelFont);
+        header.setFont(infoFont);
         header.setFill(Color.color(0, 1, 1, 1));
 
         Text contentText = new Text();
