@@ -67,11 +67,10 @@ public class Main extends Utils {
         Scene mScene = new Scene(root, mSceneWidth, mSceneHeight);
         mGameStage.setScene(mScene);
 
-
         mGameStage.setOnCloseRequest(event -> {
             System.out.println("Window close requested");
             event.consume();
-            if(!mPlayer.isEmpty() && !mPass.isEmpty() && !mDevMode) {
+            if (!mPlayer.isEmpty() && !mPass.isEmpty() && !mDevMode) {
                 updateHallScore(mPlayer, mPass, true);
             }
             //mGameStage.close();
@@ -105,7 +104,7 @@ public class Main extends Utils {
                     mShowFps = !mShowFps;
                     break;
                 case S:
-                    if(!mPlayer.isEmpty() && !mPass.isEmpty() && !mDevMode) {
+                    if (!mPlayer.isEmpty() && !mPass.isEmpty() && !mDevMode) {
                         updateHallScore(mPlayer, mPass, false);
                     }
                     break;
@@ -196,19 +195,19 @@ public class Main extends Utils {
          */
         mGameStage.iconifiedProperty().addListener((ov, t, t1) -> {
 
-            if(t1){
+            if (t1) {
 
-                if(trackMainPlayer != null) {
+                if (trackMainPlayer != null) {
                     boolean playing = trackMainPlayer.getStatus().equals(MediaPlayer.Status.PLAYING);
                     mTrackMainWasPlaying = playing;
-                    if(playing) {
+                    if (playing) {
                         trackMainPlayer.pause();
                     }
                 }
-                if(trackLevelPlayer != null) {
+                if (trackLevelPlayer != null) {
                     boolean playing = trackLevelPlayer.getStatus().equals(MediaPlayer.Status.PLAYING);
                     mTrackLevelWasPlaying = playing;
-                    if(playing) {
+                    if (playing) {
                         trackLevelPlayer.pause();
                     }
                 }
@@ -231,7 +230,7 @@ public class Main extends Utils {
         mPlayer = prefs.get("user", "");
         mPass = prefs.get("pass", "");
 
-        if(!prefs.getBoolean("hofAsked", false)) {
+        if (!prefs.getBoolean("hofAsked", false)) {
             if (mPlayer.isEmpty() && mPass.isEmpty()) {
 
                 Task<Void> sleeper = new Task<Void>() {
@@ -609,7 +608,7 @@ public class Main extends Utils {
                     prefs.putInt("achieved", mCurrentLevel);
                     mAchievedLevel = mCurrentLevel;
                 }
-                if(!mPlayer.isEmpty() && !mPass.isEmpty() && !mDevMode) {
+                if (!mPlayer.isEmpty() && !mPass.isEmpty() && !mDevMode) {
                     updateHallScore(mPlayer, mPass, false);
                 }
                 prefs.putInt("level", mCurrentLevel);
@@ -789,12 +788,12 @@ public class Main extends Utils {
         if (mShowFps) {
             gc.fillText("FPS: " + String.valueOf((int) mFps), columns[27], rows[17]);
         }
-        if(mCurrentLevel == 0) {
+        if (mCurrentLevel == 0) {
             gc.setFill(Color.color(0.5, 1, 0.5, 1));
             if (!mPlayer.isEmpty()) {
                 gc.setFont(playerFont);
                 String displayName = mPlayer.toUpperCase();
-                if(displayName.length() > 16) {
+                if (displayName.length() > 16) {
                     gc.fillText(displayName.substring(0, 16).toUpperCase() + "...", columns[27], rows[2]);
                 } else {
                     gc.setFill(Color.color(0.5, 1, 0.5, 1));
@@ -802,7 +801,7 @@ public class Main extends Utils {
                 }
             } else {
                 gc.setFont(playerFont);
-                if(!mDevMode) {
+                if (!mDevMode) {
                     gc.fillText("Hall of Fame login", columns[27], rows[2]);
                 } else {
                     gc.fillText("Developer mode", columns[27], rows[2]);

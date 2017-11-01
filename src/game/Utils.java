@@ -2574,7 +2574,7 @@ abstract class Utils extends Application {
     void displayClearAllDialog(){
         Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
         alert.setTitle("Clear scores and settings");
-        alert.setHeaderText("This will clear all the game settings\nand locally stores results!");
+        alert.setHeaderText("This will clear all the game settings\nand locally stores results!\nYou'll also have to start the game again.");
         alert.setContentText("Are you REALLY sure?");
 
         Optional<ButtonType> result = alert.showAndWait();
@@ -2589,6 +2589,7 @@ abstract class Utils extends Application {
                 mDevMode = false;
                 loadLevel(0);
                 Toast.makeText(mGameStage, "Restoring factory defaults...", TOAST_LENGTH_SHORT);
+                Platform.runLater(Platform::exit);
             } catch (BackingStoreException e){
                 displayExceptionAlert("Couldn't clear settings", e);
             }
@@ -2706,8 +2707,7 @@ abstract class Utils extends Application {
                 }
                 if (exit) {
                     Platform.runLater(() -> {
-                        mGameStage.close();
-                        Platform.exit();
+                        Platform.runLater(Platform::exit);
                     });
 
                 }
