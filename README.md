@@ -24,4 +24,6 @@ Download [eist-returns.exe](https://github.com/nwg-piotr/EistReturns/raw/master/
 move anywhere, double click to run. If your computer has no Java Runtime Environment installed, 
 you’ll be asked to download and install it from Oracle. For the Level editor please use the [eist-editor.exe](https://github.com/nwg-piotr/EistReturns/raw/master/windows/eist-editor.exe) file.
 
-Check [wiki pages](https://github.com/nwg-piotr/EistReturns/wiki) to learn more.
+Check [wiki pages](https://github.com/nwg-piotr/EistReturns/wiki) to learn more. **Attention!** the features concerning
+the Hall of Fame cloud service are only available in the [beta-0.0.9-7 Windows version](https://github.com/nwg-piotr/EistReturns/raw/master/windows/eist-returns-beta-0.0.9-7.exe) 
+at the moment. Stable releases for both Windows and Linux coming soon.
