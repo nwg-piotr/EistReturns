@@ -19,7 +19,7 @@ Two separate shortcuts will be created: `Eist returns` for the game, and `Eist E
 To launch from the command, line just type `eist-returns` for the game, and `eist-returns -E | --edit` for the editor.
 
 **Attention!** the features concerning the Hall of Fame cloud service are only available for the 
-[Windows release](https://github.com/nwg-piotr/EistReturns/tree/master/windows) at the moment. Linux AUR update coming soon.
+[Windows release](https://github.com/nwg-piotr/EistReturns/tree/master/windows) at the moment. AUR package update coming soon.
 
 **Windows**
 
