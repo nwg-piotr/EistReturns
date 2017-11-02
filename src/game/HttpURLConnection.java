@@ -26,8 +26,8 @@ class HttpURLConnection {
 
         int responseCode = con.getResponseCode();
 
-        System.out.println("Sending 'GET' request to " + url);
-        System.out.println("Response Code: " + responseCode);
+        //System.out.println("Sending 'GET' request to " + url);
+        //System.out.println("Response Code: " + responseCode);
 
         BufferedReader in = new BufferedReader(
                 new InputStreamReader(con.getInputStream()));

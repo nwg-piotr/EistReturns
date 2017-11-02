@@ -1,6 +1,6 @@
 # Maintainer: Piotr Miller <nwg.piotr@gmail.com>
 pkgname=('eist-returns')
-pkgver=0.0.8
+pkgver=0.9.0
 pkgrel=1
 pkgdesc="Arcade-puzzle game"
 arch=('i686' 'x86_64')

@@ -2639,7 +2639,7 @@ abstract class Utils extends Application {
 
             if (!mHttpResponse.isEmpty()) {
 
-                System.out.println(mHttpResponse);
+                //System.out.println(mHttpResponse);
 
                 if (mHttpResponse.startsWith("login_ok")) {
                     mPlayer = player;
@@ -2725,7 +2725,7 @@ abstract class Utils extends Application {
 
                 if (!mHttpResponse.isEmpty()) {
 
-                    System.out.println(mHttpResponse);
+                    //System.out.println(mHttpResponse);
 
                     if (mHttpResponse.equals("scores_updated")) {
                         Platform.runLater(() -> Toast.makeText(mGameStage, "Hall of Fame updated", TOAST_LENGTH_SHORT));
@@ -2762,7 +2762,7 @@ abstract class Utils extends Application {
                     Platform.runLater(() -> Toast.makeText(mGameStage, "Connection error: " + e, TOAST_LENGTH_LONG));
                 }
 
-                System.out.println(mHttpResponse);
+                //System.out.println(mHttpResponse);
                 Platform.runLater(() -> { displayHoF(mHttpResponse);
                     mHofInProgress = false;
                 });
@@ -2797,7 +2797,7 @@ abstract class Utils extends Application {
 
             if (!mHttpResponse.isEmpty()) {
 
-                System.out.println(mHttpResponse);
+                //System.out.println(mHttpResponse);
 
                 switch (mHttpResponse) {
                     case "player_created":
@@ -2840,7 +2840,7 @@ abstract class Utils extends Application {
 
             if (!mHttpResponse.isEmpty()) {
 
-                System.out.println(mHttpResponse);
+                //System.out.println(mHttpResponse);
 
                 switch (mHttpResponse) {
                     case "player_deleted":
