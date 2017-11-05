@@ -814,8 +814,6 @@ abstract class Utils extends Application {
     void loadLevel(int level) {
 
         System.out.println("Loading level " + level);
-        System.out.println("walkingSpeedPerSecond = " + walkingSpeedPerSecond);
-        System.out.println("mFrameDurationEist = " + mFrameDurationEist);
 
         walkingSpeedPerSecond = mSceneWidth / 14d;
         mFrameDurationEist = 70000000;
