@@ -1,12 +1,9 @@
 package game;
 
-import com.sun.deploy.uitoolkit.impl.fx.HostServicesFactory;
-import com.sun.javafx.application.HostServicesDelegate;
 import javafx.animation.KeyFrame;
 import javafx.animation.KeyValue;
 import javafx.animation.Timeline;
 import javafx.application.Application;
-import javafx.application.HostServices;
 import javafx.application.Platform;
 import javafx.concurrent.Task;
 import javafx.geometry.Insets;
@@ -37,10 +34,8 @@ import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
 import javafx.scene.text.Text;
-import javafx.scene.web.WebView;
 import javafx.stage.*;
 
-import java.awt.*;
 import java.io.File;
 
 import game.Sprites.Player;
@@ -88,6 +83,8 @@ abstract class Utils extends Application {
     int mCurrentLevel = 0;
     int mSelectedLevel = 1;
     int mAchievedLevel = 0;
+
+    double mFrameDurationEist = 100000000;
     /**
      * This was left as final int, since in the future may be replaced with a value stored in prefs.
      */
@@ -817,6 +814,21 @@ abstract class Utils extends Application {
     void loadLevel(int level) {
 
         System.out.println("Loading level " + level);
+        System.out.println("walkingSpeedPerSecond = " + walkingSpeedPerSecond);
+        System.out.println("mFrameDurationEist = " + mFrameDurationEist);
+
+        walkingSpeedPerSecond = mSceneWidth / 14d;
+
+        if(level > 0){
+            double delay = 0.5 * (MAX_LEVEL - level);
+            walkingSpeedPerSecond = walkingSpeedPerSecond - delay;
+            mFrameDurationEist = mFrameDurationEist - ((MAX_LEVEL - level) * 10000);
+
+        }
+
+        System.out.println("walkingSpeedPerSecond = " + walkingSpeedPerSecond);
+
+        System.out.println("mFrameDurationEist = " + mFrameDurationEist);
 
         mEditor = false;
 
@@ -3924,7 +3936,7 @@ abstract class Utils extends Application {
 
         stage.setTitle("Tools");
         stage.setWidth(mEditorStage.getWidth() / 3);
-        stage.setHeight(mEditorStage.getHeight() * 0.8);
+        stage.setHeight(mEditorStage.getHeight() * 0.95);
 
         Text hint = new Text();
         hint.setFont(messageFont);
@@ -3951,7 +3963,7 @@ abstract class Utils extends Application {
         });
 
         VBox buttonsBox = new VBox();
-        buttonsBox.setSpacing(20);
+        buttonsBox.setSpacing(15);
         buttonsBox.setMinWidth(root.getMinWidth());
         buttonsBox.setAlignment(Pos.CENTER);
 
@@ -4130,7 +4142,7 @@ abstract class Utils extends Application {
 
         stage.setTitle("Tools");
         stage.setWidth(mGameStage.getWidth() / 3);
-        stage.setHeight(mGameStage.getHeight() * 0.9);
+        stage.setHeight(mGameStage.getHeight() * 0.95);
 
         Text hint = new Text();
         hint.setFont(messageFont);
@@ -4161,7 +4173,7 @@ abstract class Utils extends Application {
         });
 
         VBox buttonsBox = new VBox();
-        buttonsBox.setSpacing(20);
+        buttonsBox.setSpacing(15);
         buttonsBox.setMinWidth(root.getMinWidth());
         buttonsBox.setAlignment(Pos.CENTER);
 
@@ -4393,7 +4405,7 @@ abstract class Utils extends Application {
         stage.initModality(Modality.WINDOW_MODAL);
 
         stage.setWidth(mFrameDimension * 6);
-        stage.setHeight(mGameStage.getHeight() * 0.9);
+        stage.setHeight(mGameStage.getHeight() * 0.95);
 
         StackPane root = new StackPane();
         root.setStyle("-fx-background-color: rgba(0, 0, 0, 0.8); -fx-padding: " + mGridDimension + ";");
@@ -4483,7 +4495,7 @@ abstract class Utils extends Application {
         });
 
         HBox buttonsBox = new HBox();
-        buttonsBox.setSpacing(20);
+        buttonsBox.setSpacing(15);
         buttonsBox.setMinWidth(root.getMinWidth());
         buttonsBox.setAlignment(Pos.CENTER);
 

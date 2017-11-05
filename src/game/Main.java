@@ -1,7 +1,6 @@
 package game;
 
 import javafx.animation.AnimationTimer;
-import javafx.application.Platform;
 import javafx.concurrent.Task;
 import javafx.geometry.Point2D;
 import javafx.geometry.Rectangle2D;
@@ -33,7 +32,7 @@ public class Main extends Utils {
     private GraphicsContext gc;
 
     private final int FRAME_LAST_IDX = 7;
-    private final double FRAME_DURATION_EIST = 90000000;
+
     private final double FRAME_DURATION_ARTIFACT = 135000000;
     private final double FRAME_DURATION_FALLING = 60000000;
 
@@ -75,8 +74,6 @@ public class Main extends Utils {
             if (!mPlayer.isEmpty() && !mPass.isEmpty() && !mDevMode) {
                 updateHallScore(mPlayer, mPass, true);
             }
-            //mGameStage.close();
-            //Platform.exit();
         });
 
         Canvas canvas = new Canvas(mSceneWidth, mSceneHeight);
@@ -105,14 +102,42 @@ public class Main extends Utils {
                 case F:
                     mShowFps = !mShowFps;
                     break;
-                case S:
+                case C:
                     if (!mPlayer.isEmpty() && !mPass.isEmpty() && !mDevMode) {
                         updateHallScore(mPlayer, mPass, false);
                     }
                     break;
-                case C:
-                    displayClearAllDialog();
+                case A:
+                    if(mCurrentLevel > 0) {
+                        pad.setSelection(DIR_LEFT);
+                        eist.isMoving = true;
+                    }
                     break;
+                case W:
+                    if(mCurrentLevel > 0) {
+                        pad.setSelection(DIR_UP);
+                        eist.isMoving = true;
+                    }
+                    break;
+                case S:
+                    if(mCurrentLevel > 0) {
+                        pad.setSelection(DIR_DOWN);
+                        eist.isMoving = true;
+                    }
+                    break;
+                case D:
+                    if(mCurrentLevel > 0) {
+                        pad.setSelection(DIR_RIGHT);
+                        eist.isMoving = true;
+                    }
+                    break;
+                case X:
+                    if(mCurrentLevel > 0) {
+                        pad.setSelection(DIR_CLEAR);
+                        eist.isMoving = true;
+                    }
+                    break;
+
                 case ESCAPE:
                     gameExit(true);
                     break;
@@ -129,7 +154,7 @@ public class Main extends Utils {
             @Override
             public void handle(long now) {
 
-                if (now - lastEistFrameChangeTime > FRAME_DURATION_EIST && eist.isMoving) {
+                if (now - lastEistFrameChangeTime > mFrameDurationEist && eist.isMoving) {
                     lastEistFrameChangeTime = now;
                     mCurrentEistFrame++;
 
