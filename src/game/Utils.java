@@ -84,7 +84,7 @@ abstract class Utils extends Application {
     int mSelectedLevel = 1;
     int mAchievedLevel = 0;
 
-    double mFrameDurationEist = 100000000;
+    double mFrameDurationEist = 90000000;
     /**
      * This was left as final int, since in the future may be replaced with a value stored in prefs.
      */
@@ -818,12 +818,12 @@ abstract class Utils extends Application {
         System.out.println("mFrameDurationEist = " + mFrameDurationEist);
 
         walkingSpeedPerSecond = mSceneWidth / 14d;
+        mFrameDurationEist = 70000000;
 
         if(level > 0){
-            double delay = 0.5 * (MAX_LEVEL - level);
+            double delay = 0.7 * (MAX_LEVEL - level);
             walkingSpeedPerSecond = walkingSpeedPerSecond - delay;
-            mFrameDurationEist = mFrameDurationEist - ((MAX_LEVEL - level) * 10000);
-
+            mFrameDurationEist = mFrameDurationEist + ((MAX_LEVEL - level) * 500000);
         }
 
         System.out.println("walkingSpeedPerSecond = " + walkingSpeedPerSecond);

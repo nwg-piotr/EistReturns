@@ -850,19 +850,19 @@ public class Main extends Utils {
         if (eist.isMoving) {
             switch (eist.getDirection()) {
                 case DIR_RIGHT:
-                    eist.x = eist.x + (walkingSpeedPerSecond / mFps);
+                    eist.x = eist.x + (walkingSpeedPerSecond / 60);
                     break;
 
                 case DIR_DOWN:
-                    eist.y = eist.y + (walkingSpeedPerSecond / mFps);
+                    eist.y = eist.y + (walkingSpeedPerSecond / 60);
                     break;
 
                 case DIR_LEFT:
-                    eist.x = eist.x - (walkingSpeedPerSecond / mFps);
+                    eist.x = eist.x - (walkingSpeedPerSecond / 60);
                     break;
 
                 case DIR_UP:
-                    eist.y = eist.y - (walkingSpeedPerSecond / mFps);
+                    eist.y = eist.y - (walkingSpeedPerSecond / 60);
                     break;
 
                 default:
