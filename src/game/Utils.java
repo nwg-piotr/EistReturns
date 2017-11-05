@@ -298,17 +298,19 @@ abstract class Utils extends Application {
         mCenterX = columns[13] + mGridDimension / 2;
     }
 
-    /**
+    /*
      * FPS calculation after https://stackoverflow.com/a/28288527/4040598 by @brian
      */
-    static long lastUpdate = 0;
+
+    /*static long lastUpdate = 0;
     static int index = 0;
     static double[] frameRates = new double[5];
-
-    /**
+    */
+    /*
      * Returns the average FPS for the last frameRates.length frames rendered.
      * (Original for loop replaced with foreach).
      */
+    /*
     static double getAverageFPS() {
         double total = 0.0d;
 
@@ -317,6 +319,7 @@ abstract class Utils extends Application {
         }
         return total / frameRates.length;
     }
+    */
 
     void handleMouseEvent(MouseEvent event) {
 
@@ -819,7 +822,7 @@ abstract class Utils extends Application {
         mFrameDurationEist = 70000000;
 
         if(level > 0){
-            double delay = 0.7 * (MAX_LEVEL - level);
+            double delay = (1.1 / mDimensionDivider) * (MAX_LEVEL - level);
             walkingSpeedPerSecond = walkingSpeedPerSecond - delay;
             mFrameDurationEist = mFrameDurationEist + ((MAX_LEVEL - level) * 500000);
         }

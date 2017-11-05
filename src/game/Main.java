@@ -203,6 +203,7 @@ public class Main extends Utils {
 
                 drawBoard();
 
+                /*
                 if (lastUpdate > 0) {
                     long nanosElapsed = now - lastUpdate;
                     double frameRate = 1000000000.0 / nanosElapsed;
@@ -210,11 +211,12 @@ public class Main extends Utils {
                     frameRates[index++] = frameRate;
                 }
                 lastUpdate = now;
-
+                */
                 /*
                  * Possibly binding the animation speed to current FPS value is unnecessary in JavaFX...
                  */
-                mFps = getAverageFPS();
+                //mFps = getAverageFPS();
+
             }
         };
         animationTimer.start();

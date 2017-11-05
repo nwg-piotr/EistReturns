@@ -197,6 +197,7 @@ public class Editor extends Utils {
 
                 drawBoard();
 
+                /*
                 if (lastUpdate > 0) {
                     long nanosElapsed = now - lastUpdate;
                     double frameRate = 1000000000.0 / nanosElapsed;
@@ -204,12 +205,12 @@ public class Editor extends Utils {
                     frameRates[index++] = frameRate;
                 }
                 lastUpdate = now;
-
+                */
                 /*
                  * Let's use the averaged fps value here for now, but preserve the Utils.getInstantFPS() just in case.
                  * We need the current fps value to adjust the animation speed according to the current performance.
                  */
-                mFps = getAverageFPS();
+                //mFps = getAverageFPS();
             }
         };
         animationTimer.start();
@@ -916,19 +917,19 @@ public class Editor extends Utils {
         if (eist.isMoving) {
             switch (eist.getDirection()) {
                 case DIR_RIGHT:
-                    eist.x = eist.x + (walkingSpeedPerSecond / mFps);
+                    eist.x = eist.x + (walkingSpeedPerSecond / 60);
                     break;
 
                 case DIR_DOWN:
-                    eist.y = eist.y + (walkingSpeedPerSecond / mFps);
+                    eist.y = eist.y + (walkingSpeedPerSecond / 60);
                     break;
 
                 case DIR_LEFT:
-                    eist.x = eist.x - (walkingSpeedPerSecond / mFps);
+                    eist.x = eist.x - (walkingSpeedPerSecond / 60);
                     break;
 
                 case DIR_UP:
-                    eist.y = eist.y - (walkingSpeedPerSecond / mFps);
+                    eist.y = eist.y - (walkingSpeedPerSecond / 60);
                     break;
 
                 default:
