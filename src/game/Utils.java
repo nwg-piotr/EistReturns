@@ -215,6 +215,8 @@ abstract class Utils extends Application {
     private static final int TOAST_LENGTH_LONG = 3000;
     private static final int TOAST_LENGTH_SHORT = 1000;
 
+    boolean mFullSpeed;
+
     String mMenuHint = "";
 
     String mPlayer = "";
@@ -818,18 +820,7 @@ abstract class Utils extends Application {
 
         System.out.println("Loading level " + level);
 
-        walkingSpeedPerSecond = mSceneWidth / 14d;
-        mFrameDurationEist = 70000000;
-
-        if(level > 0){
-            double delay = (1.1 / mDimensionDivider) * (MAX_LEVEL - level);
-            walkingSpeedPerSecond = walkingSpeedPerSecond - delay;
-            mFrameDurationEist = mFrameDurationEist + ((MAX_LEVEL - level) * 500000);
-        }
-
-        System.out.println("walkingSpeedPerSecond = " + walkingSpeedPerSecond);
-
-        System.out.println("mFrameDurationEist = " + mFrameDurationEist);
+        setSpeed(level);
 
         mEditor = false;
 
@@ -1316,6 +1307,23 @@ abstract class Utils extends Application {
             });
             new Thread(sleeper).start();
         }
+    }
+
+    void setSpeed(int level){
+
+        mFullSpeed = prefs.getBoolean("fspeed", false);
+
+        walkingSpeedPerSecond = mSceneWidth / 14d;
+        mFrameDurationEist = 70000000;
+
+        if(!mFullSpeed && level > 0){
+            double delay = (1.1 / mDimensionDivider) * (MAX_LEVEL - level);
+            walkingSpeedPerSecond = walkingSpeedPerSecond - delay;
+            mFrameDurationEist = mFrameDurationEist + ((MAX_LEVEL - level) * 500000);
+        }
+
+        System.out.println("walkingSpeedPerSecond = " + walkingSpeedPerSecond);
+        System.out.println("mFrameDurationEist = " + mFrameDurationEist);
     }
 
     /**

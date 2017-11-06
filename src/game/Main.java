@@ -41,7 +41,7 @@ public class Main extends Utils {
     private long lastArtifactFrameChangeTime;
     private long lastFallingFrameChangeTime;
 
-    private double mFps = 0;
+    //private double mFps = 0;
 
     private boolean mShowFps = false;
 
@@ -100,7 +100,9 @@ public class Main extends Utils {
         mScene.setOnKeyPressed(event -> {
             switch (event.getCode()) {
                 case F:
-                    mShowFps = !mShowFps;
+                    mFullSpeed = !mFullSpeed;
+                    prefs.putBoolean("fspeed", mFullSpeed);
+                    setSpeed(mCurrentLevel);
                     break;
                 case C:
                     if (!mPlayer.isEmpty() && !mPass.isEmpty() && !mDevMode) {
@@ -818,8 +820,8 @@ public class Main extends Utils {
         } else {
             gc.fillText("Best: -", columns[27], rows[16]);
         }
-        if (mShowFps) {
-            gc.fillText("FPS: " + String.valueOf((int) mFps), columns[27], rows[17]);
+        if (mCurrentLevel > 0 && mFullSpeed) {
+            gc.fillText("Full speed", columns[27], rows[17]);
         }
         if (mCurrentLevel == 0) {
             gc.setFill(Color.color(0.5, 1, 0.5, 1));
