@@ -755,7 +755,7 @@ abstract class Utils extends Application {
 
         mToolbarMenuImg = new Image(ClassLoader.getSystemResource("images/sprites/toolbar_menu.png").toExternalForm());
 
-        mTeleportImg = new Image("images/sprites/teleport3.png");
+        mTeleportImg = new Image("images/sprites/teleport.png");
 
         mIntro01 = new Image(ClassLoader.getSystemResource("images/common/intro01.png").toExternalForm());
         mIntro02 = new Image(ClassLoader.getSystemResource("images/common/intro02.png").toExternalForm());
