@@ -665,15 +665,6 @@ abstract class Utils extends Application {
 
     void initializeFonts() {
 
-        /*
-        infoFont = Font.loadFont(ClassLoader.getSystemResource("Orbitron-Regular.ttf").toExternalForm(), 50 / mDimensionDivider * rem);
-        levelFont = Font.loadFont(ClassLoader.getSystemResource("Orbitron-Regular.ttf").toExternalForm(), 44 / mDimensionDivider * rem);
-        turnsFont = Font.loadFont(ClassLoader.getSystemResource("Orbitron-Regular.ttf").toExternalForm(), 36 / mDimensionDivider * rem);
-        playerFont = Font.font("Helvetica", FontWeight.NORMAL, 26 / mDimensionDivider * rem);
-        messageFont = Font.loadFont(ClassLoader.getSystemResource("Orbitron-Regular.ttf").toExternalForm(), 20 / mDimensionDivider * rem);
-        menuFont = Font.loadFont(ClassLoader.getSystemResource("Orbitron-Regular.ttf").toExternalForm(), 20 / mDimensionDivider * rem);
-        */
-
         infoFont = Font.loadFont(ClassLoader.getSystemResource("Orbitron-Regular.ttf").toExternalForm(), mGridDimension * 0.75);
         turnsFont = Font.loadFont(ClassLoader.getSystemResource("Orbitron-Regular.ttf").toExternalForm(), mGridDimension * 0.6);
         playerFont = Font.font("Helvetica", FontWeight.NORMAL, mGridDimension * 0.45);
@@ -2166,6 +2157,7 @@ abstract class Utils extends Application {
                 "\nGraphics: Inkscape, GIMP" +
                 "\nSounds: LMMS, Audacity" +
                 "\nIDE: IntelliJ IDEA Community Edition\n" +
+                "\nTitle graphics by edskeye\n" +
                 "\nOrbitron TrueType font, Copyright (c) 2009, Matt McInerney (matt@pixelspread.com), released under the SIL OPEN FONT LICENSE Version 1.1";
 
         TextArea textArea = new TextArea(message);
