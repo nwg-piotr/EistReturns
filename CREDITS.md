@@ -13,6 +13,10 @@ CREDITS
 Special thanks to the [Antergos Community Forum](https://forum.antergos.com) team, who helped me set up the 
 development and testing environment.
 
+## Title graphics
+
+- created by [edskeye](https://github.com/edskeye)
+
 ## Fonts
 
 This application utilizes the **Orbitron** TrueType font, Copyright (c) 2009, Matt McInerney (matt@pixelspread.com), 
