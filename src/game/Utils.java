@@ -62,6 +62,8 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.*;
@@ -678,17 +680,17 @@ abstract class Utils extends Application {
          * Load media
          */
         try {
-            trackMainPlayer = new MediaPlayer(new Media(ClassLoader.getSystemResource("sounds/eist.mp3").toExternalForm()));
+            trackMainPlayer = new MediaPlayer(new Media(ClassLoader.getSystemResource("sounds/eist-intro.mp3").toExternalForm()));
             trackMainPlayer.setVolume(0.4);
             trackMainPlayer.setCycleCount(MediaPlayer.INDEFINITE);
 
-            trackLevelPlayer = new MediaPlayer(new Media(ClassLoader.getSystemResource("sounds/eist_ingame.mp3").toExternalForm()));
+            trackLevelPlayer = new MediaPlayer(new Media(ClassLoader.getSystemResource("sounds/eist-level.mp3").toExternalForm()));
             trackLevelPlayer.setVolume(0.3);
             trackLevelPlayer.setCycleCount(MediaPlayer.INDEFINITE);
 
         } catch (MediaException e) {
 
-            displayExceptionAlert("Media player error (missing ffmpeg codec?)", e);
+            displayExceptionAlert("Media player error (missing sound codec?)", e);
         }
 
         try {
@@ -2408,14 +2410,13 @@ abstract class Utils extends Application {
             /*
              * Encode your own key and place below
              */
-            String pass = decode("QXJjaA==");
-
-            if (result.get().equals(pass)) {
+            String encodedPass = cryptWithMD5(result.get());
+            if(encodedPass != null && encodedPass.equals("efd71744ab79091beef4a125935a73")){
                 mDevMode = true;
                 playerLogOut();
             } else {
                 mDevMode = false;
-                Toast.makeText(mGameStage, "Key invalid", TOAST_LENGTH_SHORT);
+                Toast.makeText(mGameStage, "Authentication error", TOAST_LENGTH_SHORT);
             }
         });
     }
@@ -2529,9 +2530,9 @@ abstract class Utils extends Application {
         result.ifPresent(usernamePassword -> {
 
             if (!mNewPlayer) {
-                playerLogin(usernamePassword.getKey(), encode(usernamePassword.getValue()));
+                playerLogin(usernamePassword.getKey(), cryptWithMD5(usernamePassword.getValue()));
             } else {
-                playerNew(usernamePassword.getKey(), encode(usernamePassword.getValue()));
+                playerNew(usernamePassword.getKey(), cryptWithMD5(usernamePassword.getValue()));
             }
 
         });
@@ -2603,15 +2604,16 @@ abstract class Utils extends Application {
         result.ifPresent(usernamePassword -> {
 
             if (!mNewPlayer) {
-                playerDelete(usernamePassword.getKey(), encode(usernamePassword.getValue()));
+                playerDelete(usernamePassword.getKey(), cryptWithMD5(usernamePassword.getValue()));
+
             } else {
-                playerNew(usernamePassword.getKey(), encode(usernamePassword.getValue()));
+                playerNew(usernamePassword.getKey(), cryptWithMD5(usernamePassword.getValue()));
             }
 
         });
     }
 
-    void displayClearAllDialog(){
+    private void displayClearAllDialog(){
         Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
         alert.setTitle("Clear scores and settings");
         alert.setHeaderText("This will clear all the game settings\nand locally stores results!\nYou'll also have to start the game again.");
@@ -2737,8 +2739,6 @@ abstract class Utils extends Application {
                 }
 
                 if (!mHttpResponse.isEmpty()) {
-
-                    //System.out.println(mHttpResponse);
 
                     if (mHttpResponse.equals("scores_updated")) {
                         Platform.runLater(() -> Toast.makeText(mGameStage, "Hall of Fame updated", TOAST_LENGTH_SHORT));
@@ -2887,22 +2887,27 @@ abstract class Utils extends Application {
         return totally;
     }
 
-    private String encode(String source) {
-
-        byte[] asBytes = Base64.getEncoder().encode(source.getBytes());
-        return new String(asBytes);
-    }
-
-    private String decode(String source) {
-
-        byte[] asBytes = Base64.getDecoder().decode(source);
-        String pass = "";
+    /**
+     * After https://stackoverflow.com/a/14201817/4040598
+     * @param pass - string to encrypt
+     * @return - MD5 encoded string
+     */
+    private String cryptWithMD5(String pass){
         try {
-            pass = new String(asBytes, "utf-8");
-        } catch (UnsupportedEncodingException e) {
-            e.printStackTrace();
+            MessageDigest md = MessageDigest.getInstance("MD5");
+            byte[] passBytes = pass.getBytes();
+            md.reset();
+            byte[] digested = md.digest(passBytes);
+            StringBuilder sb = new StringBuilder();
+            for (byte aDigested : digested) {
+                sb.append(Integer.toHexString(0xff & aDigested));
+            }
+            return sb.toString();
+
+        } catch (NoSuchAlgorithmException ex) {
+            System.out.println("MD5 encryption exception: " + ex);
         }
-        return pass;
+        return null;
     }
 
     private void importLevelsFromZip(Stage stage) {
